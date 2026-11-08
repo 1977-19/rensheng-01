@@ -87,6 +87,7 @@ async function doActions() {
       if (G.lastError) { stats.errors.push([curEvent, G.lastError.stack]); G.lastError = null; G.busy = false; }
     }
     if (!G.S.dead) { stats.errors.push(['nodeath', 'age ' + G.S.p.age]); continue; }
+    stats.size = Math.max(stats.size || 0, JSON.stringify(G.S).length);
     const e = G.S.ending || G.ending.compute();
     stats.lives++; stats.ages.push(G.S.p.age); stats.scores.push(e.score); stats.nw.push(e.nw / G.$(1));
     stats.titles[G.T(e.title)] = (stats.titles[G.T(e.title)] || 0) + 1; stats.grades[e.grade] = (stats.grades[e.grade] || 0) + 1;
@@ -105,6 +106,7 @@ async function doActions() {
   const uniq = {};
   stats.errors.forEach(([w, s]) => { const k = w + ' :: ' + String(s).split('\n').slice(0, 2).join(' | '); uniq[k] = (uniq[k] || 0) + 1; });
   const keys = Object.keys(uniq);
+  console.log('max save bytes', stats.size);
   if (CHECK) console.log('npc consistency', JSON.stringify(stats.npcBad));
   console.log('errors', stats.errors.length, 'unique', keys.length);
   keys.slice(0, 25).forEach(k => console.log(' ', uniq[k], 'x', k.slice(0, 400)));

@@ -20,7 +20,7 @@
         5: ['王家村|Wangjia Village', '桃花村|Taohua Village', '石门村|Shimen Village', '柳树屯|Liushu Hamlet', '杨家坪|Yangjiaping', '大槐树村|Dahuaishu Village', '清水湾|Qingshui Bay', '高家庄|Gaojiazhuang']
       } }),
     us: C({ id: 'us', n: '美国|United States', flag: '🇺🇸', cur: { sym: '$', code: 'USD', n: '美元|dollars' }, fx: 1, pl: 1, wg: 1,
-      idx: [[1950, .025], [1960, .036], [1970, .062], [1980, .15], [1990, .28], [2000, .42], [2010, .57], [2020, .76], [2024, 1]], g: .025,
+      idx: [[1950, .041], [1960, .058], [1970, .09], [1980, .18], [1990, .3], [2000, .47], [2010, .6], [2020, .8], [2024, 1]], g: .025, // SSA average wage index
       life: 77, tax: .22, itax: .15, retire: 67, gay: 2015, gamble: true, consc: null, mon: false, dem: true, lang: 'en',
       top: '总统|President', hsq: 2000, skin: [3, 4, 2, 2, 1, 2], names: 'us', edu: 'us', imm: 3,
       cities: {
