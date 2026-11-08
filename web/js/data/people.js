@@ -98,6 +98,8 @@
     { id: 'photogenic', n: '上镜脸|Photogenic', d: '名气涨得更快|Fame grows faster', r: 2, st: { looks: 4 } }
   ];
   G.TALENT = {}; G.TALENTS.forEach(function (t) { G.TALENT[t.id] = t; });
+  G.TALENT_CONFLICT = [['lucky', 'unlucky'], ['smart', 'slow'], ['genius', 'slow'], ['prodigy', 'slow'], ['iron', 'frail'], ['athletic', 'frail'], ['optimist', 'sensitive'], ['thrifty', 'spender'], ['beauty', 'cute'], ['late', 'prodigy']];
+  G.talentClash = function (list, id) { return G.TALENT_CONFLICT.some(function (c) { return (c[0] === id && list.indexOf(c[1]) >= 0) || (c[1] === id && list.indexOf(c[0]) >= 0); }); };
 
   // personalities. lo: loyalty base, mo: values money, lk: values looks, tp: temper
   G.PERS = {

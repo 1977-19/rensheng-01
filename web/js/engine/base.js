@@ -117,7 +117,7 @@
       var res = o.run ? await o.run(c) : null;
       var dl = G.dEnd();
       var rt = res ? G.L(res, c.prm) : null;
-      if (d.log !== false) G.logRaw(rt || G.join([text, G.L('（{x}）|({x})', { x: shown[opts.indexOf(o)].t })], '', ' '));
+      if (d.log !== false) G.logRaw(rt ? G.join([title, rt], '：', ': ') : G.join([text, G.L('（{x}）|({x})', { x: shown[opts.indexOf(o)].t })], '', ' '));
       if (rt || dl.length) await G.UI.result({ title: title, text: rt, d: dl, icon: icon });
     } else {
       G.dStart();

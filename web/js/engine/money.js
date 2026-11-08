@@ -85,13 +85,13 @@
     var inc = MO.income();
     if (!inc.work && !inc.black && !G.S.assets.company) {
       if (p.age < 30 && N_par().length) return 0; // lives with parents
-      return Math.round(G.$(5500) * (G.has('thrifty') ? .7 : 1));
+      return Math.round(G.$w(5500) * (G.has('thrifty') ? .7 : 1));
     }
-    var c = G.$(10500);
+    var c = G.$w(10500);
     var own = S.assets.houses.some(function (h) { return h.live; });
-    if (!own) c += G.$(8500);
-    var sp = G.N.spouse(); if (sp) c += G.$(4000);
-    var kids = G.N.rel('child').filter(function (k) { return G.N.age(k) < 18; }); c += kids.length * G.$(7000);
+    if (!own) c += G.$w(8500);
+    var sp = G.N.spouse(); if (sp) c += G.$w(4000);
+    var kids = G.N.rel('child').filter(function (k) { return G.N.age(k) < 18; }); c += kids.length * G.$w(7000);
     if (G.has('thrifty')) c *= .7; if (G.has('spender')) c *= 1.3;
     if (p.flags.lux) c *= 1.6;
     var earn = inc.work + inc.black - inc.tax;
