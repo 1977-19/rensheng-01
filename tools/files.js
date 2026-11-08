@@ -1,0 +1,12 @@
+// Ordered list of game scripts (shared by index.html builder and the simulator)
+module.exports = {
+  engine: [
+    'js/core.js', 'js/s2t.js',
+    'js/data/world.js', 'js/data/names.js', 'js/data/edu.js', 'js/data/jobs.js', 'js/data/people.js', 'js/data/items.js', 'js/data/history.js', 'js/data/codes.js',
+    'js/engine/base.js', 'js/engine/npc.js', 'js/engine/life.js', 'js/engine/school.js', 'js/engine/career.js', 'js/engine/service.js', 'js/engine/crime.js',
+    'js/engine/money.js', 'js/engine/health.js', 'js/engine/love.js', 'js/engine/year.js', 'js/engine/vip.js', 'js/engine/ending.js', 'js/engine/chat.js',
+    'js/engine/actions.js', 'js/engine/actions2.js', 'js/engine/npcacts.js',
+    'js/events/child.js', 'js/events/teen.js', 'js/events/adult.js', 'js/events/love.js', 'js/events/work.js', 'js/events/old.js', 'js/events/misc.js'
+  ],
+  ui: ['js/games/games.js', 'js/games/games2.js', 'js/ui/avatar.js', 'js/ui/audio.js', 'js/ui/ui.js', 'js/ui/screens.js', 'js/ui/pages.js', 'js/ui/main.js']
+};

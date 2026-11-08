@@ -1,0 +1,104 @@
+/* Education systems & universities */
+(function () {
+  'use strict';
+  function U(str) { // "5:清华大学|Tsinghua University;4:..." -> [{t,n}]
+    return str.split(';').map(function (x) { var i = x.indexOf(':'); return { t: +x.slice(0, i), n: x.slice(i + 1) }; });
+  }
+  G.EDU = {
+    cn: { hs: '中考|Zhongkao', ue: '高考|Gaokao', retake: '复读|Repeat Senior Year',
+      u: U('5:清华大学|Tsinghua University;5:北京大学|Peking University;4:复旦大学|Fudan University;4:上海交通大学|Shanghai Jiao Tong University;4:浙江大学|Zhejiang University;4:中国科学技术大学|USTC;4:南京大学|Nanjing University;3:武汉大学|Wuhan University;3:中山大学|Sun Yat-sen University;3:四川大学|Sichuan University;3:华中科技大学|HUST;3:西安交通大学|Xi\'an Jiaotong University;3:哈尔滨工业大学|Harbin Institute of Technology;3:同济大学|Tongji University;3:北京师范大学|Beijing Normal University;2:郑州大学|Zhengzhou University;2:云南大学|Yunnan University;2:苏州大学|Soochow University;2:深圳大学|Shenzhen University;2:南昌大学|Nanchang University;2:湖南师范大学|Hunan Normal University;1:本地职业技术学院|Local Vocational College;1:民办学院|Private College'),
+      mil: '国防科技大学|National University of Defense Technology', pol: '中国人民公安大学|People\'s Public Security University', art: '中央戏剧学院|Central Academy of Drama', mus: '中央音乐学院|Central Conservatory of Music', spo: '北京体育大学|Beijing Sport University' },
+    us: { hs: null, ue: 'SAT|SAT', retake: '间隔年|Gap Year',
+      u: U('5:哈佛大学|Harvard University;5:斯坦福大学|Stanford University;5:麻省理工学院|MIT;5:普林斯顿大学|Princeton University;5:耶鲁大学|Yale University;4:哥伦比亚大学|Columbia University;4:芝加哥大学|University of Chicago;4:加州理工学院|Caltech;4:宾夕法尼亚大学|University of Pennsylvania;4:康奈尔大学|Cornell University;3:加州大学伯克利分校|UC Berkeley;3:加州大学洛杉矶分校|UCLA;3:密歇根大学|University of Michigan;3:纽约大学|NYU;3:佐治亚理工学院|Georgia Tech;2:俄亥俄州立大学|Ohio State University;2:亚利桑那州立大学|Arizona State University;2:宾州州立大学|Penn State;2:罗格斯大学|Rutgers University;1:社区大学|Community College'),
+      mil: '西点军校|West Point', pol: '警察学院|Police Academy', art: '茱莉亚学院|The Juilliard School', mus: '伯克利音乐学院|Berklee College of Music', spo: '俄勒冈大学|University of Oregon' },
+    jp: { hs: '高中入学考试|High School Entrance Exam', ue: '共通测试|Common Test', retake: '浪人复读|Ronin Year',
+      u: U('5:东京大学|University of Tokyo;5:京都大学|Kyoto University;4:大阪大学|Osaka University;4:东北大学|Tohoku University;4:庆应义塾大学|Keio University;4:早稻田大学|Waseda University;3:名古屋大学|Nagoya University;3:九州大学|Kyushu University;3:北海道大学|Hokkaido University;3:东京工业大学|Tokyo Tech;2:明治大学|Meiji University;2:立教大学|Rikkyo University;2:中央大学|Chuo University;2:法政大学|Hosei University;1:日本大学|Nihon University;1:短期大学|Junior College'),
+      mil: '防卫大学校|National Defense Academy', pol: '警察大学校|National Police Academy', art: '东京艺术大学|Tokyo University of the Arts', mus: '东京艺术大学|Tokyo University of the Arts', spo: '日本体育大学|Nippon Sport Science University' },
+    kr: { hs: null, ue: '修能考试|Suneung (CSAT)', retake: '复读|Repeat Year',
+      u: U('5:首尔大学|Seoul National University;5:韩国科学技术院|KAIST;4:高丽大学|Korea University;4:延世大学|Yonsei University;4:浦项工科大学|POSTECH;3:成均馆大学|Sungkyunkwan University;3:汉阳大学|Hanyang University;3:西江大学|Sogang University;2:釜山大学|Pusan National University;2:庆熙大学|Kyung Hee University;2:中央大学|Chung-Ang University;1:地方大学|Regional College;1:专门大学|Junior College'),
+      mil: '陆军士官学校|Korea Military Academy', pol: '警察大学|Korean National Police University', art: '韩国艺术综合学校|Korea National University of Arts', mus: '韩国艺术综合学校|Korea National University of Arts', spo: '韩国体育大学|Korea National Sport University' },
+    gb: { hs: 'GCSE|GCSEs', ue: 'A-Level|A-Levels', retake: '间隔年|Gap Year',
+      u: U('5:牛津大学|University of Oxford;5:剑桥大学|University of Cambridge;4:帝国理工学院|Imperial College London;4:伦敦政治经济学院|LSE;4:伦敦大学学院|UCL;3:爱丁堡大学|University of Edinburgh;3:伦敦国王学院|King\'s College London;3:曼彻斯特大学|University of Manchester;3:华威大学|University of Warwick;2:布里斯托大学|University of Bristol;2:利兹大学|University of Leeds;2:格拉斯哥大学|University of Glasgow;1:地方学院|Local College'),
+      mil: '桑赫斯特皇家军事学院|Royal Military Academy Sandhurst', pol: '亨顿警察学院|Hendon Police College', art: '英国皇家戏剧艺术学院|RADA', mus: '皇家音乐学院|Royal College of Music', spo: '拉夫堡大学|Loughborough University' },
+    fr: { hs: '初中会考|Brevet', ue: '高中会考|Baccalauréat', retake: '复读|Repeat Year',
+      u: U('5:巴黎综合理工学院|École Polytechnique;5:巴黎高等师范学院|ENS Paris;4:巴黎政治学院|Sciences Po;4:巴黎高等商学院|HEC Paris;4:巴黎文理研究大学|PSL University;3:索邦大学|Sorbonne University;3:巴黎萨克雷大学|Paris-Saclay University;3:里昂大学|University of Lyon;2:波尔多大学|University of Bordeaux;2:里尔大学|University of Lille;2:斯特拉斯堡大学|University of Strasbourg;1:大学技术学院|IUT'),
+      mil: '圣西尔军校|Saint-Cyr Military Academy', pol: '国家高等警察学院|National Police College', art: '国立高等戏剧艺术学院|Conservatoire National d\'Art Dramatique', mus: '巴黎国立高等音乐学院|Paris Conservatoire', spo: '国家体育学院|INSEP' },
+    de: { hs: null, ue: '高中毕业考试|Abitur', retake: '复读|Repeat Year',
+      u: U('5:慕尼黑工业大学|TU Munich;5:慕尼黑大学|LMU Munich;4:海德堡大学|Heidelberg University;4:亚琛工业大学|RWTH Aachen;4:柏林洪堡大学|Humboldt University;3:卡尔斯鲁厄理工学院|KIT;3:柏林自由大学|FU Berlin;3:柏林工业大学|TU Berlin;3:哥廷根大学|University of Göttingen;2:汉堡大学|University of Hamburg;2:科隆大学|University of Cologne;2:莱比锡大学|Leipzig University;1:应用技术大学|University of Applied Sciences'),
+      mil: '联邦国防军大学|Bundeswehr University', pol: '联邦警察学院|Federal Police Academy', art: '柏林艺术大学|Berlin University of the Arts', mus: '柏林艺术大学|Berlin University of the Arts', spo: '科隆体育大学|German Sport University Cologne' },
+    ru: { hs: null, ue: '国家统一考试|Unified State Exam', retake: '复读|Repeat Year',
+      u: U('5:莫斯科国立大学|Moscow State University;5:圣彼得堡国立大学|Saint Petersburg State University;4:莫斯科物理技术学院|MIPT;4:高等经济学院|HSE University;4:莫斯科国际关系学院|MGIMO;3:鲍曼莫斯科国立技术大学|Bauman University;3:ITMO大学|ITMO University;3:新西伯利亚国立大学|Novosibirsk State University;2:喀山联邦大学|Kazan Federal University;2:乌拉尔联邦大学|Ural Federal University;2:托木斯克国立大学|Tomsk State University;1:地方技术学院|Regional Technical College'),
+      mil: '合成兵种军事学院|Combined Arms Academy', pol: '内务部大学|MVD University', art: '莫斯科艺术剧院学校|Moscow Art Theatre School', mus: '莫斯科音乐学院|Moscow Conservatory', spo: '俄罗斯国立体育大学|Russian State University of Physical Education' },
+    in: { hs: '十年级会考|Class 10 Board Exams', ue: '联合入学考试|JEE / Board Exams', retake: '复读备考|Drop Year',
+      u: U('5:印度理工学院孟买分校|IIT Bombay;5:印度科学理工学院|IISc Bangalore;4:印度理工学院德里分校|IIT Delhi;4:全印医学科学研究所|AIIMS Delhi;4:印度管理学院艾哈迈达巴德|IIM Ahmedabad;3:比拉理工学院|BITS Pilani;3:德里大学|University of Delhi;3:国立理工学院蒂鲁奇|NIT Trichy;2:安娜大学|Anna University;2:孟买大学|University of Mumbai;2:贾达夫普尔大学|Jadavpur University;1:地方学院|Local College'),
+      mil: '国防学院|National Defence Academy', pol: '国家警察学院|National Police Academy', art: '印度电影电视学院|Film and Television Institute of India', mus: '甘达尔瓦音乐学院|Gandharva Mahavidyalaya', spo: '国家体育学院|National Institute of Sports' },
+    br: { hs: null, ue: '全国高中考试|ENEM', retake: '复读|Cursinho Year',
+      u: U('5:圣保罗大学|University of São Paulo;5:坎皮纳斯州立大学|Unicamp;4:里约热内卢联邦大学|UFRJ;4:米纳斯吉拉斯联邦大学|UFMG;4:航空技术学院|ITA;3:巴西利亚大学|University of Brasília;3:里约天主教大学|PUC-Rio;3:南大河州联邦大学|UFRGS;2:巴伊亚联邦大学|UFBA;2:伯南布哥联邦大学|UFPE;1:私立学院|Private College'),
+      mil: '黑针军事学院|Agulhas Negras Military Academy', pol: '警察学院|Police Academy', art: '圣保罗戏剧艺术学院|School of Dramatic Arts', mus: '圣保罗音乐学院|São Paulo School of Music', spo: '体育学院|School of Physical Education' },
+    au: { hs: null, ue: 'ATAR|ATAR', retake: '间隔年|Gap Year',
+      u: U('5:墨尔本大学|University of Melbourne;5:澳大利亚国立大学|ANU;4:悉尼大学|University of Sydney;4:新南威尔士大学|UNSW;4:昆士兰大学|University of Queensland;3:莫纳什大学|Monash University;3:西澳大学|UWA;3:阿德莱德大学|University of Adelaide;2:悉尼科技大学|UTS;2:麦考瑞大学|Macquarie University;2:皇家墨尔本理工大学|RMIT;1:技术与继续教育学院|TAFE'),
+      mil: '邓特伦皇家军事学院|Royal Military College Duntroon', pol: '警察学院|Police Academy', art: '国立戏剧艺术学院|NIDA', mus: '悉尼音乐学院|Sydney Conservatorium', spo: '澳大利亚体育学院|Australian Institute of Sport' },
+    ca: { hs: null, ue: '省考|Provincial Exams', retake: '间隔年|Gap Year',
+      u: U('5:多伦多大学|University of Toronto;5:麦吉尔大学|McGill University;4:英属哥伦比亚大学|UBC;4:滑铁卢大学|University of Waterloo;3:麦克马斯特大学|McMaster University;3:阿尔伯塔大学|University of Alberta;3:女王大学|Queen\'s University;2:渥太华大学|University of Ottawa;2:卡尔加里大学|University of Calgary;2:达尔豪斯大学|Dalhousie University;1:社区学院|Community College'),
+      mil: '加拿大皇家军事学院|Royal Military College', pol: '皇家骑警训练学院|RCMP Depot', art: '加拿大国家戏剧学院|National Theatre School', mus: '皇家音乐学院|Royal Conservatory', spo: '加拿大体育学院|Canadian Sport Institute' },
+    sg: { hs: 'O-Level|O-Levels', ue: 'A-Level|A-Levels', retake: '重考|Retake',
+      u: U('5:新加坡国立大学|National University of Singapore;4:南洋理工大学|Nanyang Technological University;3:新加坡管理大学|Singapore Management University;3:新加坡科技设计大学|SUTD;2:新加坡理工大学|Singapore Institute of Technology;2:新跃社科大学|SUSS;1:理工学院|Polytechnic'),
+      mil: '新加坡武装部队军事学院|SAFTI Military Institute', pol: '内政团队学院|Home Team Academy', art: '拉萨尔艺术学院|LASALLE College of the Arts', mus: '杨秀桃音乐学院|Yong Siew Toh Conservatory', spo: '新加坡体育学校|Singapore Sports School' },
+    it: { hs: null, ue: '国家毕业考试|Maturità', retake: '复读|Repeat Year',
+      u: U('5:博科尼大学|Bocconi University;5:米兰理工大学|Politecnico di Milano;4:罗马大学|Sapienza University;4:博洛尼亚大学|University of Bologna;4:比萨高等师范学校|Scuola Normale Superiore;3:帕多瓦大学|University of Padua;3:都灵理工大学|Politecnico di Torino;3:米兰大学|University of Milan;2:那不勒斯费德里克二世大学|University of Naples Federico II;2:佛罗伦萨大学|University of Florence;1:地方大学|Local University'),
+      mil: '摩德纳军事学院|Military Academy of Modena', pol: '国家警察学院|State Police Academy', art: '国立戏剧艺术学院|Silvio d\'Amico Academy', mus: '米兰威尔第音乐学院|Milan Conservatory', spo: '体育科学学院|School of Sport Science' },
+    es: { hs: null, ue: '大学入学考试|Selectividad', retake: '复读|Repeat Year',
+      u: U('5:巴塞罗那大学|University of Barcelona;5:马德里康普顿斯大学|Complutense University;4:马德里自治大学|Autonomous University of Madrid;4:庞培法布拉大学|Pompeu Fabra University;4:马德里理工大学|Technical University of Madrid;3:瓦伦西亚大学|University of Valencia;3:纳瓦拉大学|University of Navarra;3:格拉纳达大学|University of Granada;2:塞维利亚大学|University of Seville;2:萨拉戈萨大学|University of Zaragoza;1:职业学院|Vocational Institute'),
+      mil: '萨拉戈萨综合军事学院|General Military Academy', pol: '国家警察学校|National Police School', art: '马德里皇家高等戏剧艺术学院|RESAD', mus: '马德里皇家高等音乐学院|Madrid Royal Conservatory', spo: '国家体育学院|INEF' },
+    mx: { hs: null, ue: '大学入学考试|University Admission Exam', retake: '复读|Repeat Year',
+      u: U('5:墨西哥国立自治大学|UNAM;5:蒙特雷科技大学|Tec de Monterrey;4:墨西哥自治技术学院|ITAM;4:国立理工学院|IPN;3:瓜达拉哈拉大学|University of Guadalajara;3:伊比利亚美洲大学|Ibero-American University;3:新莱昂自治大学|UANL;2:普埃布拉自治大学|BUAP;2:韦拉克鲁斯大学|Universidad Veracruzana;1:地方学院|Local College'),
+      mil: '英雄军事学院|Heroic Military College', pol: '警察学院|Police Academy', art: '国立戏剧艺术学院|National School of Theatre Arts', mus: '国立音乐学院|National Conservatory of Music', spo: '体育学院|School of Sports' },
+    th: { hs: null, ue: '大学联考|TCAS', retake: '复读|Repeat Year',
+      u: U('5:朱拉隆功大学|Chulalongkorn University;5:玛希隆大学|Mahidol University;4:法政大学|Thammasat University;4:农业大学|Kasetsart University;4:清迈大学|Chiang Mai University;3:先皇理工大学|KMUTT;3:孔敬大学|Khon Kaen University;3:宋卡王子大学|Prince of Songkla University;2:诗纳卡宁威洛大学|Srinakharinwirot University;2:东方大学|Burapha University;1:皇家大学|Rajabhat University'),
+      mil: '朱拉宗告皇家军事学院|Chulachomklao Royal Military Academy', pol: '皇家警察学院|Royal Police Cadet Academy', art: '班迪帕塔纳西帕艺术学院|Bunditpatanasilpa Institute', mus: '玛希隆音乐学院|Mahidol College of Music', spo: '国家体育大学|Thailand National Sports University' },
+    za: { hs: null, ue: '高中毕业会考|Matric Exams', retake: '复读|Repeat Year',
+      u: U('5:开普敦大学|University of Cape Town;5:金山大学|Wits University;4:斯泰伦博斯大学|Stellenbosch University;4:比勒陀利亚大学|University of Pretoria;3:夸祖鲁-纳塔尔大学|UKZN;3:罗德斯大学|Rhodes University;3:约翰内斯堡大学|University of Johannesburg;2:纳尔逊·曼德拉大学|Nelson Mandela University;2:自由州大学|University of the Free State;1:职业技术学院|TVET College'),
+      mil: '南非军事学院|South African Military Academy', pol: '南非警察学院|SAPS Academy', art: '电影戏剧学院|AFDA', mus: '开普敦音乐学院|South African College of Music', spo: '体育学院|High Performance Sport Institute' }
+  };
+
+  G.STAGES = {
+    kinder: { n: '幼儿园|Kindergarten', a: 3, y: 3 },
+    primary: { n: '小学|Primary School', a: 6, y: 6 },
+    middle: { n: '初中|Middle School', a: 12, y: 3 },
+    high: { n: '高中|High School', a: 15, y: 3 },
+    voc: { n: '职业学校|Vocational School', a: 15, y: 3 },
+    uni: { n: '大学|University', a: 18, y: 4 },
+    master: { n: '研究生|Master\'s Program', y: 2 },
+    phd: { n: '博士|PhD Program', y: 4 }
+  };
+  // degree levels: 0 none, 1 primary, 2 middle, 3 high/voc, 4 bachelor, 5 master, 6 phd
+  G.DEG = ['无学历|No Education', '小学|Primary School', '初中|Middle School', '高中|High School', '本科|Bachelor\'s', '硕士|Master\'s', '博士|PhD'];
+
+  G.MAJORS = {
+    cs: { n: '计算机科学|Computer Science', st: 'smarts' },
+    fin: { n: '金融|Finance', st: 'smarts' },
+    econ: { n: '经济学|Economics', st: 'smarts' },
+    med: { n: '临床医学|Medicine', st: 'smarts', y: 5 },
+    law: { n: '法学|Law', st: 'smarts' },
+    edu: { n: '教育学|Education', st: 'eq' },
+    eng: { n: '工程|Engineering', st: 'smarts' },
+    arch: { n: '建筑学|Architecture', st: 'smarts', y: 5 },
+    art: { n: '美术设计|Art & Design', st: 'looks' },
+    music: { n: '音乐|Music', st: 'eq', spec: 'mus' },
+    act: { n: '表演|Acting', st: 'looks', spec: 'art' },
+    sport: { n: '体育|Sports Science', st: 'health', spec: 'spo' },
+    media: { n: '新闻传媒|Journalism & Media', st: 'eq' },
+    lang: { n: '外语|Foreign Languages', st: 'smarts' },
+    psy: { n: '心理学|Psychology', st: 'eq' },
+    bio: { n: '生物化学|Biochemistry', st: 'smarts' },
+    agri: { n: '农学|Agriculture', st: 'health' },
+    biz: { n: '工商管理|Business Administration', st: 'eq' },
+    pol: { n: '政治学|Political Science', st: 'eq' },
+    nurse: { n: '护理|Nursing', st: 'eq' },
+    hist: { n: '历史学|History', st: 'smarts' },
+    mil: { n: '军事指挥|Military Command', st: 'health', spec: 'mil' },
+    police: { n: '侦查学|Criminal Investigation', st: 'health', spec: 'pol' }
+  };
+  G.MAJOR_LIST = ['cs', 'fin', 'econ', 'med', 'law', 'edu', 'eng', 'arch', 'art', 'media', 'lang', 'psy', 'bio', 'agri', 'biz', 'pol', 'nurse', 'hist'];
+  G.eduSys = function (cid) { return G.EDU[(G.C[cid] || G.C.cn).edu] || G.EDU.cn; };
+})();
