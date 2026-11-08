@@ -262,6 +262,6 @@
     if (['uni', 'master', 'phd'].indexOf(e.stage) < 0 || e.grade === 0) return;
     if (e.stage === 'phd') return;
     var who = SC.payTuition(SC.tuition(e.abroad || p.country, !!e.abroad));
-    if (who === 'loan') G.log('家里付不起学费，你申请了助学贷款。|Your family couldn\'t afford tuition, so you took out a student loan.');
+    if (who === 'loan' && !p.flags.stuLoan) { p.flags.stuLoan = 1; G.log('家里付不起学费，你申请了助学贷款。|Your family couldn\'t afford tuition, so you took out a student loan.'); }
   };
 })();

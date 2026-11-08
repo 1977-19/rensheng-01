@@ -57,7 +57,7 @@ var G = (typeof window !== 'undefined' ? (window.G = window.G || {}) : (global.G
     return str.replace(/\{(\w+)\}/g, function (m, k) { return prm[k] === undefined ? m : fmtVal(prm[k], li); });
   }
   G.numZh = function (n) { return Math.abs(n) >= 1e4 && Math.round(n) === n ? G.bigZh(n) : String(Math.round(n * 100) / 100); };
-  G.numEn = function (n) { return Math.round(n) === n ? n.toLocaleString('en-US') : String(Math.round(n * 100) / 100); };
+  G.numEn = function (n) { return Math.round(n) === n ? (Math.abs(n) >= 10000 ? n.toLocaleString('en-US') : String(n)) : String(Math.round(n * 100) / 100); };
   G.bigZh = function (n) {
     var a = Math.abs(n), s = n < 0 ? '-' : '';
     if (a >= 1e12) return s + trim(a / 1e12, 2) + '万亿';

@@ -60,7 +60,7 @@
       var shots = 0, made = 0, v = 0, dir = 1, busy = false, zone = 26;
       var hud = h('div', { class: 'ghud' }, h('span', null, '🏀 0/5'), h('span', null, ''));
       var meter = h('div', { style: { position: 'relative', margin: '40px 40px 20px', height: '34px', borderRadius: '17px', background: 'var(--grid)', overflow: 'hidden' } });
-      var green = h('div', { style: { position: 'absolute', top: 0, bottom: 0, background: 'color-mix(in srgb, var(--leaf) 55%, transparent)' } });
+      var green = h('div', { style: { position: 'absolute', top: 0, bottom: 0, background: 'rgba(78, 165, 106, .55)' } });
       var needle = h('div', { style: { position: 'absolute', top: 0, bottom: 0, width: '4px', background: 'var(--red)' } });
       meter.appendChild(green); meter.appendChild(needle);
       var hoop = h('div', { style: { textAlign: 'center', fontSize: '80px', marginTop: '20px' } }, '🏀');

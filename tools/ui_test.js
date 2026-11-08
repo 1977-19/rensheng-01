@@ -43,7 +43,7 @@ fs.mkdirSync(OUT, { recursive: true });
     await drain();
     await page.waitForTimeout(150);
     // use some energy via life actions
-    if (y % 4 === 3) {
+    if (y % 4 === 3 && await page.$('.foot')) {
       await page.click('.foot .tab:nth-child(4)');
       await page.waitForTimeout(350);
       if (y === 15) await shot('09_life');
@@ -53,6 +53,7 @@ fs.mkdirSync(OUT, { recursive: true });
     }
   }
   await shot('08_main_later');
+  if (!(await page.$('.foot'))) { await page.evaluate(() => { if (G.S && G.S.dead) { const h = G.life.heirs(); if (h.length) G.life.continueAs(h[0]); else { G.life.create({ g: 'f', country: 'us', tier: 2, by: 1990, origin: 'middle', talents: [] }); } } G.UI.main(); }); await page.waitForTimeout(400); }
   // tabs
   await page.click('.foot .tab:nth-child(1)'); await page.waitForTimeout(350); await shot('10_assets'); await page.evaluate(() => G.UI.closeAllSheets()); await page.waitForTimeout(300);
   await page.click('.foot .tab:nth-child(2)'); await page.waitForTimeout(350); await shot('11_people');

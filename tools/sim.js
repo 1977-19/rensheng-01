@@ -96,6 +96,7 @@ async function doActions() {
   console.log('titles', JSON.stringify(stats.titles));
   console.log('deaths', JSON.stringify(stats.deaths));
   if (VERBOSE) { console.log('games', JSON.stringify(stats.games)); console.log('events', Object.keys(stats.events).length); }
+  const EI = process.argv.indexOf('-e'); if (EI > 0) { const re = new RegExp(process.argv[EI + 1]); Object.keys(stats.events).filter(k => re.test(k)).sort((a, b) => stats.events[b] - stats.events[a]).forEach(k => console.log('  ev', stats.events[k], k)); }
   const uniq = {};
   stats.errors.forEach(([w, s]) => { const k = w + ' :: ' + String(s).split('\n').slice(0, 2).join(' | '); uniq[k] = (uniq[k] || 0) + 1; });
   const keys = Object.keys(uniq);

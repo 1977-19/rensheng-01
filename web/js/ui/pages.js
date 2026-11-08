@@ -215,7 +215,7 @@
         function draw(typing) {
           convo.innerHTML = '';
           if (!(n.chat || []).length) convo.appendChild(h('div', { class: 'bub s' }, T('和{n}说点什么吧。|Say something to {n}.', { n: n.name })));
-          (n.chat || []).forEach(function (m) { convo.appendChild(h('div', { class: 'bub ' + (m.f === 'me' ? 'me' : m.f === 's' ? 's' : 'n') }, T(m.t))); });
+          var lastY = null; (n.chat || []).forEach(function (m) { if (m.y != null && m.y !== lastY) { lastY = m.y; var ag = m.y - G.S.p.birthYear; convo.appendChild(h('div', { class: 'bub s when' }, G.T(ag >= 0 ? G.L('{a}岁 · {y}年|Age {a} · {y}', { a: ag, y: G.numEn(m.y) }) : G.L('{y}年|{y}', { y: G.numEn(m.y) }))));  } convo.appendChild(h('div', { class: 'bub ' + (m.f === 'me' ? 'me' : m.f === 's' ? 's' : 'n') }, T(m.t))); });
           if (typing) convo.appendChild(h('div', { class: 'typing' }, T('{n}正在输入…|{n} is typing…', { n: n.name })));
           convo.scrollTop = convo.scrollHeight;
         }

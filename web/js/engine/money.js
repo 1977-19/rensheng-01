@@ -151,7 +151,7 @@
       if (spend + other) parts.push(G.L('开销{a}|expenses {a}', { a: G.M(spend + other) }));
       if (invGain) parts.push(G.L('投资{s}{a}|investments {s}{a}', { s: invGain > 0 ? '+' : '', a: G.M(invGain) }));
       if (parts.length) G.logRaw(G.join([G.L('【财务】|[Finances] ')].concat([G.join(parts, '，', ', ')]), '', ''));
-    } else if (allow > G.$(200)) G.log('家里给了你{m}零花钱。|Your family gave you {m} in allowance.', { m: G.M(allow) });
+    } else if (allow > 0 && (!p.flags.allowY || allow > (p.flags.allowLast || 0) * 2.5)) { p.flags.allowY = S.year; p.flags.allowLast = allow; G.log('家里给了你{m}零花钱。|Your family gave you {m} in allowance.', { m: G.M(allow) }); }
     G.school.yearCost();
     G.biz.tick(Q);
   };

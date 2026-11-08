@@ -98,7 +98,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 
 /* ---------- diary ---------- */
 .diary { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 10px 16px 24px 46px; position: relative; }
-.diary::before { content: ""; position: absolute; left: 34px; top: 0; bottom: 0; width: 2px; background: color-mix(in srgb, var(--red) 45%, transparent); }
+.diary::before { content: ""; position: absolute; left: 34px; top: 0; bottom: 0; width: 2px; background: rgba(207, 59, 43, .45); background: color-mix(in srgb, var(--red) 45%, transparent); }
 .diary .ttlrow { font-family: var(--serif); text-align: center; font-size: 22px; letter-spacing: .3em; margin: 6px 0 14px -30px; }
 .yr { margin: 0 0 14px; }
 .yr h4 { margin: 0 0 3px -36px; font-size: 13px; font-weight: 700; color: var(--red); display: flex; gap: 8px; align-items: baseline; }
@@ -113,7 +113,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 0; border-radius: 10px; font-size: 12px; color: var(--ink2); }
 .tab span { font-size: 21px; line-height: 1.1; }
 .tab:active { background: var(--grid); }
-.stamp { flex: none; width: 82px; height: 82px; margin: -30px 6px 0; border-radius: 50%; background: var(--red); color: #fff; display: grid; place-items: center; text-align: center; border: 3px double rgba(255, 255, 255, .7); box-shadow: 0 0 0 3px var(--red), 0 8px 20px color-mix(in srgb, var(--red) 45%, transparent); transform: rotate(-8deg); transition: transform .12s; }
+.stamp { flex: none; width: 82px; height: 82px; margin: -30px 6px 0; border-radius: 50%; background: var(--red); color: #fff; display: grid; place-items: center; text-align: center; border: 3px double rgba(255, 255, 255, .7); box-shadow: 0 0 0 3px var(--red), 0 8px 20px rgba(207, 59, 43, .4); box-shadow: 0 0 0 3px var(--red), 0 8px 20px color-mix(in srgb, var(--red) 45%, transparent); transform: rotate(-8deg); transition: transform .12s; }
 .stamp:active { transform: rotate(-8deg) scale(.93); }
 .stamp b { display: block; font-family: var(--serif); font-size: 26px; line-height: 1; }
 .stamp small { display: block; font-size: 11px; opacity: .92; margin-top: 2px; }
@@ -146,9 +146,9 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .row.dis { opacity: .45; }
 .row.lock .t::after { content: "🔒"; font-size: 13px; }
 .chip { display: inline-block; font-size: 11.5px; padding: 0 6px; border-radius: 6px; background: var(--grid); color: var(--ink2); white-space: nowrap; }
-.chip.e { background: color-mix(in srgb, var(--leaf) 18%, transparent); color: var(--green); }
+.chip.e { background: rgba(78, 165, 106, .18); background: color-mix(in srgb, var(--leaf) 18%, transparent); color: var(--green); }
 .chip.m { background: var(--yellow-soft); color: var(--ink); }
-.chip.tag { background: color-mix(in srgb, var(--gold) 25%, transparent); color: var(--ink); }
+.chip.tag { background: rgba(227, 169, 43, .25); background: color-mix(in srgb, var(--gold) 25%, transparent); color: var(--ink); }
 .mini { height: 5px; border-radius: 3px; background: var(--grid); overflow: hidden; width: 70px; }
 .mini i { display: block; height: 100%; background: var(--rose); }
 .mini i.neg { background: var(--ink3); }
@@ -259,6 +259,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .bub { max-width: 78%; padding: 8px 12px; border-radius: 16px; font-size: 15px; line-height: 1.5; -webkit-user-select: text; user-select: text; word-break: break-word; }
 .bub.n { align-self: flex-start; background: var(--paper2); border: 1.5px solid var(--grid2); border-bottom-left-radius: 4px; }
 .bub.me { align-self: flex-end; background: var(--blue); color: var(--paper2); border-bottom-right-radius: 4px; }
+.bub.s.when { font-size: 11px; letter-spacing: .5px; opacity: .8; margin-top: 4px; }
 .bub.s { align-self: center; background: transparent; color: var(--ink3); font-size: 12.5px; padding: 2px 8px; text-align: center; }
 .typing { align-self: flex-start; color: var(--ink3); font-size: 13px; padding: 2px 8px; }
 .qk { display: flex; gap: 6px; overflow-x: auto; padding: 6px 10px; border-top: 1px solid var(--grid2); background: var(--paper2); -webkit-overflow-scrolling: touch; scrollbar-width: none; }
@@ -298,8 +299,8 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .qcard { margin: 14px; padding: 16px; border-radius: 14px; background: var(--paper2); border: 1.5px solid var(--grid2); }
 .qcard .q { font-size: 17px; font-weight: 600; margin-bottom: 12px; line-height: 1.5; }
 .qcard .opt { margin-bottom: 8px; }
-.opt.good { border-color: var(--leaf); background: color-mix(in srgb, var(--leaf) 18%, transparent); color: var(--green); }
-.opt.bad { border-color: var(--red); background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--red); }
+.opt.good { border-color: var(--leaf); background: rgba(78, 165, 106, .18); background: color-mix(in srgb, var(--leaf) 18%, transparent); color: var(--green); }
+.opt.bad { border-color: var(--red); background: rgba(207, 59, 43, .14); background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--red); }
 .timer { height: 6px; background: var(--grid); margin: 0 14px; border-radius: 3px; overflow: hidden; }
 .timer i { display: block; height: 100%; background: var(--red); transition: width .1s linear; }
 .cards4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 14px; }

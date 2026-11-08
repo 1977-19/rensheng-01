@@ -80,7 +80,7 @@
     var famW = G.$(G.rf(org.w[0], org.w[1]));
     var fage = G.ri(23, 36), mage = G.clamp(fage + G.ri(-5, 2), 20, 40);
     if (by < 1975) { fage = G.ri(20, 32); mage = G.clamp(fage + G.ri(-4, 1), 18, 36); }
-    var sur = G.genSur(parentCul);
+    var sur = o.sur && !org.imm ? o.sur : G.genSur(parentCul);
     var lo = G.clamp(p.st.looks + G.ri(-15, 15), 5, 100);
     var jobs = org.job.slice();
     function mkParent(g, age, i) {

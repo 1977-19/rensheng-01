@@ -37,7 +37,7 @@
       G.career.tick(Q); G.fame.tick(Q); G.mil.tick(Q); G.police.tick(Q); G.gov.tick(Q); G.gang.tick(Q); G.crime.tick(Q);
       G.money.tick(Q);
       G.health.tick(Q);
-      if (!S.dead) { G.love.tick(Q); G.family.tick(Q); }
+      if (!S.dead) { G.love.tick(Q); G.family.tick(Q); if (G.love.proactive) G.love.proactive(); }
       // birthdays / milestones
       if (p.age === 18) G.major('成年了|Came of age');
       // random events
