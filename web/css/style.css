@@ -442,3 +442,14 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 @media (min-width: 700px) { #app { max-width: 520px; margin: 0 auto; border-left: 1px solid var(--grid2); border-right: 1px solid var(--grid2); } }
 html, body { background: var(--desk2); }
 @media (max-height: 700px) { .hdr .av { width: 54px; height: 54px; } .st .bar { height: 19px; } .stats { gap: 5px 12px; } .tab { height: 44px; } .pencil { height: 54px; } .yr p { font-size: 15px; } }
+/* personality card on profiles */
+.persona { margin: 8px 0 4px; padding: 9px 11px; border-radius: 10px; background: var(--grid); font-size: 13px; line-height: 1.55; }
+.persona .pd { color: var(--ink); }
+.persona .cp { margin-top: 5px; color: var(--ink2); font-style: italic; }
+.persona .chips { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+.persona .chip { white-space: normal; background: var(--paper, rgba(255,255,255,.6)); padding: 1px 7px; }
+.estl { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.estl .esl { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--grid2); padding-bottom: 3px; }
+.estl .esl b { white-space: nowrap; }
+.estl .esd { margin-top: 4px; color: var(--red); line-height: 1.5; }
+.estl .esd.ok { color: var(--green); }

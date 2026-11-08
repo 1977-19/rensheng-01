@@ -6,7 +6,7 @@ const sb = { console, setTimeout, Math: Object.create(Math), JSON, Date, Promise
 sb.Math.random = rnd; sb.window = sb; sb.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} }; sb.navigator = { language: 'zh' };
 vm.createContext(sb); FILES.engine.forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), sb, { filename: f }));
 const G = sb.G; G.setLang(process.argv[3] || 'zh');
-G.UI = { event: async o => { const ok = o.opts.map((x, i) => i).filter(i => !o.opts[i].dis); return ok[Math.floor(rnd() * ok.length)] || 0; }, result: async () => {}, game: async () => ({ score: .4 + rnd() * .5, win: rnd() > .4, mult: 2 }), input: async o => o.def, pick: async o => { const ok = o.items.map((x, i) => i).filter(i => !o.items[i].dis); return ok.length ? ok[Math.floor(rnd() * ok.length)] : -1; }, toast: () => {}, ending: async () => {} };
+G.UI = { amount: async o => Math.floor((o.max || 0) * .1) || null, confirm: async () => true, event: async o => { const ok = o.opts.map((x, i) => i).filter(i => !o.opts[i].dis); return ok[Math.floor(rnd() * ok.length)] || 0; }, result: async () => {}, game: async () => ({ score: .4 + rnd() * .5, win: rnd() > .4, mult: 2 }), input: async o => o.def, pick: async o => { const ok = o.items.map((x, i) => i).filter(i => !o.items[i].dis); return ok.length ? ok[Math.floor(rnd() * ok.length)] : -1; }, toast: () => {}, ending: async () => {} };
 (async () => {
   G.life.create({ g: rnd() < .5 ? 'm' : 'f', country: process.argv[4] || 'cn', tier: 3, by: +process.argv[5] || 1975 + Math.floor(rnd() * 20), origin: process.argv[6] || 'worker', talents: ['smart', 'social'] });
   while (!G.S.dead && G.S.p.age < 110) {

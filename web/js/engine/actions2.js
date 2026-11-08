@@ -231,9 +231,9 @@
         if (sc > .62) { G.gov.join(); return G.result(a.n, '你在千军万马中杀出重围，考上了！|You beat out thousands of applicants and got in!', null, [], a.i); }
         return G.result(a.n, '竞争太激烈，你落榜了。|The competition was fierce; you didn\'t make it.', null, [], a.i);
       } },
-      { id: 'run', n: '参加竞选|Run for Office', i: '🗳️', e: 30, if: function () { var p = G.S.p; return G.C[p.country].dem && p.age >= 21 && (!p.gov || p.gov.track === 'civil'); }, run: async function (a) {
+      { id: 'run', n: '参加竞选|Run for Office', i: '🗳️', e: 30, if: function () { var p = G.S.p; return G.C[p.country].dem && p.age >= 21 && (!p.gov || p.gov.track === 'civil') && !(p.origin === 'royal' && !p.flags.exRoyal); }, run: async function (a) {
         var p = G.S.p, L = G.poliLadder(p.country);
-        var opts = [0]; if (p.st.fame >= 30 || p.flags.elite) opts.push(1);
+        var opts = [0]; if (p.st.fame >= 55 || p.flags.elite || p.flags.redfam) opts.push(1);
         var i = await G.UI.pick({ title: G.L(a.n), items: opts.map(function (r) { return { t: L.r[r], icon: '🗳️' }; }) });
         if (i < 0) return 'cancel'; if (p.gov) p.gov = null;
         var t = await G.gov.election(G.ctx(), opts[i]);

@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   var h = G.h, UI = G.UI, T = UI.T, tap = UI.tap, N = G.N;
-  function visible(a) { var p = G.S.p; if (a.a && (p.age < a.a[0] || p.age > a.a[1])) return false; if (a.era && !G.eraOk(a.era)) return false; if (a.if && !a.if()) return false; return true; }
+  function visible(a) { var p = G.S.p; if (a.a && (p.age < a.a[0] || p.age > a.a[1])) return false; if (a.era && !G.eraOk(a.era)) return false; if (G.statusBlocks && G.statusBlocks(a)) return false; if (a.if && !a.if()) return false; return true; }
   function actRow(a, after, npc) {
     var lock = a.lock ? a.lock() : null, price = a.$ ? G.$(a.$) : 0;
     var chips = h('div', { class: 'rt' });
@@ -16,6 +16,17 @@
   }
   UI.actRow = actRow;
   function kv(rows) { var dl = h('dl', { class: 'kv' }); rows.forEach(function (r) { if (!r) return; dl.appendChild(h('dt', null, T(r[0]))); dl.appendChild(h('dd', null, typeof r[1] === 'string' ? T(r[1]) : r[1])); }); return dl; }
+  function personaCard(n) {
+    if (!G.persona) return null;
+    var x = G.persona(n), chips = [];
+    x.hob.forEach(function (t) { chips.push(h('span', { class: 'chip' }, '🎯 ' + T(t))); });
+    chips.push(h('span', { class: 'chip' }, '🌀 ' + T(x.quirk)));
+    if (x.val) chips.push(h('span', { class: 'chip' }, T('💎 最看重：|💎 Values: ') + T(x.val)));
+    return h('div', { class: 'persona' },
+      h('div', { class: 'pd' }, T(x.d)),
+      x.cp && N.age(n) >= 4 ? h('div', { class: 'cp' }, T('口头禅：|Catchphrase: ') + '“' + T(x.cp) + '”') : null,
+      h('div', { class: 'chips' }, chips));
+  }
   function pbar(v, color) { return h('div', { class: 'pbar' }, h('i', { style: { width: G.clamp(v, 0, 100) + '%', background: color || null } })); }
 
   /* ===================== LIFE ===================== */
@@ -130,7 +141,7 @@
   /* ===================== RELATIONSHIPS ===================== */
   var GROUPS = [
     ['伴侣|Partner', ['spouse', 'lover', 'affair']],
-    ['家人|Family', ['father', 'mother', 'stepparent', 'grand', 'sibling', 'kin']],
+    ['家人|Family', ['father', 'mother', 'stepparent', 'grand', 'sibling', 'birthpar', 'kin']],
     ['子女|Children', ['child', 'grandchild']],
     ['追求者与心动|Admirers & Crushes', ['admirer', 'crush']],
     ['对象的家人|Partner\'s Family', ['inlaw']],
@@ -186,7 +197,8 @@
         }));
         return h('div', null,
           h('div', { class: 'prof' }, h('div', { class: 'avs', html: G.avatarOf(n) }), h('div', null, h('div', { class: 'nm' }, T(n.name)), h('div', { class: 'rl' }, T(N.relName(n))), h('div', { style: { fontSize: '13px', color: 'var(--ink2)' } }, (n.g === 'm' ? '♂ ' : '♀ ') + T('{a}岁|age {a}', { a: N.age(n) }) + '  ' + (G.C[n.c] ? G.C[n.c].flag : '')))),
-          kv([['职业|Occupation', n.job || '—'], n.inc ? ['年收入|Income', G.fm(n.inc, n.c)] : null, ['身家|Wealth', T(N.wealthLabel(n)) + (G.vip.tier() >= 1 || n.rel === 'spouse' || N.family[n.rel] ? '（' + G.fm(n.wealth, n.c) + '）' : '')], ['长相|Appearance', N.looksLabel(n.looks)], ['性格|Personality', G.PERS[n.pers].n], n.married ? ['婚姻|Marital status', '已婚|Married'] : null, n.tags.length ? ['身份|Status', { rich: '富豪|Wealthy elite', celeb: '明星|Celebrity', red: '权贵子弟|Political scion', royal: '王室贵族|Royalty' }[n.tags[0]]] : null]),
+          kv([['职业|Occupation', n.job || '—'], n.inc ? ['年收入|Income', G.fm(n.inc, n.c)] : null, ['身家|Wealth', T(N.wealthLabel(n)) + (G.vip.tier() >= 1 || n.rel === 'spouse' || N.family[n.rel] ? '（' + G.fm(n.wealth, n.c) + '）' : '')], ['长相|Appearance', N.looksLabel(n.looks)], ['性格|Personality', G.persName ? G.persName(n) : G.PERS[n.pers].n], n.married ? ['婚姻|Marital status', '已婚|Married'] : null, n.tags.length ? ['身份|Status', { rich: '富豪|Wealthy elite', celeb: '明星|Celebrity', red: '权贵子弟|Political scion', royal: '王室贵族|Royalty' }[n.tags[0]]] : null].concat(G.npcInfo ? G.npcInfo(n) : [])),
+          personaCard(n),
           bars, hid, n.alive ? acts : h('div', { class: 'empty' }, T('{n}已经离开了人世。|{n} has passed away.', { n: n.name })));
       }
       function refresh() { var mb = md.m.querySelector('.mb'); mb.innerHTML = ''; mb.appendChild(body()); }

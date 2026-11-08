@@ -23,7 +23,7 @@
   N.get = function (id) { return G.S.npcs[id]; };
   N.all = function (fn) { var o = G.S.npcs, r = []; for (var k in o) { if (!fn || fn(o[k])) r.push(o[k]); } return r; };
   N.rel = function () { var rs = Array.prototype.slice.call(arguments); return N.all(function (n) { return n.alive && rs.indexOf(n.rel) >= 0; }); };
-  N.family = { father: 1, mother: 1, sibling: 1, child: 1, grand: 1, grandchild: 1, stepparent: 1 };
+  N.family = { father: 1, mother: 1, sibling: 1, child: 1, grand: 1, grandchild: 1, stepparent: 1, birthpar: 1, kin: 1 };
   N.partner = function () { var id = G.S.p.partner; return id ? G.S.npcs[id] : null; };
   N.spouse = function () { var n = N.partner(); return n && n.rel === 'spouse' ? n : null; };
 

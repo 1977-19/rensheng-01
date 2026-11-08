@@ -56,7 +56,7 @@
   var EXTRA = [
     { n: '足球比赛|Football Match', i: '⚽', g: 'penalty', st: 'health' },
     { n: '篮球赛|Basketball Game', i: '🏀', g: 'basketball', st: 'health' },
-    { n: '运动会跑步|Track Meet', i: '🏃', g: 'sprint', st: 'health' },
+    { n: '运动会|Sports Day', i: '🚦', g: 'sprint', st: 'health' },
     { n: '奥数竞赛|Math Olympiad', i: '🧮', g: 'math', st: 'smarts' },
     { n: '知识竞赛|Quiz Bowl', i: '❓', g: 'quiz', st: 'smarts' },
     { n: '钢琴比赛|Piano Competition', i: '🎹', g: 'rhythm', st: 'eq', sk: 'music' },
@@ -156,7 +156,7 @@
     { id: 'survey', n: '下基层调研|Visit the Grassroots', i: '🚶', e: 20, run: function (a) { var g = G.S.p.gov; g.appr = G.clamp(g.appr + G.ri(2, 6), 0, 100); return quick(a, '你走访了很多群众，了解到真实的情况。|You visited many ordinary people and learned how things really are.', { eq: 1, karma: 2 }); } },
     { id: 'network', n: '拉关系|Network', i: '🤝', e: 15, $: 500, run: function (a) { var g = G.S.p.gov; g.perf += 4; return quick(a, '你和几位领导吃了饭，关系近了一步。|You dined with several senior officials and grew closer.', { eq: 1 }); } },
     { id: 'speech', n: '公开演讲|Give a Public Speech', i: '🎙️', e: 20, if: function () { return G.S.p.gov.track === 'poli'; }, run: async function (a) { var r = await G.UI.game('quiz', { name: a.n, debate: 1 }); var g = G.S.p.gov, d = Math.round((r.score - .45) * 16); g.appr = G.clamp(g.appr + d, 0, 100); G.dStart(); G.addStat('fame', r.score > .6 ? 2 : 0); var dl = G.dEnd(); dl.push({ k: 'appr', n: d }); return G.result(a.n, d >= 0 ? '演讲很成功，掌声雷动。|The speech was a hit; thunderous applause.' : '演讲有些失误，被媒体批评。|You stumbled, and the press criticized you.', null, dl, a.i); } },
-    { id: 'runhigher', n: '竞选更高职位|Run for Higher Office', i: '🗳️', e: 30, if: function () { var g = G.S.p.gov, L = G.poliLadder(G.S.p.country); return G.C[G.S.p.country].dem && g.track === 'poli' && g.yr >= 2 && g.rank < L.r.length - 1; }, run: async function (a) { var g = G.S.p.gov, L = G.poliLadder(G.S.p.country), t = g.rank + 1; if (!L.elect[t]) t = Math.min(t + 1, L.r.length - 1); var c = G.ctx(); var old = g.rank; var r = await G.gov.election(c, t); if (G.S.p.gov && G.S.p.gov.rank === old) { g.appr -= 5; } return G.result(a.n, r, null, [], a.i); } },
+    { id: 'runhigher', n: '竞选更高职位|Run for Higher Office', i: '🗳️', e: 30, if: function () { var g = G.S.p.gov, L = G.poliLadder(G.S.p.country); return G.C[G.S.p.country].dem && g.track === 'poli' && g.yr >= 3 && g.appr >= 45 && g.rank < L.r.length - 1; }, run: async function (a) { var g = G.S.p.gov, L = G.poliLadder(G.S.p.country), t = g.rank + 1; if (!L.elect[t]) t = Math.min(t + 1, L.r.length - 1); var c = G.ctx(); var old = g.rank; var r = await G.gov.election(c, t); if (G.S.p.gov && G.S.p.gov.rank === old) { g.appr -= 5; } return G.result(a.n, r, null, [], a.i); } },
     { id: 'gquit', n: '辞职|Resign', i: '👋', e: 5, run: function (a) { G.S.p.gov = null; G.major('辞去公职|Resigned from public office'); return quick(a, '你辞去了公职。|You resigned from public office.', { stress: -10 }); } }
   ];
   G.ACT_BIZ = [

@@ -261,7 +261,18 @@
     var fn = d.funeral.map(function (f) { return T(f.rel) + ' ' + T(f.name); }).join('、');
     b.appendChild(h('div', { class: 'card' }, h('h5', null, T('葬礼|Funeral')), h('div', { style: { fontSize: '14px' } },
       T('共有{n}人前来送别。|{n} people came to say goodbye.', { n: d.funeralN }) + (fn ? ' ' + T('其中有：|Among them: ') + fn + '。' : '') + (d.fans ? ' ' + T('另有约{f}名粉丝在网上悼念。|About {f} fans mourned online.', { f: d.fans.toLocaleString() }) : ''))));
-    b.appendChild(h('div', { class: 'card' }, h('h5', null, T('遗产|Estate')), h('div', { class: 'money ' + (d.nw < 0 ? 'neg' : ''), style: { fontSize: '18px', display: 'inline-block' } }, G.fm(d.nw))));
+    var es = d.estate, esRows = [];
+    if (es && es.total > 0) {
+      if (es.tax) esRows.push(h('div', { class: 'esl' }, h('span', null, T('遗产税|Inheritance tax')), h('b', null, '−' + G.fm(es.tax))));
+      if (es.charity) esRows.push(h('div', { class: 'esl' }, h('span', null, T('捐给慈善|To charity')), h('b', null, G.fm(es.charity))));
+      es.lines.forEach(function (l) {
+        var extra = (l.houses && l.houses.length ? ' 🏠' + l.houses.map(function (x) { return T(x); }).join('、') : '') + (l.company ? ' 🏢' + T('公司|Company') : '');
+        esRows.push(h('div', { class: 'esl' }, h('span', null, T(l.rel) + ' ' + T(l.name) + ' · ' + l.pct + '%' + extra), h('b', null, G.fm(l.amt))));
+      });
+      if (es.dispute) esRows.push(h('div', { class: 'esd' }, '⚖️ ' + T(es.dispute.won ? '{a}不服遗嘱，把{b}告上了法庭，最后赢回了一部分遗产。兄弟姐妹从此反目。|{a} contested the will, sued {b}, and won back part of the estate. The family never reconciled.' : '{a}不服遗嘱，把{b}告上了法庭，却输了官司。一家人从此形同陌路。|{a} contested the will and sued {b} — and lost. The family drifted apart for good.', { a: es.dispute.an, b: es.dispute.bn })));
+      else if (es.lines.length > 1) esRows.push(h('div', { class: 'esd ok' }, '🕊️ ' + T('遗产分配顺利，没有人起争执。|The estate was divided peacefully.')));
+    }
+    b.appendChild(h('div', { class: 'card' }, h('h5', null, T('遗产|Estate')), h('div', { class: 'money ' + (d.nw < 0 ? 'neg' : ''), style: { fontSize: '18px', display: 'inline-block' } }, G.fm(d.nw)), esRows.length ? h('div', { class: 'estl' }, esRows) : null));
     if (d.timeline.length) b.appendChild(h('div', { class: 'card' }, h('h5', null, T('大事年表|Timeline')), h('ul', { class: 'tl' }, d.timeline.slice(-40).map(function (x) { return h('li', null, h('b', null, T('{a}岁|{a}', { a: x.a })), h('span', null, T(x.t))); }))));
     var btns = h('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px' } });
     if (d.heirs.length) btns.appendChild(h('button', { class: 'big solid', onclick: tap(async function () {

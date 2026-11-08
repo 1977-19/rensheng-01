@@ -100,6 +100,19 @@
         foot: [h('button', { class: 'opt solid', onclick: tap(function () { var v = inp.value.replace(/\|/g, '').trim(); md.close(); res(v ? v + '|' + v : null); }) }, T('确定|Confirm'))] });
     });
   };
+  /* money amount picker: free input + quick presets; resolves to a number (local currency) or null */
+  UI.amount = function (o) {
+    return new Promise(function (res) {
+      var max = Math.max(0, Math.floor(o.max || 0)), done = false;
+      var inp = h('input', { class: 'inp', type: 'number', inputmode: 'numeric', min: '0', placeholder: T('输入金额|Enter an amount'), value: o.def ? String(Math.round(o.def)) : '' });
+      var presets = (o.presets || [.01, .05, .1, .25, .5, 1]).map(function (f) { var v = Math.floor(max * f); return h('button', { class: 'sug', onclick: tap(function () { inp.value = String(v); }) }, (f >= 1 ? T('全部|All') : Math.round(f * 100) + '%') + ' · ' + G.fm(v)); });
+      var md = UI.modal({ title: o.title, close: true, onClose: function () { if (!done) res(null); }, body: h('div', null,
+        o.text ? h('div', { class: 'txt', style: { marginBottom: '8px' } }, T(o.text)) : null,
+        h('div', { style: { fontSize: '13px', color: 'var(--ink2)', marginBottom: '6px' } }, T('可用：|Available: ') + G.fm(max)),
+        inp, h('div', { class: 'sugs' }, presets)),
+        foot: [h('button', { class: 'opt solid', onclick: tap(function () { var v = Math.floor(+inp.value || 0); if (v <= 0) { UI.toast('请输入金额|Enter an amount'); return; } if (v > max) { UI.toast('钱不够|Not enough money'); return; } done = true; md.close(); res(v); }) }, T('确定|Confirm'))] });
+    });
+  };
   UI.confirm = function (title, text) { return UI.event({ title: title, text: text, opts: [{ t: '确定|Yes' }, { t: '取消|Cancel' }] }).then(function (i) { return i === 0; }); };
 
   /* ---------- sheets (stacked full-screen pages) ---------- */

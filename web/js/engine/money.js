@@ -87,16 +87,18 @@
       if (p.age < 30 && N_par().length) return 0; // lives with parents
       return Math.round(G.$w(5500) * (G.has('thrifty') ? .7 : 1));
     }
-    var c = G.$w(10500);
+    // what an ordinary household really burns through: food, transport, phone, insurance, rent, kids
+    var c = G.$w(15000);
     var own = S.assets.houses.some(function (h) { return h.live; });
-    if (!own) c += G.$w(8500);
-    var sp = G.N.spouse(); if (sp) c += G.$w(4000);
-    var kids = G.N.rel('child').filter(function (k) { return G.N.age(k) < 18; }); c += kids.length * G.$w(7000);
-    if (G.has('thrifty')) c *= .7; if (G.has('spender')) c *= 1.3;
+    if (!own) c += G.$w(13000);
+    var sp = G.N.spouse(); if (sp) c += G.$w(5000);
+    var kids = G.N.rel('child').filter(function (k) { return G.N.age(k) < 18 && !k.illegit; }), kc = kids.length * G.$w(8500);
+    if (G.has('thrifty')) c *= .75; if (G.has('spender')) c *= 1.3;
     if (p.flags.lux) c *= 1.6;
     var earn = inc.work + inc.black - inc.tax;
-    if (earn > c) c += (earn - c) * .32; // lifestyle grows with income
-    return Math.round(c);
+    if (earn < c) c = Math.max(G.$w(own ? 6500 : 9500), earn * .94); // low earners scrape by, saving almost nothing
+    else c += (earn - c) * .45;                                         // lifestyle creeps up with income
+    return Math.round(c + kc);
   };
   MO.tick = function (Q) {
     var S = G.S, p = S.p, A = S.assets, mk = S.world.mk || {};
@@ -123,6 +125,12 @@
       var par = G.N.rel('father', 'mother', 'grand').filter(function (n) { return n.alive; });
       var fw = G.sum(par, function (n) { return n.wealth; });
       if (par.length) { var avgAff = G.sum(par, function (n) { return n.aff; }) / par.length; allow = Math.round(Math.max(0, fw) * .002 * (p.age / 10) * (.5 + avgAff / 100) + G.$(30) * p.age / 6); allow = Math.min(allow, Math.max(0, fw) * .02); par[0].wealth -= allow; }
+    }
+    // no home of your own: renting and moving wear you down
+    if (p.age >= 22 && !G.dependent() && !p.jail && !A.houses.some(function (h) { return h.live; })) {
+      var homeless = !inc.work && !inc.black && p.money < G.$(2000);
+      G.addStat('health', homeless ? -4 : -1.5, true); G.addStat('happy', homeless ? -4 : -1, true); G.addStat('stress', homeless ? 8 : 3, true);
+      if (homeless && G.ch(.3)) G.log('你居无定所，借住在朋友家的沙发上。|With nowhere to live, you crashed on a friend\'s couch.');
     }
     var cash = inc.work - inc.tax + inc.black - spend - other + allow;
     p.money += Math.round(cash + (p.money > 0 ? p.money * .01 : 0));

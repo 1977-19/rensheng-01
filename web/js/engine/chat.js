@@ -79,6 +79,7 @@
     rebel: ['切，|Pfft, ', '', ''], romantic: ['', '', '今晚的月亮很美。|The moon is lovely tonight.'], scheme: ['呵呵，|Heh, ', '', ''], honest: ['嘿嘿，|Hehe, ', '', ''], artsy: ['', '', '最近在读一本很好的书。|I\'ve been reading a lovely book lately.'],
     prag: ['', '', ''], playboy: ['', '', '😉|😉']
   };
+  CH.FLAVOR = FLAVOR;
   var GAIN = { greet: 1, care: 2, compliment: 2, joke: 1.5, work: 1, family: 1.5, money: -2, date: 1, flirt: 0, love: 0, sorry: 1, insult: -8, thanks: 1, advice: 1, gossip: 1, bye: .5, chat: .5 };
 
   CH.offline = function (n, intent) {
@@ -127,7 +128,7 @@
     var T = function (s) { return G.T(s); };
     var lines = [
       '你正在一款名为《我的一生》的人生模拟游戏中扮演一个角色，正在用手机和玩家聊天。',
-      '【你的角色】姓名：' + T(n.name) + '；' + na + '岁；' + (n.g === 'm' ? '男' : '女') + '；职业：' + T(n.job) + '；性格：' + T(G.PERS[n.pers].n) + '；国家：' + T(G.C[n.c].n) + '；经济状况：' + T(N.wealthLabel(n)) + '。',
+      '【你的角色】姓名：' + T(n.name) + '；' + na + '岁；' + (n.g === 'm' ? '男' : '女') + '；职业：' + T(n.job) + '；性格：' + (G.persona ? (function () { var x = G.persona(n); return G.persName(n) + '（' + T(x.d) + '）；爱好：' + x.hob.map(T).join('、') + '；小习惯：' + T(x.quirk) + (x.cp ? '；口头禅：“' + T(x.cp) + '”' : ''); })() : T(G.PERS[n.pers].n)) + '；国家：' + T(G.C[n.c].n) + '；经济状况：' + T(N.wealthLabel(n)) + '。',
       '【你和玩家的关系】' + T(N.relName(n)) + '；你对玩家的好感度：' + n.aff + '（-100到100）' + (n.rel === 'lover' || n.rel === 'spouse' ? '；爱意：' + n.love + '/100' : '') + '。',
       '【玩家】' + T(p.name) + '，' + p.age + '岁，' + (p.g === 'm' ? '男' : '女') + '，' + T(G.title()) + '，颜值' + p.st.looks + '/100。',
       '【现在】' + G.S.year + '年。',

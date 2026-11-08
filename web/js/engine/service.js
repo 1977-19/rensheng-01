@@ -73,7 +73,7 @@
   /* ====================== GOVERNMENT ====================== */
   var GV = G.gov = {};
   GV.civilRanks = function () { return G.S.p.country === 'cn' ? G.CIVIL.cn : G.CIVIL.gen; };
-  GV.can = function () { var p = G.S.p; return p.age >= 18 && p.age <= 35 && p.edu.deg >= 4 && !p.crime.rec && !p.jail && !p.gov; };
+  GV.can = function () { var p = G.S.p; return !(p.origin === 'royal' && !p.flags.exRoyal) && p.age >= 18 && p.age <= 35 && p.edu.deg >= 4 && !p.crime.rec && !p.jail && !p.gov; };
   GV.join = function () {
     var p = G.S.p;
     if (p.job) G.career.leave(); if (p.fc) p.fc = null;
@@ -136,8 +136,17 @@
     var r = await c.game('quiz', { name: G.L('电视辩论|Televised Debate'), n: 5, debate: 1 });
     var g = p.gov || { appr: 45 };
     var isTop = targetRank === L.r.length - 1;
-    var ch = .2 + g.appr / 350 + p.st.fame / 350 + p.st.eq / 500 + (budget * .08) + (r.score - .5) * .3 - targetRank * .07 + (G.has('leader') ? .1 : 0) + (p.flags.redfam || p.flags.elite ? .06 : 0) - (p.crime.rec ? .3 : 0) - (isTop && p.st.fame < 50 ? .2 : 0) - (isTop && p.age < 40 ? .15 : 0);
-    var win = G.ch(G.clamp(ch, .05, .92));
+    // the higher the office, the brutally harder the race — party machines, donors, name recognition
+    var lv = targetRank / Math.max(1, L.r.length - 1), held = p.gov && p.gov.track === 'poli' ? p.gov.rank : -1;
+    var ch = .3 + g.appr / 320 + p.st.fame / 450 + p.st.eq / 700 + (budget * .06) + (r.score - .5) * .3 - lv * .5 + (G.has('leader') ? .08 : 0) + (p.flags.redfam || p.flags.elite ? .08 : 0) - (p.crime.rec ? .35 : 0);
+    if (isTop) {
+      ch -= .15;
+      if (p.st.fame < 65) ch -= .25;
+      if (p.age < 40) ch -= .2;
+      if (held < targetRank - 2) ch -= .35;                 // nobody jumps from nowhere to the top
+      if (G.netWorth() < G.$(1e6) && !p.flags.redfam && !p.flags.elite) ch -= .12; // no donor network
+    } else if (held < targetRank - 2) ch -= .2;
+    var win = G.ch(G.clamp(ch, .02, isTop ? .5 : .85));
     if (win) {
       if (!p.gov) { p.gov = { track: 'poli', rank: targetRank, yrs: 0, yr: 0, perf: 55, appr: 55, term: 4 }; if (p.job) G.career.leave(); if (p.fc) p.fc = null; G.inc('gov'); }
       else { p.gov.track = 'poli'; p.gov.rank = targetRank; p.gov.yr = 0; p.gov.term = 4; p.gov.appr = Math.max(p.gov.appr, 55); }

@@ -32,6 +32,7 @@ G.UI = {
   result: async () => {},
   game: async (id, o) => { stats.games[id] = (stats.games[id] || 0) + 1; const s = rnd(); return { score: s, win: s > .5, mult: s > .5 ? 2 : 0 }; },
   input: async o => o.def,
+  amount: async o => (rnd() < .2 ? null : Math.floor((o.max || 0) * rnd() * .3)) || null, confirm: async () => rnd() < .5,
   pick: async o => { if (!o.items.length) return -1; if (!o.noCancel && rnd() < .1) return -1; const i = pickEnabled(o.items.length, i => o.items[i].dis); return i < 0 && o.noCancel ? 0 : i; },
   toast: () => {}, profile: async () => {}, chat: async () => {}, investPage: async () => {}, ending: async () => {}
 };
@@ -46,7 +47,7 @@ async function doActions() {
     let list = [];
     try { list = G.lifeActs().slice(); } catch (e) { stats.errors.push(['lifeActs', e.stack]); }
     G.ACT_CATS.forEach(c => { if (!c.lock || !c.lock()) list = list.concat(c.items); });
-    list = list.filter(a => (!a.a || (p.age >= a.a[0] && p.age <= a.a[1])) && (!a.era || G.eraOk(a.era)) && (!a.if || a.if()) && (!a.lock || !a.lock()) && (!SANE || !BAD.test(a.id)));
+    list = list.filter(a => (!a.a || (p.age >= a.a[0] && p.age <= a.a[1])) && (!a.era || G.eraOk(a.era)) && !(G.statusBlocks && G.statusBlocks(a)) && (!a.if || a.if()) && (!a.lock || !a.lock()) && (!SANE || !BAD.test(a.id)));
     if (SANE && p.ill.some(x => x.known) && rnd() < .7) { const d = G.ACT_CATS[0].items[0]; if (p.energy >= 10) { p.energy -= 10; curEvent = 'act:doctor'; await d.run(d); } }
     if (SANE) { const pref = list.filter(a => /^(study|ustudy|work|gym|run|jobsearch|intern|gwork|train|patrol|perform|manage|invest|house|time|gift|date|confess|propose|wed|trybaby|homework|extra|friend|app|blind|club|read)$/.test(a.id)); if (pref.length && rnd() < .7) list = pref; }
     if (rnd() < .35) {

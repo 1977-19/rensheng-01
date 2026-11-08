@@ -1,4 +1,4 @@
-/* Action & table games: penalty, basketball, sprint, shooting, fight, driving, rhythm, blackjack, dice, mahjong */
+/* Action & table games: penalty, basketball, reaction dash, shooting, fight, driving, rhythm, blackjack, dice, mahjong */
 (function () {
   'use strict';
   var h = function () { return G.h.apply(null, arguments); }, T = function (s, p) { return G.T(s, p); };
@@ -81,39 +81,36 @@
       };
     } };
 
-  /* ---------- sprint ---------- */
-  GM.sprint = { n: '冲刺|Sprint', i: '🏃', how: '交替点击左右两个按钮，越快跑得越快！|Alternate tapping the two buttons as fast as you can!',
+  /* ---------- reaction dash (replaces the old tap-race, which was unreliable on phones) ---------- */
+  GM.sprint = { n: '反应冲刺|Reaction Dash', i: '🚦', how: '等信号灯变绿再点！抢跑算犯规。共三轮，反应越快越好。|Wait for the light to turn green, then tap! Jumping early is a false start. Three rounds — the faster the better.',
     play: function (el, o, done) {
-      var c = canvas(el), ctx = c.ctx, me = 0, last = null, ai = [0, 0, 0], st = stat(), t0 = null, fin = false;
-      var aiSp = [.75, .9, 1.05].map(function (x) { return x * (o.hard ? 1.2 : 1) * (10 + Math.random() * 2); });
-      var L = h('button', null, T('左脚|Left')), R = h('button', null, T('右脚|Right'));
-      el.appendChild(h('div', { class: 'gctl' }, L, R));
-      function step(side) { if (fin) return; if (!t0) t0 = performance.now(); if (side !== last) { me += 1.35 + st.fit / 120; last = side; G.native.haptic('light'); } }
-      L.addEventListener('touchstart', function (e) { e.preventDefault(); step(0); }); R.addEventListener('touchstart', function (e) { e.preventDefault(); step(1); });
-      L.addEventListener('mousedown', function () { step(0); }); R.addEventListener('mousedown', function () { step(1); });
-      var GOAL = 100;
-      function draw() {
-        var w = c.w(), H = c.hh(); ctx.clearRect(0, 0, w, H);
-        var lanes = 4, lh = Math.min(70, (H - 40) / lanes), top = 20;
-        for (var i = 0; i < lanes; i++) { ctx.fillStyle = i % 2 ? css('--grid') : css('--paper2'); ctx.fillRect(10, top + i * lh, w - 20, lh); }
-        ctx.fillStyle = css('--red'); ctx.fillRect(w - 30, top, 4, lh * lanes);
-        ctx.font = '30px sans-serif'; ctx.textBaseline = 'middle';
-        var pos = [me].concat(ai);
-        pos.forEach(function (d, i) { var x = 14 + (w - 60) * Math.min(1, d / GOAL); ctx.save(); ctx.translate(x + 30, top + i * lh + lh / 2); ctx.scale(-1, 1); ctx.fillText(i === 0 ? '🏃' : '🏃‍♂️', 0, 0); ctx.restore(); });
-        ctx.fillStyle = css('--blue'); ctx.font = 'bold 13px sans-serif'; ctx.fillText(T('你|You'), 14, top + lh / 2 - lh / 2 + 10);
+      var round = 0, scores = [], state = 'idle', t0 = 0, timer = null, st = stat(), finished = false;
+      var hud = h('div', { class: 'ghud' }, h('span', null, T('第1轮|Round 1')), h('span', null, ''));
+      var light = h('div', { style: { width: '150px', height: '150px', borderRadius: '50%', margin: '34px auto 16px', background: '#7a6a60', border: '8px solid var(--brown)', boxShadow: 'inset 0 -8px 0 rgba(0,0,0,.2)', transition: 'background .08s' } });
+      el.appendChild(hud); el.appendChild(light); var say = msg(el, '准备……|Get ready...');
+      var btn = h('button', { class: 'go', style: { minHeight: '84px', fontSize: '22px' } }, T('冲！|GO!'));
+      el.appendChild(h('div', { class: 'gctl' }, btn));
+      function finish() { if (finished) return; finished = true; clearTimeout(timer); var sum = scores.reduce(function (a, b) { return a + b; }, 0); done({ score: sum / 3 }); }
+      function next() {
+        if (round >= 3) { setTimeout(finish, 700); return; }
+        state = 'wait'; light.style.background = '#d0453a'; say('盯住信号灯……|Watch the light...');
+        hud.firstChild.textContent = T('第{n}轮|Round {n}', { n: round + 1 });
+        timer = setTimeout(function () { state = 'go'; t0 = Date.now(); light.style.background = '#4fbf5a'; sfx('pop'); timer = setTimeout(function () { if (state === 'go') record(1200); }, 1200); }, 900 + Math.random() * 1800);
       }
-      var raf, prev = performance.now();
-      function loop(now) {
-        var dt = (now - prev) / 1000; prev = now;
-        if (t0 && !fin) for (var i = 0; i < 3; i++) ai[i] += aiSp[i] * dt * (.85 + Math.random() * .3);
-        draw();
-        if (t0 && !fin) {
-          if (me >= GOAL) { fin = true; var place = ai.filter(function (x) { return x >= GOAL; }).length; setTimeout(function () { done({ score: [1, .7, .45, .2][place] }); }, 400); }
-          else if (ai.every(function (x) { return x >= GOAL; }) || now - t0 > 16000) { fin = true; setTimeout(function () { done({ score: .05 + .15 * me / GOAL }); }, 400); }
-        }
-        if (!fin) raf = requestAnimationFrame(loop);
+      function record(ms) {
+        clearTimeout(timer); state = 'idle'; round++;
+        var bonus = st.fit / 900, sc = ms <= 0 ? 0 : Math.max(0, Math.min(1, (700 - ms) / 480 + bonus + (o.hard ? -.08 : 0)));
+        scores.push(sc); hud.lastChild.textContent = scores.map(function (x) { return x >= .6 ? '🟢' : x >= .3 ? '🟡' : '🔴'; }).join(' ');
+        light.style.background = '#7a6a60';
+        say(ms <= 0 ? '抢跑犯规！|False start!' : T('{t} 毫秒|{t} ms', { t: ms }));
+        sfx(sc >= .5 ? 'ok' : 'bad'); setTimeout(next, 900);
       }
-      raf = requestAnimationFrame(loop);
+      btn.onclick = function () {
+        if (finished) return;
+        if (state === 'wait') record(0);
+        else if (state === 'go') record(Date.now() - t0);
+      };
+      setTimeout(next, 600);
     } };
 
   /* ---------- shooting range ---------- */
@@ -329,5 +326,5 @@
     } };
 
   /* ---------- sport alias ---------- */
-  GM.sport = GM.sprint;
+  GM.sport = GM.basketball;
 })();
