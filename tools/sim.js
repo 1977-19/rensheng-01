@@ -6,6 +6,7 @@ const ROOT = path.join(__dirname, '..', 'web');
 const N = +process.argv[2] || 200;
 const VERBOSE = process.argv.includes('-v');
 const SANE = process.argv.includes('-s');
+const CHECK = process.argv.includes('-c');
 const BAD = /^(cr_|joingang|bribe|drink|smoke|scroll|loan|affair|bj|dice|mj|vegas|cheat|skip|slack|fish|tantrum|brawl|dropout|udrop|quit|fquit|pquit|gquit|gleave|launder|discharge|escape|jfight|block|confront|divorce|breakup|argue|lottery|surgery|lux|tr_space)/;
 let rs = (+process.argv[3] || 12345) >>> 0;
 function rnd() { rs = (rs * 1664525 + 1013904223) >>> 0; return rs / 4294967296; }
@@ -23,7 +24,7 @@ for (const f of FILES.engine) {
   vm.runInContext(fs.readFileSync(p, 'utf8'), sandbox, { filename: f });
 }
 const G = sandbox.G;
-const stats = { lives: 0, ages: [], events: {}, errors: [], titles: {}, scores: [], acts: {}, grades: {}, deaths: {}, nw: [], games: {} };
+const stats = { npcBad: {}, lives: 0, ages: [], events: {}, errors: [], titles: {}, scores: [], acts: {}, grades: {}, deaths: {}, nw: [], games: {} };
 let curEvent = null;
 function pickEnabled(n, dis) { const ok = []; for (let i = 0; i < n; i++) if (!dis || !dis(i)) ok.push(i); return ok.length ? ok[Math.floor(rnd() * ok.length)] : -1; }
 G.UI = {
@@ -45,7 +46,7 @@ async function doActions() {
     let list = [];
     try { list = G.lifeActs().slice(); } catch (e) { stats.errors.push(['lifeActs', e.stack]); }
     G.ACT_CATS.forEach(c => { if (!c.lock || !c.lock()) list = list.concat(c.items); });
-    list = list.filter(a => (!a.a || (p.age >= a.a[0] && p.age <= a.a[1])) && (!a.if || a.if()) && (!a.lock || !a.lock()) && (!SANE || !BAD.test(a.id)));
+    list = list.filter(a => (!a.a || (p.age >= a.a[0] && p.age <= a.a[1])) && (!a.era || G.eraOk(a.era)) && (!a.if || a.if()) && (!a.lock || !a.lock()) && (!SANE || !BAD.test(a.id)));
     if (SANE && p.ill.some(x => x.known) && rnd() < .7) { const d = G.ACT_CATS[0].items[0]; if (p.energy >= 10) { p.energy -= 10; curEvent = 'act:doctor'; await d.run(d); } }
     if (SANE) { const pref = list.filter(a => /^(study|ustudy|work|gym|run|jobsearch|intern|gwork|train|patrol|perform|manage|invest|house|time|gift|date|confess|propose|wed|trybaby|homework|extra|friend|app|blind|club|read)$/.test(a.id)); if (pref.length && rnd() < .7) list = pref; }
     if (rnd() < .35) {
@@ -79,6 +80,10 @@ async function doActions() {
       try { await doActions(); } catch (e) { stats.errors.push([curEvent, e.stack]); }
       G.lastError = null;
       await G.ageUp();
+      if (CHECK && !G.S.dead) G.N.all(n => n.alive).forEach(n => { const a = G.N.age(n), j = String(n.job || ''); let bad = null;
+        if (a >= 24 && /学龄前|婴儿|^学生|大学生/.test(j)) bad = 'adult-student'; else if (a < 5 && /学生/.test(j)) bad = 'baby-student';
+        else if (a > (G.C[n.c] || G.C.cn).retire + 8 && !/退休/.test(j) && !n.tags.length && n.inc && n.rel !== 'spouse') bad = 'no-retire';
+        if (bad) { const k = bad + ':' + n.rel; stats.npcBad[k] = (stats.npcBad[k] || 0) + 1; } });
       if (G.lastError) { stats.errors.push([curEvent, G.lastError.stack]); G.lastError = null; G.busy = false; }
     }
     if (!G.S.dead) { stats.errors.push(['nodeath', 'age ' + G.S.p.age]); continue; }
@@ -100,6 +105,7 @@ async function doActions() {
   const uniq = {};
   stats.errors.forEach(([w, s]) => { const k = w + ' :: ' + String(s).split('\n').slice(0, 2).join(' | '); uniq[k] = (uniq[k] || 0) + 1; });
   const keys = Object.keys(uniq);
+  if (CHECK) console.log('npc consistency', JSON.stringify(stats.npcBad));
   console.log('errors', stats.errors.length, 'unique', keys.length);
   keys.slice(0, 25).forEach(k => console.log(' ', uniq[k], 'x', k.slice(0, 400)));
   process.exit(keys.length ? 1 : 0);

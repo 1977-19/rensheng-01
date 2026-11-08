@@ -24,7 +24,7 @@
       O('举报|Report it', R('警方端掉了这个窝点。|Police shut the operation down.', { karma: 4 }))
     ], { bad: 1 }),
     E('a_jobless', [21, 25], '毕业即失业|Unemployed Graduate', '📄', '你投了一百份简历，一个回复都没有。|You\'ve sent a hundred résumés and heard nothing back.', [
-      O('降低要求，先就业|Lower your standards and take anything', function (c) { var j = G.pick(G.JOBS.filter(function (x) { return !x.pt && x.deg <= 3 && (!x.y0 || G.S.year >= x.y0); })); G.career.hire(j); return G.L('你先当了{j}，骑驴找马。|You took a job as a {j} for now and kept looking.', { j: j.r[0] }); }),
+      O('降低要求，先就业|Lower your standards and take anything', function (c) { var j = G.pick(G.JOBS.filter(function (x) { return !x.pt && x.deg <= 3 && G.jobOk(x); })); G.career.hire(j); return G.L('你先当了{j}，骑驴找马。|You took a job as a {j} for now and kept looking.', { j: j.r[0] }); }),
       O('回家啃老|Move back home', R('你回家躺平了一段时间。|You moved home and lay low for a while.', { happy: -4, par: -3 })),
       O('考公/考研|Study for exams', R('你开始了漫长的备考。|You started a long stretch of exam prep.', { smarts: 2, stress: 8 }))
     ], { bad: 1, if: function (S, p) { return p.edu.deg >= 4 && !p.job && !p.gov && !p.mil && !p.pol && !p.fc && !H.student(); } }),

@@ -75,7 +75,7 @@
     if (p.retired) out.work += p.pension;
     if (p.gang) out.black += G.gang.income();
     var rate = (G.C[p.country].tax || .2) * Math.min(1.4, .6 + Math.log10(Math.max(1, out.work / G.$w(40000)) + 1));
-    out.tax = Math.round(out.work * rate);
+    out.tax = Math.round(Math.max(0, out.work - G.$w(7000)) * rate); // personal allowance
     return out;
   };
   MO.living = function () {

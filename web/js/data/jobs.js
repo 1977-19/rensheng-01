@@ -64,6 +64,13 @@
     { id: 'diplomat', n: '外交官|Diplomat', r: R('随员|Attaché,三等秘书|Third Secretary,一等秘书|First Secretary,参赞|Counselor,大使|Ambassador'), pay: [60000, 75000, 100000, 140000, 220000], deg: 4, maj: ['lang', 'pol', 'law', 'econ'], st: 3, cat: 'gov', req: { eq: 60, smarts: 60 }, assess: 1 }
   ];
   G.JOB = {}; G.JOBS.forEach(function (j) { G.JOB[j.id] = j; });
+  // earliest years: global (y0) and in China (cn0 — private-sector jobs only appear after reform and opening)
+  var Y0 = { pt_fast: 1955, pt_shop: 1960, courier: 1975, agent: 1950, trainer: 1965, psych: 1950, consult: 1955, pm: 1990 };
+  var CN0 = { pt_fast: 1987, pt_shop: 1993, pt_flyer: 1985, pt_coffee: 1998, pt_tutor: 1985, pt_model: 1990, courier: 1995, guard: 1985, cashier: 1990,
+    vendor: 1979, sales: 1985, agent: 1995, trainer: 1995, coder: 1985, game: 1995, pm: 1998, banker: 1995, quant: 2005, consult: 1995, mkt: 1985,
+    hr: 1992, pr: 1992, psych: 2000, lawyer: 1980, design: 1985, photo: 1980, transl: 1978, mechanic: 1980, attendant: 1980 };
+  Object.keys(Y0).forEach(function (k) { if (G.JOB[k] && !G.JOB[k].y0) G.JOB[k].y0 = Y0[k]; });
+  Object.keys(CN0).forEach(function (k) { if (G.JOB[k]) G.JOB[k].cn0 = CN0[k]; });
 
   /* Fame careers: progress driven by fame + performance (mini-games) */
   G.FAME = {

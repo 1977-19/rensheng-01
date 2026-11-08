@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   var h = G.h, UI = G.UI, T = UI.T, tap = UI.tap, N = G.N;
-  function visible(a) { var p = G.S.p; if (a.a && (p.age < a.a[0] || p.age > a.a[1])) return false; if (a.if && !a.if()) return false; return true; }
+  function visible(a) { var p = G.S.p; if (a.a && (p.age < a.a[0] || p.age > a.a[1])) return false; if (a.era && !G.eraOk(a.era)) return false; if (a.if && !a.if()) return false; return true; }
   function actRow(a, after, npc) {
     var lock = a.lock ? a.lock() : null, price = a.$ ? G.$(a.$) : 0;
     var chips = h('div', { class: 'rt' });
@@ -130,7 +130,7 @@
   /* ===================== RELATIONSHIPS ===================== */
   var GROUPS = [
     ['伴侣|Partner', ['spouse', 'lover', 'affair']],
-    ['家人|Family', ['father', 'mother', 'stepparent', 'grand', 'sibling']],
+    ['家人|Family', ['father', 'mother', 'stepparent', 'grand', 'sibling', 'kin']],
     ['子女|Children', ['child', 'grandchild']],
     ['追求者与心动|Admirers & Crushes', ['admirer', 'crush']],
     ['朋友|Friends', ['friend', 'mentor']],

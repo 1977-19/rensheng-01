@@ -151,7 +151,7 @@
       O('大声喊人|Shout for help', R('路人围了过来，那人灰溜溜地跑了。|Passersby came over and the man slunk away.', { eq: 2, karma: 2 })),
       O('跟他走|Go with him', R('幸好一位警察叔叔认出了你，把你送回了家。|Luckily a police officer recognized you and brought you home.', { happy: -10, par: -2 }))
     ], { bad: 1 }),
-    E('c_newyear', [3, 15], '春节红包|Lunar New Year Red Envelopes', '🧧', '过年了，亲戚们给了你不少压岁钱。|It\'s Lunar New Year, and relatives give you lots of red envelopes.', [
+    E('c_newyear', [3, 15], function (c) { return c.p.country === 'jp' ? '新年压岁钱|New Year Otoshidama' : c.p.country === 'kr' ? '春节压岁钱|Seollal New Year Money' : '春节红包|Lunar New Year Red Envelopes'; }, '🧧', function (c) { return c.p.country === 'jp' ? '新年到了，亲戚们给了你好几个装着“御年玉”的小信封。|It\'s New Year, and relatives hand you little envelopes of otoshidama.' : c.p.country === 'kr' ? '春节给长辈磕头拜年，你收到了不少压岁钱。|You bow to your elders for Seollal and collect a pile of New Year money.' : '过年了，亲戚们给了你不少压岁钱。|It\'s Lunar New Year, and relatives give you lots of red envelopes.'; }, [
       O('自己留着|Keep it all', R('你偷偷把红包藏了起来。|You hid the money away.', { money: 60, happy: 5 })),
       O('交给妈妈“保管”|Let Mom "keep it safe"', R('这笔钱从此再也没见过。|You never saw that money again.', { par: 3, happy: -2 }))
     ], { rep: 1, cd: 4, if: function (S, p) { return H.east(S, p) && H.hasPar(); } }),

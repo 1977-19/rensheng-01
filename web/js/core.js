@@ -54,7 +54,9 @@ var G = (typeof window !== 'undefined' ? (window.G = window.G || {}) : (global.G
     return String(v);
   }
   function sub(str, prm, li) {
-    return str.replace(/\{(\w+)\}/g, function (m, k) { return prm[k] === undefined ? m : fmtVal(prm[k], li); });
+    var out = str.replace(/\{(\w+)\}/g, function (m, k) { return prm[k] === undefined ? m : fmtVal(prm[k], li); });
+    // English article agreement for substituted nouns: "a Agent" -> "an Agent"
+    return li === 1 && out !== str ? out.replace(/(^|\s)a (?=(?:[AEIaei]|[Oo](?!ne)|[Uu](?!ni|s[aeu]|ro|k))\w)/g, '$1an ') : out;
   }
   G.numZh = function (n) { return Math.abs(n) >= 1e4 && Math.round(n) === n ? G.bigZh(n) : String(Math.round(n * 100) / 100); };
   G.numEn = function (n) { return Math.round(n) === n ? (Math.abs(n) >= 10000 ? n.toLocaleString('en-US') : String(n)) : String(Math.round(n * 100) / 100); };
@@ -85,6 +87,8 @@ var G = (typeof window !== 'undefined' ? (window.G = window.G || {}) : (global.G
     s = String(s);
     var zh = part(s, 0), en = part(s, 1);
     if (prm) { zh = sub(zh, prm, 0); en = sub(en, prm, 1); }
+    // planned-economy China had no "bosses", only work-unit leaders
+    if (G.S && G.S.p && G.S.p.country === 'cn' && G.S.year < 1980 && zh.indexOf('老板') >= 0) zh = zh.replace(/老板/g, '领导');
     return zh + '|' + en;
   };
   G.join = function (arr, sepZh, sepEn) { // join neutral strings
@@ -112,6 +116,7 @@ var G = (typeof window !== 'undefined' ? (window.G = window.G || {}) : (global.G
       }
       if (!hit) { var ch = str[i]; out += C[ch] || ch; i++; }
     }
+    out = out.replace(/“/g, '「').replace(/”/g, '」').replace(/‘/g, '『').replace(/’/g, '』');
     if (str.length < 200) twCache[str] = out;
     return out;
   };

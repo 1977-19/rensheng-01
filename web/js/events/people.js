@@ -56,7 +56,7 @@
     E('n_mentor', [16, 40], '贵人相助|A Helping Hand', '🧭', '一位前辈{n}很欣赏你，愿意带你入行。|A senior figure, {n}, admires you and offers to show you the ropes.', [
       O('拜师学艺|Become {his} protégé', function (c) { c.npc.rel = 'mentor'; c.npc.pin = 1; G.dPush('aff', N.addAff(c.npc, 30)); H.fx(c, { smarts: 2, eq: 2, perf: 8 }); return '在{n}的指点下，你进步飞快。|Under {n}\'s guidance, you improved rapidly.'; }),
       O('谢绝|Politely decline', R('你想靠自己闯。|You want to make it on your own.', {}))
-    ], { good: 1, noDry: 1, if: function (S, p) { return !p.jail && !p.gang; }, prep: function (c) { var n = N.make({ rel: 'contact', age: c.p.age + G.ri(18, 35), job: c.p.job ? G.JOB[c.p.job.id].r[G.JOB[c.p.job.id].r.length - 1] : '企业家|Entrepreneur', inc: G.$w(200000), aff: 25 }); c.npc = n; c.prm.n = n.name; var pr = G.pr(n.g); for (var k in pr) c.prm[k] = pr[k]; } }),
+    ], { good: 1, noDry: 1, if: function (S, p) { return !p.jail && !p.gang; }, prep: function (c) { var n = N.make({ rel: 'contact', age: Math.min(c.p.age + G.ri(18, 35), G.ri(55, 63)), job: c.p.job ? G.JOB[c.p.job.id].r[G.JOB[c.p.job.id].r.length - 1] : '企业家|Entrepreneur', inc: G.$w(200000), aff: 25 }); c.npc = n; c.prm.n = n.name; var pr = G.pr(n.g); for (var k in pr) c.prm[k] = pr[k]; } }),
     E('n_kid_call', [40, 100], '孩子的好消息|Good News from Your Child', '📱', '{n}打来电话：“我升职了！”|{n} calls: "I got promoted!"', [
       O('为{him}骄傲|Tell {him} you\'re proud', R('挂了电话，你笑了很久。|After hanging up, you smiled for a long time.', { happy: 8, kids: 3 }))
     ], { good: 1, prep: function (c) { if (!pickNpc(c, ['child'], function (n) { return N.age(n) >= 24 && n.inc > 0; })) return false; } })

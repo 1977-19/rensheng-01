@@ -43,13 +43,13 @@
 
   G.ACT_BABY = [
     { id: 'cry', n: '哇哇大哭|Cry Loudly', i: '😭', e: 5, run: function (a) { return quick(a, ['你哭得惊天动地，全家人都围着你转。|You wail so loudly the whole family comes running.', '你哭累了，在妈妈怀里睡着了。|You cry yourself to sleep in Mom\'s arms.'], { happy: 3 }); } },
-    { id: 'babble', n: '咿呀学语|Babble', i: '🍼', e: 5, run: function (a) { return quick(a, ['你含糊地喊出了“妈妈”，妈妈激动得哭了。|You mumble "mama," and Mom tears up with joy.', '你冲着电视咿咿呀呀，好像在发表演讲。|You babble at the TV like you\'re giving a speech.'], { smarts: 1, eq: 1 }); } },
+    { id: 'babble', n: '咿呀学语|Babble', i: '🍼', e: 5, run: function (a) { return quick(a, ['你含糊地喊出了“妈妈”，妈妈激动得哭了。|You mumble "mama," and Mom tears up with joy.', '你冲着窗外的小鸟咿咿呀呀，好像在发表演讲。|You babble at the birds outside like you\'re giving a speech.'], { smarts: 1, eq: 1 }); } },
     { id: 'walk', n: '学走路|Learn to Walk', i: '🚼', e: 5, run: function (a) { return quick(a, ['你摇摇晃晃地迈出了人生第一步！|You wobble and take your very first step!', '你摔了个屁股墩，但又爬起来了。|You plop down on your bum, but get right back up.'], { health: 1 }); } },
     { id: 'cute', n: '卖萌|Be Adorable', i: '🥰', e: 5, run: function (a) { par().forEach(function (n) { N.addAff(n, 3); }); return quick(a, '你冲着大人咯咯笑，大家的心都化了。|You giggle at the grown-ups, and everyone melts.', { happy: 2 }); } }
   ];
   G.ACT_KID = [
     { id: 'play', n: '和小朋友玩|Play with Other Kids', i: '🧸', e: 10, run: function (a) { var f = N.make({ rel: 'friend', age: G.S.p.age + G.ri(-1, 1), aff: 25 }); return quick(a, '你和{n}玩得很开心，成了好朋友。|You had a great time with {n} and became friends.', { happy: 4, eq: 1 }, { n: f.name }); } },
-    { id: 'draw', n: '画画|Draw Pictures', i: '🖍️', e: 10, run: function (a) { sk('art', 3); return quick(a, '你画了一幅“全家福”，被贴在了冰箱上。|You drew a family portrait; it went on the fridge.', { happy: 3, smarts: 1 }); } },
+    { id: 'draw', n: '画画|Draw Pictures', i: '🖍️', e: 10, run: function (a) { sk('art', 3); return quick(a, '你画了一幅“全家福”，被爸妈贴在了墙上。|You drew a family portrait; your parents pinned it on the wall.', { happy: 3, smarts: 1 }); } },
     { id: 'tv', n: '看动画片|Watch Cartoons', i: '📺', e: 5, run: function (a) { return quick(a, '你看动画片看得入了迷。|You were glued to the cartoons.', { happy: 4 }); } },
     { id: 'tantrum', n: '撒泼打滚|Throw a Tantrum', i: '😤', e: 5, run: function (a) { par().forEach(function (n) { N.addAff(n, -3); }); return quick(a, ['你在商场里打滚要玩具，最后被拎回了家。|You rolled on the mall floor for a toy and got carried home.', '你哭闹到最后，还是得到了一根棒棒糖。|You fussed until you finally got a lollipop.'], { happy: G.ri(-3, 4) }); } }
   ];
@@ -95,9 +95,17 @@
     { id: 'monitor', n: '竞选班干部|Run for Class Monitor', i: '🎗️', e: 15, run: function (a) { var ok = G.ch(.2 + G.S.p.st.eq / 150); if (ok) G.S.p.flags.monitor = 1; return quick(a, ok ? '你当选了班长！|You were elected class monitor!' : '你落选了，只差几票。|You lost by a handful of votes.', ok ? { eq: 3, happy: 5 } : { happy: -3 }); } },
     { id: 'cheat', n: '考试作弊|Cheat on a Test', i: '📝', e: 10, a: [8, 30], run: function (a) { if (G.ch(.6)) { G.S.p.edu.perf += 6; return quick(a, '你偷偷抄了答案，没被发现。|You copied answers and didn\'t get caught.', { karma: -4 }); } G.S.p.edu.perf -= 10; par().forEach(function (n) { N.addAff(n, -10); }); return quick(a, '作弊被监考老师当场抓获，记了处分！|The proctor caught you cheating; it went on your record!', { happy: -10, karma: -4 }); } },
     { id: 'crush', n: '暗恋/早恋|Crush', i: '💘', e: 10, a: [13, 17], run: async function (a) {
-      var cands = N.rel('classmate', 'friend').filter(function (n) { return N.canRomance(n) && n.rel !== 'lover'; });
+      var cur = G.S.p.flags.crush && G.S.npcs[G.S.p.flags.crush];
+      if (cur && cur.alive && ['classmate', 'friend', 'crush'].indexOf(cur.rel) >= 0 && N.canRomance(cur) && G.ch(.75)) {
+        var noticed = G.ch(.12 + cur.love / 300 + (G.S.p.st.looks - 50) / 300);
+        G.dStart(); G.dPush('love', N.addLove(cur, noticed ? 8 : 3)); N.touch(cur); var dl = G.dEnd();
+        var lines = noticed ? ['{n}发现你在看{h}，冲你笑了一下。你的脸瞬间红透了。|{n} caught you looking — and smiled back. Your face went bright red.', '{n}借了你的橡皮，还回来时上面画了个笑脸。|{n} borrowed your eraser and returned it with a smiley face drawn on it.']
+          : ['你偷偷看了{n}一整节课。|You stole glances at {n} all class long.', '你在日记本上写满了{n}的名字。|You filled a page of your diary with {n}\'s name.', '你故意绕远路，只为了和{n}同路回家。|You took the long way home just to walk the same route as {n}.', '你想跟{n}打招呼，话到嘴边又咽了回去。|You meant to say hi to {n}, but the words died in your throat.'];
+        return G.result(a.n, G.pick(lines), { n: cur.name, h: cur.g === 'm' ? '他|him' : '她|her' }, dl, a.i);
+      }
+      var cands = N.rel('classmate', 'friend').filter(function (n) { return N.canRomance(n) && n.rel !== 'lover' && (!cur || n !== cur); });
       var n = cands.length && G.ch(.6) ? G.pick(cands) : N.mkRomantic({ rel: 'classmate', love: G.ri(10, 50), aff: 20 });
-      G.S.p.flags.crush = n.id;
+      G.S.p.flags.crush = n.id; if (n.rel === 'classmate') n.rel = 'crush';
       return G.result(a.n, '你偷偷喜欢上了{n}。去“关系”里找{h}聊聊吧。|You have a secret crush on {n}. Find {h} under "Relationships" and say hi.', { n: n.name, h: n.g === 'm' ? '他|him' : '她|her' }, [], a.i);
     } },
     { id: 'brawl', n: '和人打架|Get in a Fight', i: '👊', e: 15, a: [8, 18], run: async function (a) { var r = await G.UI.game('fight', { name: a.n }); G.dStart(); if (r.win) { G.addStat('rep', 5); G.addStat('happy', 3); } else { G.addStat('health', -6); G.addStat('happy', -5); } G.addStat('karma', -2); var dl = G.dEnd(); return G.result(a.n, r.win ? '你把对方揍趴下了，从此没人敢惹你。|You knocked them flat; nobody messes with you now.' : '你被揍得鼻青脸肿。|You got beaten black and blue.', null, dl, a.i); } },
@@ -116,8 +124,8 @@
   G.ACT_JOB = [
     { id: 'work', n: '努力工作|Work Hard', i: '💪', e: 20, run: function (a) { G.S.p.job.eff++; return quick(a, ['你提前完成了项目，老板点了个赞。|You delivered early, and your boss gave you a thumbs-up.', '你主动承担了一个难啃的任务。|You volunteered for a tough assignment.'], { stress: 5, happy: -1 }); } },
     { id: 'overtime', n: '加班|Work Overtime', i: '🌙', e: 25, run: function (a) { var j = G.S.p.job; j.eff += 2; G.S.p.hab.night += 15; return quick(a, '你连续加班到深夜，眼睛都快睁不开了。|You worked late night after night; your eyes can barely stay open.', { stress: 10, health: -2, money: 600 }); } },
-    { id: 'fish', n: '上班摸鱼|Slack Off at Work', i: '🐟', e: 5, run: function (a) { var j = G.S.p.job; j.eff -= .5; if (G.ch(.2)) { j.perf -= 8; return quick(a, '摸鱼被老板抓了个正着！|Your boss caught you slacking!', { happy: -5 }); } return quick(a, ['你在工位上刷了一下午手机。|You scrolled your phone at your desk all afternoon.', '你带薪上厕所半小时。|You took a 30-minute paid bathroom break.'], { happy: 4, stress: -4 }); } },
-    { id: 'colleague', n: '和同事搞好关系|Bond with Coworkers', i: '🍻', e: 10, run: function (a) { N.rel('colleague', 'boss').forEach(function (n) { N.addAff(n, 5); N.touch(n); }); return quick(a, '你请同事们喝了奶茶，大家对你印象不错。|You bought everyone bubble tea; they like you now.', { eq: 1, money: -15 }); } },
+    { id: 'fish', n: '上班摸鱼|Slack Off at Work', i: '🐟', e: 5, run: function (a) { var j = G.S.p.job; j.eff -= .5; if (G.ch(.2)) { j.perf -= 8; return quick(a, '摸鱼被老板抓了个正着！|Your boss caught you slacking!', { happy: -5 }); } return quick(a, [G.S.year >= 2010 ? '你在工位上刷了一下午手机。|You scrolled your phone at your desk all afternoon.' : '你在工位上看了一下午报纸。|You read the newspaper at your desk all afternoon.', '你带薪上厕所半小时。|You took a 30-minute paid bathroom break.'], { happy: 4, stress: -4 }); } },
+    { id: 'colleague', n: '和同事搞好关系|Bond with Coworkers', i: '🍻', e: 10, run: function (a) { N.rel('colleague', 'boss').forEach(function (n) { N.addAff(n, 5); N.touch(n); }); var y = G.S.year, east = ['cn', 'jp', 'kr', 'sg', 'th'].indexOf(G.S.p.country) >= 0; var treat = G.pick(y >= 2010 && east ? ['喝了奶茶|bubble tea', '吃了下午茶|afternoon snacks', '喝了咖啡|coffee'] : y >= 1995 ? ['喝了咖啡|coffee', '吃了甜甜圈|donuts', '吃了披萨|pizza', '下班喝了一杯|after-work drinks'] : ['吃了水果|fruit', '抽了烟|cigarettes', '下班喝了一杯|after-work drinks', '吃了点心|pastries']); return quick(a, G.L('你请同事们{t}，大家对你印象不错。|You treated everyone to {t}; they like you now.', { t: treat }), { eq: 1, money: -15 }); } },
     { id: 'flatter', n: '拍老板马屁|Suck Up to the Boss', i: '🙇', e: 10, run: function (a) { var j = G.S.p.job; if (G.ch(.5 + G.S.p.st.eq / 300)) { j.perf += 5; return quick(a, '老板被你哄得眉开眼笑。|Your boss beams at your flattery.', { karma: -1 }); } return quick(a, '马屁拍到了马腿上，老板一脸嫌弃。|The flattery backfired; your boss looks disgusted.', { happy: -3 }); } },
     { id: 'raise', n: '要求加薪|Ask for a Raise', i: '💹', e: 10, run: function (a) { var j = G.S.p.job, ch = (j.perf - 40) / 80 + G.S.p.st.eq / 300; if (j.raiseY === G.S.year) return quick(a, '你今年已经提过了。|You already asked this year.', {}); j.raiseY = G.S.year; if (G.ch(ch)) { var inc = Math.round(j.sal * G.rf(.05, .15)); j.sal += inc; return quick(a, '老板同意给你加薪{m}！|Your boss agreed to a {m} raise!', { happy: 6 }, { m: G.M(inc) }); } j.perf -= 3; return quick(a, '老板说“再等等”。|Your boss said, "Let\'s wait a bit."', { happy: -4 }); } },
     { id: 'jobhop', n: '跳槽|Look for a New Job', i: '🔀', e: 15, run: async function () { await G.career.search(); } },

@@ -58,6 +58,20 @@
   G.major = function (s, prm) { var line = G.L(s, prm); G.S.major.push({ a: G.S.p.age, y: G.S.year, t: line }); return line; };
   G.inc = function (k, n) { var c = G.S.cnt; c[k] = (c[k] || 0) + (n == null ? 1 : n); return c[k]; };
 
+  /* ---------- era gates: spec is a year or { g: year, cn: year, ... } (per-country earliest year) ---------- */
+  G.eraOk = function (spec) {
+    var S = G.S; if (!S || spec == null) return true;
+    var y = typeof spec === 'number' ? spec : (spec[S.p.country] != null ? spec[S.p.country] : spec.g || 0);
+    return S.year >= y;
+  };
+  /* is a job open in this country/year? cn0 = earliest year in China (planned economy before reform) */
+  G.jobOk = function (j) {
+    var S = G.S; if (!S) return true;
+    if (j.y0 && S.year < j.y0) return false;
+    if (S.p.country === 'cn' && j.cn0 && S.year < j.cn0) return false;
+    return true;
+  };
+
   /* ---------- event registry ---------- */
   G.EV = {}; G.EVL = [];
   G.ev = function (d) {
@@ -106,7 +120,7 @@
     var text = G.L(txt(d.t, c), c.prm);
     var icon = txt(d.icon, c);
     if (d.o) {
-      var opts = d.o.filter(function (o) { return !o.if || o.if(c); });
+      var opts = d.o.filter(function (o) { return (!o.if || o.if(c)) && (!o.era || G.eraOk(o.era)); });
       if (!opts.length) return;
       var shown = opts.map(function (o) {
         return { t: G.L(txt(o.t, c), c.prm), sub: o.sub ? G.L(txt(o.sub, c), c.prm) : '', dis: o.dis ? !!o.dis(c) : false };
@@ -152,6 +166,7 @@
     if (n && !d.rep) return false;
     if (n && d.rep && S.cool[d.id] != null && p.age - S.cool[d.id] < (d.cd || 4)) return false;
     if (d.y && (S.year < d.y[0] || S.year > d.y[1])) return false;
+    if (d.era && !G.eraOk(d.era)) return false;
     if (d.if && !d.if(S, p)) return false;
     if (p.jail && !d.jail) return false;
     if (!p.jail && d.jail) return false;

@@ -28,7 +28,7 @@
   CR.listings = function (n) {
     var S = G.S, p = S.p, student = G.school.isStudent() || p.age < 18;
     var pool = G.JOBS.filter(function (j) {
-      if (j.y0 && S.year < j.y0) return false;
+      if (!G.jobOk(j)) return false;
       if (student) return !!j.pt && p.age >= (j.age || 16);
       if (j.pt) return p.age < 25;
       return true;

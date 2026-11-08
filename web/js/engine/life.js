@@ -195,10 +195,10 @@
     G.N.all().forEach(function (n) {
       if (n === kid || n === oldNpc) return;
       if (n.rel === 'father' || n.rel === 'mother') n.rel = 'grand';
-      else if (n.rel === 'grand') { if (!n.alive) delete S.npcs[n.id]; else n.rel = 'contact'; }
-      else if (n.rel === 'sibling') n.rel = 'contact';
+      else if (n.rel === 'grand') { if (!n.alive) delete S.npcs[n.id]; else n.rel = 'kin'; }
+      else if (n.rel === 'sibling') { n.rel = 'kin'; n.kin = 'aunt'; }
       else if (n.rel === 'child') { n.rel = 'sibling'; n.older = n.by < kid.by; }
-      else if (n.rel === 'grandchild') n.rel = 'contact';
+      else if (n.rel === 'grandchild') { n.rel = 'kin'; n.kin = 'nibling'; }
       else if (n === spouse) n.rel = n.g === 'm' ? 'father' : 'mother';
       else if (!kid.npcRel || !kid.npcRel[n.id]) { if (n.rel !== 'friend') delete S.npcs[n.id]; }
     });

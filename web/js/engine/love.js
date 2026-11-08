@@ -180,6 +180,13 @@
   FA.growKid = function (k, Q) {
     var a = N.age(k), e = k.edu || (k.edu = { stage: 'none', grade: 0, perf: 50, deg: 0, study: 0, retake: 0 });
     var inv = k.inv || 0; k.inv = 0;
+    // adult "children" who never went through growKid (e.g. grandchildren who became your children when you played on as an heir)
+    if (a >= 23 && !k.jobT) {
+      if (e.stage !== 'done') { e.stage = 'done'; e.deg = e.deg || (G.ch(.5) ? 4 : 2); }
+      var j1 = G.pick(e.deg >= 4 ? G.NPC_JOBS.slice(0, 22) : G.NPC_JOBS.slice(5, 20));
+      k.job = j1.n; k.jobT = j1.n; k.inc = k.inc || G.$w(j1.u * G.rf(.8, 1.2), k.c);
+      return;
+    }
     if (a <= 20) k.smarts = G.clamp(k.smarts + G.ri(0, 2) + (inv > 0 ? 2 : 0), 1, 100);
     if (a >= 12 && a <= 20) k.looks = G.clamp(k.looks + G.ri(-2, 2), 1, 100);
     // education

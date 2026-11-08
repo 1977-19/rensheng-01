@@ -91,6 +91,10 @@
       case 'admirer': return '追求者|Admirer';
       case 'crush': return '暗恋对象|Crush';
       case 'affair': return '情人|Secret Lover';
+      case 'kin': var ka = N.age(n), pa = p.age;
+        if (n.kin === 'nibling') return m ? '侄子/外甥|Nephew' : '侄女/外甥女|Niece';
+        if (n.kin === 'aunt') return m ? '叔叔/舅舅|Uncle' : '姑姑/阿姨|Aunt';
+        return ka > pa + 15 ? '长辈亲戚|Older Relative' : '亲戚|Relative';
       case 'enemy': return '仇人|Enemy';
       case 'rival': return '对手|Rival';
       case 'mentor': return '恩师|Mentor';
@@ -184,9 +188,19 @@
       if (n.rel === 'child' || n.rel === 'grandchild') q *= .3;
       if (G.ch(Math.min(q, .6)) || n.health <= 0 || age > 108) { n.alive = false; n.died = S.year; out.push(n); return; }
       // aging into adulthood / jobs
-      if (age === 18 && n.job === '学生|Student') { n.job = G.ch(.55) ? '大学生|University Student' : G.pick(G.NPC_JOBS).n; }
-      if (age === 23 && n.job === '大学生|University Student') { var jb = G.pick(G.NPC_JOBS.slice(0, 18)); n.job = jb.n; n.inc = G.$w(jb.u * G.rf(.8, 1.3), n.c); }
-      if (age === (cc.retire || 60) + 1 && n.inc && n.job !== '退休|Retired' && !n.tags.length && n.rel !== 'spouse') { n.job = '退休|Retired'; n.inc = Math.round(n.inc * .45); }
+      // life stages (range-based so nothing gets stuck if a year is skipped, e.g. after playing on as an heir).
+      // The player's own children are grown by G.family.growKid.
+      if (n.rel !== 'child' || n.jobT) {
+        var ret = cc.retire || 60;
+        if ((n.job === '婴儿|Baby') && age >= 3) n.job = '学龄前|Preschooler';
+        if (n.job === '学龄前|Preschooler' && age >= 6) n.job = '学生|Student';
+        if (n.job === '学生|Student' && age >= 18) {
+          if (age < 21 && G.ch(.55)) n.job = '大学生|University Student';
+          else { var j0 = G.pick(G.NPC_JOBS.slice(5, 20)); n.job = j0.n; n.inc = G.$w(j0.u * G.rf(.7, 1.1), n.c); }
+        }
+        if (n.job === '大学生|University Student' && age >= 23) { var jb = G.pick(G.NPC_JOBS.slice(0, 18)); n.job = jb.n; n.inc = G.$w(jb.u * G.rf(.8, 1.3), n.c); }
+        if (age > ret && n.job !== '退休|Retired' && !n.tags.length && n.inc && (n.rel !== 'spouse' || age > ret + 5) && G.ch(age > ret + 4 ? 1 : .35)) { n.job = '退休|Retired'; n.inc = Math.round(n.inc * .45); }
+      }
       // inflation of income
       var g = G.eraIdx(n.c, S.year) / G.eraIdx(n.c, S.year - 1);
       n.inc = Math.round((n.inc || 0) * g);

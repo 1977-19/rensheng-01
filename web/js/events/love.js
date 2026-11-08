@@ -57,7 +57,7 @@
       O('相信{him}|Trust {him}', RC(function (c) { return c.npc.loyal / 100; }, '{n}果断拒绝了对方。|{n} turned them down flat.', { love: 4 }, '{n}好像有点动摇了……|{n} seems tempted...', { love: -10 }))
     ], { prep: function (c) { var pt = N.partner(); if (!pt || pt.looks < 55) return false; return withPartner(c); } }),
     E('l_longdist', [18, 40], '异地恋|Long-Distance', '✈️', '{n}要去另一个城市工作，你们要异地了。|{n} is moving to another city for work. You\'ll be long-distance.', [
-      O('坚持异地|Make it work', RC(.6, '每晚视频，你们熬过了异地。|Nightly video calls got you through.', { love: 6 }, '距离消磨了感情，你们分手了。|Distance wore you down, and you broke up.', { happy: -8 })),
+      O('坚持异地|Make it work', RC(.6, function () { return G.S.year >= 2010 ? '每晚视频，你们熬过了异地。|Nightly video calls got you through.' : '一封封书信和长途电话，你们熬过了异地。|Letters and long-distance calls got you through.'; }, { love: 6 }, '距离消磨了感情，你们分手了。|Distance wore you down, and you broke up.', { happy: -8 })),
       O('跟{him}一起走|Move with {him}', function (c) { if (c.p.job && !G.JOB[c.p.job.id].pt) G.career.leave(); c.p.city = G.pick(G.C[c.p.country].cities[G.ri(1, 2)]); H.fx(c, { love: 15 }); return '你辞职跟着{n}去了新城市。|You quit your job and moved with {n}.'; })
     ], { prep: function (c) { var pt = N.partner(); if (!pt || pt.rel !== 'lover') return false; return withPartner(c); }, w: .5 }),
     E('l_flash', [20, 40], '闪婚|Whirlwind Marriage', '⚡', '你和{n}才认识一个月，{he}就提议结婚。|You\'ve known {n} only a month, and {he} suggests getting married.', [
