@@ -14,9 +14,20 @@
     if (stage === 'voc') return G.L('{c}职业技术学校|{c} Vocational School', { c: city });
     return '';
   }
-  SC.enter = function (stage, school) {
+  /* school quality 1..5: drives how fast you grow and how well you test */
+  SC.baseQ = function () {
+    var S = G.S, p = S.p, q = 4.4 - ((p.tier || 3) - 1) * .55;       // big cities have better schools
+    if (S.assets.houses.some(function (h) { return h.school; })) q += 1.2; // school-district home
+    var fw = G.famWealth() + p.money;
+    if (fw > G.$(2e6)) q += .8; else if (fw < G.$(20000)) q -= .6;
+    if (p.flags.acafam || p.flags.elite) q += .6;
+    return Math.round(G.clamp(q + G.rf(-.6, .6), 1, 5));
+  };
+  SC.Q_NAME = ['', '薄弱|Struggling', '普通|Ordinary', '不错|Good', '重点|Top-ranked', '顶尖|Elite'];
+  SC.enter = function (stage, school, q) {
     var e = G.S.p.edu;
     e.stage = stage; e.grade = 0; e.school = school || sysName(stage); e.study = 0;
+    e.q = q != null ? q : stage === 'voc' ? 2 : SC.baseQ();
     G.N.rel('classmate').forEach(function (n) { if (n.aff < 40) delete G.S.npcs[n.id]; });
   };
   SC.inSchool = function () { var s = G.S.p.edu.stage; return s && s !== 'none' && s !== 'done'; };
@@ -36,24 +47,31 @@
     if (e.stage === 'kinder') { if (a >= 6) { SC.enter('primary'); G.log('你背上书包，成了一名小学生。|You put on a backpack and became a primary school student.'); G.major('上小学|Started primary school'); } return; }
     if (e.stage === 'done') return;
     // performance update
-    var tgt = p.st.smarts * .55 + e.study * 6 + p.st.happy * .1 + G.ri(-8, 8) + (G.has('genius') ? 8 : 0) + (G.has('slow') ? -8 : 0) - (p.h.stress > 70 ? 6 : 0);
+    var q = e.q || 3;
+    var tgt = p.st.smarts * .55 + e.study * 6 + p.st.happy * .1 + G.ri(-8, 8) + (G.has('genius') ? 8 : 0) + (G.has('slow') ? -8 : 0) - (p.h.stress > 70 ? 6 : 0) + (q - 3) * 3 + (G.circle ? G.circle.teacherBonus() : 0) - 4;
     if (closed) { tgt = e.perf; G.log('学校停课了，你整天无所事事。|School is closed. You have nothing to do all day.'); }
     e.perf = G.clamp(Math.round(e.perf * .55 + tgt * .45), 0, 100);
     if (e.study >= 3) G.addStat('smarts', 1, true);
+    // better schools: faster growth, more pressure; weak schools: slower growth, more trouble
+    if (!closed && e.stage !== 'kinder') {
+      G.addStat('smarts', [0, -.4, .2, .8, 1.6, 2.4][q] + (e.study >= 2 ? (q - 2) * .3 : 0), true);
+      if (q >= 4) G.addStat('stress', 4 + (q - 4) * 3, true);
+      if (q >= 4) G.addStat('eq', .4, true);
+    }
     e.study = 0;
     e.grade++;
     if (e.grade < SC.stageYears()) return;
     // graduation of stage
     switch (e.stage) {
       case 'primary':
-        e.deg = 1; SC.enter('middle');
+        e.deg = 1; SC.enter('middle', null, e.perf > 85 ? Math.min(5, SC.baseQ() + 1) : null);
         G.log('小学毕业了，你升入了{s}。|You finished primary school and moved up to {s}.', { s: e.school });
         break;
       case 'middle':
         e.deg = 2;
         if (G.eduSys(p.country).hs) Q.push({ id: 'sys_hs_exam' });
         else if (e.perf < 25 && G.ch(.5)) { SC.enter('voc'); G.log('成绩不理想，你进入了职业学校。|Your grades were poor, so you went to vocational school.'); }
-        else { SC.enter('high', sysName('high', e.perf > 75)); G.log('你升入了{s}。|You moved up to {s}.', { s: e.school }); }
+        else { SC.enter('high', sysName('high', e.perf > 75), e.perf > 85 ? 5 : e.perf > 75 ? 4 : null); G.log('你升入了{s}。|You moved up to {s}.', { s: e.school }); }
         break;
       case 'high': case 'voc':
         e.deg = 3; e.stage = 'done'; G.major('高中毕业|Graduated high school');
@@ -78,13 +96,14 @@
   /* exam score 0..100 */
   SC.examScore = function (gameScore) {
     var p = G.S.p, e = p.edu;
-    var s = e.perf * .45 + p.st.smarts * .3 + (gameScore != null ? gameScore * 25 : G.nrm(p.st.smarts / 100, .12) * 25) + (G.stat('luck') / 10) + G.ri(-5, 5);
-    if (G.has('genius')) s += 6;
-    if (p.flags.guaranteed) { s += 22; p.flags.guaranteed = 0; }
-    if (p.h.stress > 75) s -= 5;
+    var s = e.perf * .42 + p.st.smarts * .27 + (gameScore != null ? gameScore * 24 : G.nrm(p.st.smarts / 100, .12) * 24) + (G.stat('luck') / 12) + G.ri(-7, 6);
+    if (G.has('genius')) s += 5;
+    if (p.flags.guaranteed) { s += 16; p.flags.guaranteed = 0; }
+    if (p.h.stress > 75) s -= 6;
+    if (p.st.health < 40) s -= 4;
     return G.clamp(Math.round(s), 0, 100);
   };
-  SC.maxTier = function (sc) { return sc >= 90 ? 5 : sc >= 78 ? 4 : sc >= 62 ? 3 : sc >= 42 ? 2 : 1; };
+  SC.maxTier = function (sc) { return sc >= 92 ? 5 : sc >= 81 ? 4 : sc >= 65 ? 3 : sc >= 45 ? 2 : 1; };
   SC.admitChance = function (uniT, sc) {
     var mt = SC.maxTier(sc);
     if (uniT <= mt - 1) return .98;
@@ -122,7 +141,7 @@
   };
   SC.admit = function (u, major) {
     var p = G.S.p, e = p.edu;
-    e.stage = 'uni'; e.grade = 0; e.school = u.n; e.tier = u.t; e.major = major; e.study = 0; e.perf = G.clamp(e.perf, 30, 100);
+    e.stage = 'uni'; e.grade = 0; e.school = u.n; e.tier = u.t; e.q = u.t; e.major = major; e.study = 0; e.perf = G.clamp(e.perf, 30, 100);
     if (u.cid && u.cid !== p.country) { e.abroad = u.cid; p.flags.abroad = u.cid; } else { e.abroad = null; }
     if (u.spec) e.spec = u.spec; else e.spec = null;
     G.major('考入{s}|Admitted to {s}', { s: u.n });
@@ -195,8 +214,8 @@
 
   SC.hsResult = function (c, sc) {
     var e = c.p.edu;
-    if (sc >= 75) { SC.enter('high', sysName('high', true)); c.add('happy', 6); return G.L('考了{s}分！你考进了{n}。|You scored {s}! You got into {n}.', { s: sc, n: e.school }); }
-    if (sc >= 42) { SC.enter('high'); return G.L('考了{s}分，你上了{n}。|You scored {s} and went to {n}.', { s: sc, n: e.school }); }
+    if (sc >= 75) { SC.enter('high', sysName('high', true), sc >= 88 ? 5 : 4); c.add('happy', 6); return G.L('考了{s}分！你考进了{n}。|You scored {s}! You got into {n}.', { s: sc, n: e.school }); }
+    if (sc >= 42) { SC.enter('high', null, sc >= 60 ? 3 : 2); return G.L('考了{s}分，你上了{n}。|You scored {s} and went to {n}.', { s: sc, n: e.school }); }
     if (sc >= 25) { SC.enter('voc'); c.add('happy', -4); return G.L('只考了{s}分，你去了职业学校。|Only {s}. You ended up at a vocational school.', { s: sc }); }
     e.stage = 'done'; c.add('happy', -8); return G.L('只考了{s}分，你没学上了。|Only {s}. No school would take you.', { s: sc });
   };

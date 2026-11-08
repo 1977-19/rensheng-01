@@ -19,7 +19,7 @@
     E('l_meetparents', [18, 50], '见家长|Meeting the Parents', '🏠', '{n}要带你回家见父母。|{n} is taking you home to meet the parents.', [
       O('精心打扮，带上厚礼|Dress up and bring generous gifts', function (c) { if (!c.pay(c.$(400))) return '你拿不出像样的礼物，有点尴尬。|You couldn\'t afford proper gifts; things were awkward.'; H.fx(c, { love: 8, eq: 1 }); return '对方父母对你非常满意。|Their parents adored you.'; }),
       O('做你自己|Just be yourself', RC(function (c) { return .4 + c.p.st.eq / 200; }, '对方父母觉得你很真诚。|Their parents found you genuine.', { love: 5 }, '对方父母嫌你家境一般，脸色不太好看。|Their parents frowned at your background.', { love: -3, happy: -5 }))
-    ], { prep: function (c) { var pt = N.partner(); if (!pt || pt.rel !== 'lover' || G.S.p.age < 18) return false; return withPartner(c); } }),
+    ], { if: function () { return false; } /* superseded by n_meet_parents (circle.js), which creates the partner's parents */, prep: function (c) { var pt = N.partner(); if (!pt || pt.rel !== 'lover' || G.S.p.age < 18) return false; return withPartner(c); } }),
     E('l_inlaw', [22, 70], '婆媳矛盾|In-law Conflict', '🥢', '你的家人和{n}因为家务和带孩子的事吵了起来。|Your family and {n} are fighting over chores and childcare.', [
       O('站在伴侣这边|Side with your spouse', R('{n}很感动，但你的父母很伤心。|{n} was touched, but your parents were hurt.', { love: 10, par: -8 })),
       O('站在父母这边|Side with your parents', R('{n}觉得你是个“妈宝”。|{n} thinks you\'re a mama\'s boy/girl.', { love: -12, par: 6 })),

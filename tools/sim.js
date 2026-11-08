@@ -70,7 +70,7 @@ async function doActions() {
 (async function () {
   const t0 = Date.now();
   for (let L = 0; L < N; L++) {
-    const cid = rpick(G.CLIST), org = rpick(G.ORIGINS.filter(o => !o.mon || (o.mon > 0) === !!G.C[cid].mon));
+    const cid = rpick(G.CLIST), org = rpick(G.ORIGINS.filter(o => (!o.mon || (o.mon > 0) === !!G.C[cid].mon) && (rnd() < .12 ? true : !o.vip)));
     const tal = G.sample(G.TALENTS.map(t => t.id), 3);
     try {
       G.life.create({ g: rnd() < .5 ? 'm' : 'f', orient: rpick(['het', 'het', 'het', 'gay', 'bi']), country: cid, tier: 1 + Math.floor(rnd() * 5), by: 1950 + Math.floor(rnd() * 76), origin: org.id, talents: tal });

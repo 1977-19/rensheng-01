@@ -92,6 +92,12 @@
     sibling: ['爸妈最近身体不太好，你多打打电话。|Mom and Dad haven\'t been well — call them more.', '过年回来吗？|Coming home for the holidays?', '你还记得小时候我们偷吃糖的事吗？哈哈|Remember when we stole candy as kids? Haha', '帮我个忙呗……|Can you do me a favor...', '我家孩子说想你了。|My kid says they miss you.'],
     kidSib: ['你又偷吃我的零食！|You ate my snacks again!', '我告诉妈妈去！|I\'m telling Mom!', '陪我玩一会儿嘛。|Play with me for a bit.'],
     boss: ['明天早上来我办公室一趟。|Come to my office tomorrow morning.', '这个项目做得不错。|Nice work on that project.', '周末加个班，辛苦了。|Need you in this weekend, thanks.', '下个月的报告抓紧。|Get on that report for next month.'],
+    inlaw: ['周末来家里吃饭吧，给你做了拿手菜。|Come over for dinner this weekend — I\'m making my specialty.', '你们俩最近还好吧？别吵架。|Are you two doing okay? Don\'t fight.', '天冷了，让{p}多穿点。|It\'s cold — make sure {p} dresses warmly.', '什么时候把事情定下来？|When are you two going to make it official?', '家里的电脑坏了，你有空来看看吗？|The computer at home broke — could you take a look sometime?'],
+    inlawCold: ['听说你换工作了？工资多少？|Heard you changed jobs? What\'s the pay?', '我们家{p}从小没吃过苦。|Our {p} never had to struggle growing up.'],
+    teacher: ['最近作业完成得不错，继续保持。|Your homework has been good lately — keep it up.', '下周家长会，记得通知家长。|Parent-teacher meeting next week — remind your parents.', '期中考试的错题要好好订正。|Go over your midterm mistakes carefully.', '你最近上课有点走神，有什么心事吗？|You\'ve seemed distracted in class. Is something on your mind?'],
+    tutor: ['这周的练习题做完了吗？|Finished this week\'s practice set?', '下次课我们讲函数，提前预习一下。|Next session we\'ll cover functions — read ahead.', '你进步很快，继续加油！|You\'re improving fast — keep going!'],
+    kidteacher: ['{k}最近表现不错，作业很认真。|{k} has been doing well and working hard on homework.', '{k}上课有点爱说话，家长多提醒一下。|{k} talks a lot in class — please remind them at home.', '下周家长会，请准时参加。|Parent-teacher meeting next week — please be on time.'],
+    kidtutor: ['{k}这周的练习完成得很好。|{k} did great on this week\'s practice.', '{k}数学有点薄弱，我会重点讲。|{k} is weak in math — I\'ll focus on that.'],
     ex: ['你最近过得好吗？|How have you been?', '那家我们常去的店关门了。|That place we used to go to closed down.', '听说你过得不错，挺好的。|Heard you\'re doing well. Good for you.']
   };
   function poolFor(n, p) {
@@ -115,6 +121,11 @@
       case 'boss': return MSG.boss;
       case 'ex': return n.aff > 10 && G.ch(.5) ? MSG.ex : null;
       case 'friend': case 'mentor': return p.age < 15 ? MSG.kidFriend : MSG.friend;
+      case 'inlaw': return n.aff < 0 ? MSG.inlawCold : MSG.inlaw;
+      case 'teacher': return MSG.teacher;
+      case 'tutor': return MSG.tutor;
+      case 'kidteacher': return MSG.kidteacher;
+      case 'kidtutor': return MSG.kidtutor;
       default: return null;
     }
   }
@@ -124,13 +135,15 @@
     var budget = G.ri(1, p.age < 14 ? 2 : 3);
     G.shuffle(cand).forEach(function (n) {
       if (budget <= 0) return;
-      var close = N.isFamily(n) || n.rel === 'spouse' || n.rel === 'lover' || n.rel === 'admirer';
+      var close = N.isFamily(n) || n.rel === 'spouse' || n.rel === 'lover' || n.rel === 'admirer' || n.rel === 'inlaw' || n.rel === 'teacher';
       if (!G.ch(close ? .45 : .25)) return;
       var b = poolFor(n, p); if (!b) return;
+      var prm = {}, of = n.of && S.npcs[n.of], kid = n.kid && S.npcs[n.kid];
+      if (of) prm.p = of.giv || of.name; if (kid) prm.k = kid.giv || kid.name;
       var recent = (n.chat || []).slice(-8).map(function (m) { return m.t; });
-      var fresh = b.filter(function (t) { return recent.indexOf(G.L(t)) < 0; });
+      var fresh = b.filter(function (t) { return recent.indexOf(G.L(t, prm)) < 0; });
       if (!fresh.length) return;
-      N.pushChat(n, G.pick(fresh)); budget--;
+      N.pushChat(n, G.pick(fresh), prm); budget--;
     });
   };
 })();

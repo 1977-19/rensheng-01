@@ -43,7 +43,11 @@
     function genName() { var cul = G.C[w.country].names; var nm = G.genName(cul, w.g, w.by); w.sur = nm.sur; w.giv = nm.giv; w.name = nm.name; }
     drawTalents(); genName();
     function originOk(o) { var mon = G.C[w.country].mon; if (o.mon === 1 && !mon) return false; if (o.mon === -1 && mon) return false; if (o.id === 'leftbehind' && w.by < 1985 && w.country === 'cn') return true; return true; }
+    var lastStep = -1;
     function render() {
+      // keep the list where it was when re-rendering the same step (tapping a talent/origin/city must not jump to the top)
+      var oldBody = document.querySelector('.wiz .wb'), keep = oldBody && lastStep === w.step ? oldBody.scrollTop : 0;
+      lastStep = w.step;
       var body = h('div', { class: 'wb' }), titles = ['性别与取向|Gender & Orientation', '出生地|Birthplace', '出生年份|Birth Year', '出身|Family Background', '天赋|Talents', '名字|Name'];
       [step0, step1, step2, step3, step4, step5][w.step](body);
       var steps = h('div', { class: 'steps' }); for (var i = 0; i < N_STEPS; i++) steps.appendChild(h('i', { class: i <= w.step ? 'on' : '' }));
@@ -54,6 +58,7 @@
       UI.screen(h('div', { class: 'wiz grid-paper' },
         h('div', { class: 'wh' }, h('button', { class: 'back', onclick: tap(function () { if (w.step) { w.step--; render(); } else UI.start(); }) }, '‹'), h('h3', null, T(titles[w.step])), h('div', { class: 'sp', style: { width: '38px' } })),
         steps, body, h('div', { class: 'wf' }, next)));
+      if (keep) body.scrollTop = keep;
     }
     function seg(opts, cur, set) { return h('div', { class: 'seg' }, opts.map(function (o) { return h('button', { class: o[0] === cur ? 'on' : '', onclick: tap(function () { set(o[0]); render(); }) }, T(o[1])); })); }
     function step0(b) {

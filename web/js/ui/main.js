@@ -6,17 +6,20 @@
   UI.main = function () {
     UI.closeAllSheets();
     M.on = true; M.shown = 30;
-    var hdr = h('div', { class: 'hdr' }), stats = h('div', { class: 'stats' }), diary = h('div', { class: 'diary grid-paper' });
-    var stamp = h('button', { class: 'stamp', 'aria-label': T('过完这一年|Finish this year'), onclick: tap(nextYear) });
-    var foot = h('div', { class: 'foot' },
-      tabBtn('💰', '资产|Assets', UI.tabAssets), tabBtn('👥', '关系|People', UI.tabRelations), stamp,
-      tabBtn('📋', '人生|Life', UI.tabLife), tabBtn('🎯', '活动|Activities', UI.tabActivities));
-    M.el = { hdr: hdr, stats: stats, diary: diary, stamp: stamp };
-    var root = h('div', { style: { display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' } }, hdr, stats, diary, foot);
+    var hdr = h('div', { class: 'hdr' }), stats = h('div', { class: 'stats' }), diary = h('div', { class: 'diary lined' });
+    var stamp = h('button', { class: 'pencil', 'aria-label': T('结束今年|End this year'), onclick: tap(nextYear) });
+    var tools = h('div', { class: 'deskbar' });
+    var tabs = h('div', { class: 'tabs' },
+      tabBtn('t-yellow', '财产|Assets', UI.tabAssets), tabBtn('t-red', '关系|People', UI.tabRelations),
+      tabBtn('t-blue', '人生|Life', UI.tabLife), tabBtn('t-green', '活动|Activities', UI.tabActivities));
+    M.el = { hdr: hdr, stats: stats, diary: diary, stamp: stamp, tools: tools };
+    var book = h('div', { class: 'book' }, h('i', { class: 'ring r1' }), h('i', { class: 'ring r2' }), h('i', { class: 'ring r3' }), h('i', { class: 'ring r4' }),
+      h('div', { class: 'page' }, h('div', { class: 'ribbon' }, h('span', null, T('我的一生|My Life'))), hdr, stats, diary));
+    var root = h('div', { class: 'desk' }, h('i', { class: 'leaf l1' }), h('i', { class: 'leaf l2' }), tools, book, tabs, h('div', { class: 'pencilrow' }, stamp));
     UI.screen(root);
     render(true);
   };
-  function tabBtn(i, label, fn) { return h('button', { class: 'tab', onclick: tap(function () { if (!UI.busy && !G.busy) fn(); }) }, h('span', null, i), T(label)); }
+  function tabBtn(cls, label, fn) { return h('button', { class: 'tab ' + cls, onclick: tap(function () { if (!UI.busy && !G.busy) fn(); }) }, h('span', null, T(label))); }
   async function nextYear() {
     if (UI.busy || G.busy || !G.S || G.S.dead) return;
     var st = M.el.stamp; st.disabled = true;
@@ -34,31 +37,34 @@
     var hd = M.el.hdr; hd.innerHTML = '';
     hd.appendChild(h('div', { class: 'av', html: G.avatarOf(p) }));
     hd.appendChild(h('div', { class: 'who' },
-      h('div', { class: 'nm' }, h('span', null, T(p.name)), h('span', { class: 'age num' }, T('{a}岁|{a}', { a: p.age })), v ? h('span', { class: 'vipmark' }, 'VIP' + v) : null),
-      h('div', { class: 'ttl' }, G.C[p.country].flag + ' ' + T(G.title()) + (S.gen > 1 ? '  ' + T('第{g}代|Gen {g}', { g: S.gen }) : '')),
-      h('div', { class: 'row2' }, h('span', { class: 'money num' + (p.money < 0 ? ' neg' : '') }, G.fm(p.money)),
-        h('span', { class: 'energy' }, '⚡', h('span', { class: 'bar' }, h('i', { style: { width: (p.energy / Math.max(1, p.emax) * 100) + '%' } })), h('span', { class: 'num' }, p.energy + '/' + p.emax)))));
-    var un = G.chat.unread();
-    hd.appendChild(h('button', { class: 'hbtn', 'aria-label': T('消息|Messages'), onclick: tap(function () { if (!UI.busy && !G.busy) UI.chatList(); }) }, '💬', un ? h('span', { class: 'badge' }, String(un)) : null));
-    hd.appendChild(h('button', { class: 'hbtn', 'aria-label': T('菜单|Menu'), onclick: tap(menu) }, '☰'));
+      h('div', { class: 'nm' }, h('span', null, T(p.name)), v ? h('span', { class: 'vipmark' }, 'VIP' + v) : null),
+      h('div', { class: 'ttl' }, G.C[p.country].flag + ' ' + T(G.title()) + (S.gen > 1 ? ' · ' + T('第{g}代|Gen {g}', { g: S.gen }) : ''))));
+    hd.appendChild(h('div', { class: 'purse' },
+      h('div', { class: 'money num' + (p.money < 0 ? ' neg' : '') }, h('i', { class: 'note' }), G.fm(p.money)),
+      h('div', { class: 'energy' }, h('span', { class: 'lbl' }, T('体力|Energy')), h('span', { class: 'bar' }, h('i', { style: { width: (p.energy / Math.max(1, p.emax) * 100) + '%' } }), h('b', { class: 'num' }, p.energy + '/' + p.emax)))));
+    var un = G.chat.unread(), tb = M.el.tools; tb.innerHTML = '';
+    tb.appendChild(h('div', { class: 'agechip num' }, T('{a}岁|Age {a}', { a: p.age }), h('small', null, T('{y}年|{y}', { y: G.numEn(S.year) }))));
+    tb.appendChild(h('div', { class: 'pills' },
+      h('button', { class: 'pill', 'aria-label': T('消息|Messages'), onclick: tap(function () { if (!UI.busy && !G.busy) UI.chatList(); }) }, '💬', un ? h('span', { class: 'badge' }, String(un)) : null),
+      h('button', { class: 'pill', 'aria-label': T('菜单|Menu'), onclick: tap(menu) }, '•••')));
     // stats
     var sb = M.el.stats; sb.innerHTML = '';
-    G.STAT_KEYS.forEach(function (k) { var d = G.STATS[k], val = Math.round(p.st[k]); sb.appendChild(h('div', { class: 'st' }, h('div', { class: 'l' }, h('span', null, d.i + ' ' + T(d.n)), h('b', { class: 'num' }, String(val))), h('div', { class: 'bar' }, h('i', { class: 'c-' + d.c, style: { width: val + '%' } })))); });
-    // stamp label
+    G.STAT_KEYS.forEach(function (k) { var d = G.STATS[k], val = Math.round(p.st[k]); sb.appendChild(h('div', { class: 'st' }, h('span', { class: 'l' }, T(d.n)), h('div', { class: 'bar' }, h('i', { class: 'c-' + d.c, style: { width: Math.max(val, 0) + '%' } }), h('b', { class: 'num' }, val + '%')))); });
+    // pencil label
     M.el.stamp.innerHTML = '';
-    M.el.stamp.appendChild(h('div', null, h('b', null, '+1'), h('small', null, T('过完{a}岁|Finish age {a}', { a: p.age }))));
+    M.el.stamp.appendChild(h('span', { class: 'body' }, h('b', null, T('结束今年|End This Year')), h('small', null, T('过完{a}岁|Finish age {a}', { a: p.age }))));
+    M.el.stamp.appendChild(h('span', { class: 'tip' }));
     renderDiary();
   }
   function renderDiary() {
     var S = G.S, d = M.el.diary, L = S.log;
     var atBottom = d.scrollHeight - d.scrollTop - d.clientHeight < 80;
     d.innerHTML = '';
-    d.appendChild(h('div', { class: 'ttlrow' }, T('我的一生|My Life')));
     var start = Math.max(0, L.length - M.shown);
     if (start > 0) d.appendChild(h('button', { class: 'more', onclick: tap(function () { M.shown += 40; renderDiary(); d.scrollTop = 0; }) }, T('查看更早的日记|Show earlier entries')));
     for (var i = start; i < L.length; i++) {
       var e = L[i];
-      var box = h('div', { class: 'yr' }, h('h4', null, h('span', { class: 'a num' }, T('{a}岁|{a}', { a: e.a })), h('span', { class: 'y num' }, T('{y}年|{y}', { y: e.y }))));
+      var box = h('div', { class: 'yr' }, h('h4', null, h('span', { class: 'a num' }, T('{a}岁|Age {a}', { a: e.a })), h('span', { class: 'y num' }, T('{y}年|{y}', { y: G.numEn(e.y) }))));
       e.t.forEach(function (line) { var tx = T(line); box.appendChild(h('p', { class: /^【財?财?務?务?】|^\[Finances\]/.test(tx) ? 'n' : '' }, tx)); });
       d.appendChild(box);
     }

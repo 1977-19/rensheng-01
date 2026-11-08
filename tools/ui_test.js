@@ -37,14 +37,14 @@ fs.mkdirSync(OUT, { recursive: true });
   for (let y = 0; y < YEARS; y++) {
     const dead = await page.evaluate(() => !G.S || G.S.dead);
     if (dead) break;
-    await page.click('.stamp');
+    await page.click('.pencil');
     await page.waitForTimeout(200);
     if (y === 3 && !shotYear) { const v = await page.$('.veil'); if (v) { await shot('07_event'); shotYear = 1; } }
     await drain();
     await page.waitForTimeout(150);
     // use some energy via life actions
     if (y % 4 === 3 && await page.$('.foot')) {
-      await page.click('.foot .tab:nth-child(4)');
+      await page.click('.tabs .tab:nth-child(3)');
       await page.waitForTimeout(350);
       if (y === 15) await shot('09_life');
       const rows = await page.$$('.sheet.on .row:not(.dis)');
@@ -55,11 +55,11 @@ fs.mkdirSync(OUT, { recursive: true });
   await shot('08_main_later');
   if (!(await page.$('.foot'))) { await page.evaluate(() => { if (G.S && G.S.dead) { const h = G.life.heirs(); if (h.length) G.life.continueAs(h[0]); else { G.life.create({ g: 'f', country: 'us', tier: 2, by: 1990, origin: 'middle', talents: [] }); } } G.UI.main(); }); await page.waitForTimeout(400); }
   // tabs
-  await page.click('.foot .tab:nth-child(1)'); await page.waitForTimeout(350); await shot('10_assets'); await page.evaluate(() => G.UI.closeAllSheets()); await page.waitForTimeout(300);
-  await page.click('.foot .tab:nth-child(2)'); await page.waitForTimeout(350); await shot('11_people');
+  await page.click('.tabs .tab:nth-child(1)'); await page.waitForTimeout(350); await shot('10_assets'); await page.evaluate(() => G.UI.closeAllSheets()); await page.waitForTimeout(300);
+  await page.click('.tabs .tab:nth-child(2)'); await page.waitForTimeout(350); await shot('11_people');
   const pr = await page.$('.sheet.on .row'); if (pr) { await pr.click(); await page.waitForTimeout(350); await shot('12_profile'); const chatBtn = await page.$('.veil .ab'); if (chatBtn) { await chatBtn.click(); await page.waitForTimeout(400); const q = await page.$$('.qk button'); if (q[0]) { await q[0].click(); await page.waitForTimeout(1500); } if (q[2]) { await q[2].click(); await page.waitForTimeout(1500); } await shot('13_chat'); } }
   await page.evaluate(() => { document.querySelectorAll('.veil').forEach(v => v.remove()); G.UI.closeAllSheets(); }); await page.waitForTimeout(300);
-  await page.click('.foot .tab:nth-child(5)'); await page.waitForTimeout(350); await shot('14_activities');
+  await page.click('.tabs .tab:nth-child(4)'); await page.waitForTimeout(350); await shot('14_activities');
   const cat = await page.$('.sheet.on .row:not(.dis)'); if (cat) { await cat.click(); await page.waitForTimeout(350); await shot('15_category'); }
   await page.evaluate(() => G.UI.closeAllSheets()); await page.waitForTimeout(300);
   // mini-games screenshots

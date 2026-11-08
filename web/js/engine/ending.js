@@ -24,7 +24,7 @@
     add('品德|Virtue', p.h.karma * .15);
     add('成就|Achievements', (S.ach || []).length);
     if (c.jailYrs) add('牢狱|Prison', -c.jailYrs * 1.5);
-    var grade = s >= 240 ? 'S' : s >= 185 ? 'A' : s >= 130 ? 'B' : s >= 80 ? 'C' : 'D';
+    var grade = s >= 255 ? 'S' : s >= 200 ? 'A' : s >= 142 ? 'B' : s >= 85 ? 'C' : 'D';
     var t = EN.title(nw, hapAvg, kids);
     var at = G.N.all(function (n) { return n.alive && (G.N.isFamily(n) || (n.rel === 'friend' && n.aff > 30) || n.rel === 'lover' || n.rel === 'ex' && n.aff > 30 || n.rel === 'mentor' || n.rel === 'colleague' && n.aff > 40); });
     at.sort(function (a, b) { return (G.N.isFamily(b) ? 100 : 0) + b.aff - (G.N.isFamily(a) ? 100 : 0) - a.aff; });

@@ -120,7 +120,7 @@ var G = (typeof window !== 'undefined' ? (window.G = window.G || {}) : (global.G
     if (str.length < 200) twCache[str] = out;
     return out;
   };
-  G.setLang = function (l) { G.lang = l; twCache = {}; };
+  G.setLang = function (l) { G.lang = l; twCache = {}; if (typeof document !== 'undefined' && document.documentElement) document.documentElement.setAttribute('lang', l === 'en' ? 'en' : l === 'tw' ? 'zh-Hant' : 'zh-Hans'); };
   G.detectLang = function () {
     var n = (typeof navigator !== 'undefined' && (navigator.language || '')) || '';
     n = n.toLowerCase();

@@ -1,4 +1,4 @@
-/* Generated audio: soft pentatonic background music + UI sound effects */
+/* Audio: looping background music (Ode to Joy, piano) + generated UI sound effects */
 (function () {
   'use strict';
   var A = G.audio = {}, ctx = null, master = null, musicGain = null, timer = null, step = 0;
@@ -33,7 +33,21 @@
     var t = ctx.currentTime;
     (SFX[k] || SFX.tap).forEach(function (n) { tone(n[0], t + n[1], n[2], n[3], n[4]); });
   };
-  // C major pentatonic across two octaves; chord roots cycle slowly
+  /* background music: the bundled Ode to Joy piano recording, looping; synth fallback if it can't load */
+  var bgm = null, bgmOk = true, fadeT = null;
+  function getBgm() {
+    if (bgm || !bgmOk) return bgm;
+    try {
+      bgm = new Audio('audio/bgm.m4a'); bgm.loop = true; bgm.preload = 'auto'; bgm.volume = 0;
+      bgm.setAttribute('playsinline', ''); bgm.addEventListener('error', function () { bgmOk = false; bgm = null; if (G.settings.music) synth(true); });
+    } catch (e) { bgmOk = false; bgm = null; }
+    return bgm;
+  }
+  function fadeTo(v, ms, then) {
+    if (!bgm) return; clearInterval(fadeT);
+    var from = bgm.volume, t0 = Date.now();
+    fadeT = setInterval(function () { var k = Math.min(1, (Date.now() - t0) / ms); bgm.volume = Math.max(0, Math.min(1, from + (v - from) * k)); if (k >= 1) { clearInterval(fadeT); if (then) then(); } }, 50);
+  }
   var SCALE = [261.6, 293.7, 329.6, 392, 440, 523.3, 587.3, 659.3, 784, 880];
   var ROOTS = [130.8, 110, 98, 116.5];
   function tick() {
@@ -43,15 +57,19 @@
     if (Math.random() < .55) { var f = SCALE[Math.floor(Math.random() * SCALE.length)]; tone(f, t, .9, 'triangle', .05 + Math.random() * .03, musicGain); }
     step++;
   }
-  A.music = function (on) {
+  function synth(on) {
     if (!ctx) return;
-    if (on) {
-      musicGain.gain.cancelScheduledValues(ctx.currentTime); musicGain.gain.linearRampToValueAtTime(.5, ctx.currentTime + 1.5);
-      if (!timer) timer = setInterval(tick, 240);
-    } else {
-      musicGain.gain.linearRampToValueAtTime(0, ctx.currentTime + .4);
-      if (timer) { clearInterval(timer); timer = null; }
-    }
+    if (on) { musicGain.gain.cancelScheduledValues(ctx.currentTime); musicGain.gain.linearRampToValueAtTime(.5, ctx.currentTime + 1.5); if (!timer) timer = setInterval(tick, 240); }
+    else { musicGain.gain.linearRampToValueAtTime(0, ctx.currentTime + .4); if (timer) { clearInterval(timer); timer = null; } }
+  }
+  A.music = function (on) {
+    var a = getBgm();
+    if (!a) { synth(on); return; }
+    if (on) { var pr = a.play(); if (pr && pr.catch) pr.catch(function () {}); fadeTo(.38, 1500); }
+    else fadeTo(0, 500, function () { a.pause(); });
   };
-  document.addEventListener('visibilitychange', function () { if (!ctx) return; if (document.hidden) ctx.suspend(); else ctx.resume(); });
+  document.addEventListener('visibilitychange', function () {
+    if (ctx) { if (document.hidden) ctx.suspend(); else ctx.resume(); }
+    if (bgm) { if (document.hidden) bgm.pause(); else if (G.settings.music) { var pr = bgm.play(); if (pr && pr.catch) pr.catch(function () {}); } }
+  });
 })();

@@ -13,13 +13,14 @@
 
   /* qualification & chance */
   CR.qualify = function (j) {
-    var p = G.S.p, e = p.edu, miss = [], ch = .8;
+    var p = G.S.p, e = p.edu, miss = [], ch = j.pt ? .8 : .68 - (j.pay && j.pay[0] > 60000 ? .08 : 0);
     if (e.deg < j.deg) { miss.push(G.L('需要{d}学历|Needs {d}', { d: G.DEG[j.deg] })); ch -= .45; }
     if (j.maj && j.maj.indexOf(e.major) < 0 && !(e.deg >= 5 && j.deg <= 4 && G.ch(0))) { miss.push(G.L('专业不对口|Wrong major')); ch -= .35; }
     if (j.req) for (var k in j.req) { if (p.st[k] < j.req[k]) { miss.push(G.L('{s}不足{v}|{s} below {v}', { s: G.STATS[k].n, v: j.req[k] })); ch -= .15 + (j.req[k] - p.st[k]) / 100; } }
     if (j.age && p.age < j.age) { miss.push(G.L('年龄不够|Too young')); ch = 0; }
     if (p.crime.rec && (j.cat === 'gov' || j.cat === 'law' || j.cat === 'edu' || j.cat === 'med')) { miss.push(G.L('有犯罪记录|Criminal record')); ch -= .5; }
-    if (e.tier) ch += (e.tier - 2) * .05;
+    // university prestige: elite graduates get callbacks everywhere, especially in finance, tech, law and consulting
+    if (e.tier && e.deg >= 4) { ch += (e.tier - 2.5) * .09; if (e.tier >= 4 && ['biz', 'tech', 'law', 'gov', 'med'].indexOf(j.cat) >= 0) ch += .08; }
     ch += (p.st.eq - 50) / 400 + (p.st.looks - 50) / 800;
     if (p.age > 45 && !j.pt) ch -= (p.age - 45) * .015;
     if (G.has('hacker') && (j.id === 'coder' || j.id === 'ai')) ch += .15;
@@ -41,7 +42,8 @@
   CR.hire = function (j) {
     var p = G.S.p;
     if (p.job) CR.leave(true);
-    var sal = Math.round(CR.salary(j, 0) * G.rf(.9, 1.1));
+    var e = p.edu, prest = (!j.pt && e.tier && e.deg >= 4) ? 1 + (e.tier - 3) * .09 + (e.deg >= 5 ? .08 : 0) : 1;
+    var sal = Math.round(CR.salary(j, 0) * G.rf(.9, 1.1) * prest);
     p.job = { id: j.id, rank: 0, perf: 50, yrs: 0, yr: 0, sal: sal, co: CR.coName(j.cat), eff: 0 };
     if (!j.pt) {
       var boss = G.N.make({ rel: 'boss', age: G.ri(35, 55), job: G.L('{c}主管|Manager at {c}', { c: p.job.co }), inc: sal * 2.5 });
@@ -84,7 +86,7 @@
     var J = G.JOB[j.id];
     if (!J) { p.job = null; return; }
     j.yrs++; j.yr++;
-    var tgt = p.st.smarts * .25 + p.st.eq * .2 + j.eff * 9 + p.st.happy * .1 + G.ri(-10, 10) - (p.st.health < 40 ? 10 : 0);
+    var tgt = p.st.smarts * .23 + p.st.eq * .18 + j.eff * 8 + p.st.happy * .1 + G.ri(-12, 10) - (p.st.health < 40 ? 10 : 0) - (p.h.stress > 80 ? 6 : 0) - j.rank * 2;
     j.perf = G.clamp(Math.round(j.perf * .6 + tgt * .4), 0, 100);
     j.eff = 0;
     // inflation & seniority raise
@@ -98,11 +100,11 @@
     if (p.age >= ret && !p.flags.noRetire) { Q.push({ id: 'sys_retire' }); return; }
     // layoff
     var wj = S.world.jobShock || 0;
-    var lay = .015 + (j.perf < 35 ? .18 : 0) + wj;
+    var lay = .022 + (j.perf < 40 ? .2 : 0) + wj;
     if (G.ch(lay)) { Q.push({ id: 'sys_fired' }); return; }
     // promotion
-    if (j.rank < J.r.length - 1 && j.yr >= 2 && j.perf >= 52 + j.rank * 5) {
-      var ch = .45 + (j.perf - 60) / 100 + (G.has('leader') ? .12 : 0) + (p.st.eq - 50) / 300;
+    if (j.rank < J.r.length - 1 && j.yr >= 2 && j.perf >= 55 + j.rank * 6) {
+      var ch = .36 + (j.perf - 60) / 100 + (G.has('leader') ? .12 : 0) + (p.st.eq - 50) / 300 + (p.edu.tier && p.edu.deg >= 4 ? (p.edu.tier - 3) * .04 : 0);
       if (G.ch(ch)) Q.push({ id: J.assess ? 'sys_assess' : 'sys_promo', prm: { k: 'job' } });
     }
   };
@@ -159,7 +161,7 @@
     f.yrs++; f.yr++;
     var stat = p.st[F.st] || 50;
     var tal = (f.id === 'singer' || f.id === 'idol') && G.has('music') || f.id === 'actor' && G.has('actor') || f.id === 'esports' && G.has('gamer') || f.id === 'athlete' && G.has('athletic') || f.id === 'painter' && G.has('art') || f.id === 'writer' && G.has('genius');
-    var gr = (f.perf - 40) / 120 + stat / 400 + p.st.fame / 400 + (tal ? .2 : 0) + G.nrm(0, .25);
+    var gr = (f.perf - 45) / 130 + stat / 450 + p.st.fame / 500 + (tal ? .16 : 0) + G.nrm(-.03, .25) - f.rank * .03;
     f.fans = Math.max(10, Math.round(f.fans * (1 + gr) + G.ri(0, 300) * (1 + f.rank)));
     G.addStat('fame', Math.round(Math.log10(f.fans + 1) - 2 + f.rank * .7), true);
     f.perf = G.clamp(Math.round(f.perf * .7 + 15 + G.ri(-8, 8)), 0, 100);
@@ -167,9 +169,9 @@
     if ((f.id === 'athlete' || f.id === 'esports') && p.age > (f.id === 'esports' ? 28 : 34) && G.ch(.35)) { Q.push({ id: 'sys_fame_retire' }); return; }
     if (f.id === 'idol' && p.age > 32 && G.ch(.25)) { Q.push({ id: 'sys_fame_retire' }); return; }
     // rank up
-    if (f.rank < F.r.length - 1 && f.fans >= FM.TH[f.rank + 1] && f.yr >= 1 && G.ch(.45 + f.perf / 250)) Q.push({ id: 'sys_fame_up' });
+    if (f.rank < F.r.length - 1 && f.fans >= FM.TH[f.rank + 1] && f.yr >= 2 && G.ch(.3 + f.perf / 300)) Q.push({ id: 'sys_fame_up' });
     // scandal
-    if (f.rank >= 2 && G.ch(.06 + (p.h.karma < -20 ? .08 : 0))) Q.push({ id: 'sys_scandal' });
+    if (f.rank >= 1 && G.ch(.05 + f.rank * .02 + (p.h.karma < -20 ? .08 : 0))) Q.push({ id: 'sys_scandal' });
   };
   FM.perform = async function () { // action: deliver a work / performance
     var p = G.S.p, f = p.fc, F = G.FAME[f.id];
@@ -217,7 +219,7 @@
     co.yrs++;
     var skill = (p.st.smarts + p.st.eq) / 200 * .1 + (G.has('biz') ? .06 : 0) + Math.min(co.eff, 3) * .025 + (G.stat('luck') / 600) - (p.jail ? .2 : 0);
     var big = Math.max(0, Math.log10(Math.max(1, co.val / G.$(1e6)))) * .035;
-    var r = G.nrm(I.m * .5 + skill - .1 - big, I.v * .45) + (S.world.mkRet || 0) * .4;
+    var r = G.nrm(I.m * .45 + skill - .13 - big * 1.2, I.v * .5) + (S.world.mkRet || 0) * .4;
     if (co.ind === 'ai' && S.year > 2023) r += .05;
     co.last = r;
     co.val = Math.max(0, Math.round(co.val * (1 + r)));
@@ -225,7 +227,7 @@
     co.emp = Math.max(1, Math.round(co.emp * (1 + r * .6)));
     var profit = Math.round(co.val * I.m * G.rf(.4, 1.2) * (r > 0 ? 1 : .2));
     if (profit > 0) { var dv = Math.round(profit * co.div * co.own); G.S.p.money += dv; G.S.cnt.earned = (G.S.cnt.earned || 0) + dv; co.lastDiv = dv; }
-    if (co.val < co.base * .08 || co.val <= 0) { Q.push({ id: 'sys_bankrupt' }); return; }
+    if (co.val < co.base * .12 || co.val <= 0) { Q.push({ id: 'sys_bankrupt' }); return; }
     if (!co.ipo && co.val > G.$(80000000)) Q.push({ id: 'sys_ipo' });
     if (G.ch(.22)) Q.push({ id: 'sys_biz_crisis' });
   };

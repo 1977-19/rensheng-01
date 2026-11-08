@@ -94,8 +94,8 @@
     }
     var f, m;
     if (org.single) {
-      if (G.ch(.7)) { m = mkParent('f', mage, 0); m.wealth = famW; out.sur = G.ch(.5) ? sur : m.sur || sur; }
-      else { f = mkParent('m', fage, 0); f.wealth = famW; out.sur = sur; }
+      if (G.ch(.7)) { m = mkParent('f', mage, 0); m.wealth = famW; out.sur = G.ch(.5) ? sur : m.sur || sur; var f2 = mkParent('m', fage, 1); f2.sep = 1; f2.aff = G.ri(10, 45); f2.wealth = Math.round(famW * G.rf(.5, 3)); }
+      else { f = mkParent('m', fage, 0); f.wealth = famW; out.sur = sur; var m2 = mkParent('f', mage, 1); m2.sep = 1; m2.aff = G.ri(10, 45); m2.wealth = Math.round(famW * G.rf(.5, 3)); }
       out.text = G.L('父母在你很小的时候就离婚了。|Your parents divorced when you were very young.');
     } else {
       f = mkParent('m', fage, 0); m = mkParent('f', mage, 1);
@@ -127,10 +127,10 @@
   /* ---------- energy ---------- */
   G.emax = function () {
     var p = G.S.p, a = p.age, e;
-    if (a < 3) e = 20; else if (a < 6) e = 40; else if (a < 12) e = 70; else if (a < 70) e = 100; else if (a < 85) e = 80; else e = 60;
+    if (a < 3) e = 20; else if (a < 6) e = 35; else if (a < 12) e = 60; else if (a < 60) e = 85; else if (a < 75) e = 75; else if (a < 85) e = 60; else e = 45;
     var v = G.vip ? G.vip.tier() : 0;
     e *= [1, 1.3, 1.6, 2][v] || 1;
-    if (p.st.health < 30) e *= .8;
+    if (p.st.health < 50) e *= .88; if (p.st.health < 30) e *= .8;
     if (p.jail) e *= .7;
     return Math.round(e);
   };

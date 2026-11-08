@@ -23,7 +23,7 @@
     var S = G.S, p = S.p, out = [], e = p.edu;
     if (p.jail) out.push(h('div', { class: 'card' }, h('h5', null, '⛓️ ' + T('服刑中|Serving Time')), kv([['罪名|Charge', p.jail.why], ['剩余刑期|Time left', T('{n}年|{n} yr', { n: p.jail.left })], ['表现|Behavior', String(p.jail.beh)]]), pbar(p.jail.beh)));
     if (G.school.isStudent() || e.stage === 'kinder') out.push(h('div', { class: 'card' }, h('h5', null, '🎒 ' + T(e.school || G.STAGES[e.stage].n)), kv([
-      ['阶段|Stage', G.STAGES[e.stage].n], ['年级|Year', T('{g}年级|Year {g}', { g: e.grade + 1 })], e.major ? ['专业|Major', G.MAJORS[e.major].n] : null, ['成绩|Grades', String(e.perf)]]), pbar(e.perf)));
+      ['阶段|Stage', G.STAGES[e.stage].n], e.q ? ['学校水平|School quality', '★★★★★'.slice(0, e.q) + '☆☆☆☆☆'.slice(0, 5 - e.q) + ' ' + T(G.school.Q_NAME[e.q])] : null, ['年级|Year', T('{g}年级|Year {g}', { g: e.grade + 1 })], e.major ? ['专业|Major', G.MAJORS[e.major].n] : null, ['成绩|Grades', String(e.perf)]]), pbar(e.perf)));
     if (p.job) { var J = G.JOB[p.job.id]; out.push(h('div', { class: 'card' }, h('h5', null, '💼 ' + T(J.r[Math.min(p.job.rank, J.r.length - 1)])), kv([['单位|Employer', p.job.co], ['年薪|Salary', G.fm(p.job.sal)], ['工龄|Years', String(p.job.yrs)], ['绩效|Performance', String(p.job.perf)]]), pbar(p.job.perf))); }
     if (p.fc) { var F = G.FAME[p.fc.id]; out.push(h('div', { class: 'card' }, h('h5', null, '🌟 ' + T(F.r[p.fc.rank])), kv([['粉丝|Fans', p.fc.fans.toLocaleString()], ['状态|Form', String(p.fc.perf)], ['预计年收入|Est. income', G.fm(G.fame.income())], p.fc.sport != null ? ['项目|Sport', G.SPORTS[p.fc.sport]] : null]), pbar(p.fc.perf))); }
     if (p.mil) out.push(h('div', { class: 'card' }, h('h5', null, '🎖️ ' + T(G.mil.rankName())), kv([['军种|Branch', G.MIL.br[p.mil.br]], ['军功|Merit', String(p.mil.merit)], ['军龄|Service', T('{n}年|{n} yr', { n: p.mil.yrs })], p.mil.cons ? ['义务兵役|Conscription', T('还剩{n}年|{n} yr left', { n: Math.max(0, p.mil.term - p.mil.yrs) })] : null])));
@@ -34,7 +34,7 @@
     if (co) out.push(h('div', { class: 'card' }, h('h5', null, '🏢 ' + T(co.name)), kv([['行业|Industry', G.INDUSTRY[co.ind].n], ['估值|Valuation', G.fm(co.val)], ['持股|Your stake', Math.round(co.own * 100) + '%'], ['员工|Staff', String(co.emp)], ['去年增长|Last year', (co.last >= 0 ? '+' : '') + Math.round((co.last || 0) * 100) + '%'], co.ipo ? ['上市|Public', '✓'] : null])));
     if (p.retired) out.push(h('div', { class: 'card' }, h('h5', null, '🌅 ' + T('退休|Retired')), kv([['养老金|Pension', G.fm(p.pension) + T('/年|/yr')]])));
     out.push(h('div', { class: 'card' }, kv([
-      ['学历|Education', G.DEG[p.edu.deg]], ['语言|Languages', p.langs.map(function (l) { return T(G.LANGS[l]); }).join('、')],
+      ['学历|Education', G.DEG[p.edu.deg]], p.edu.tier && p.edu.deg >= 4 && !G.school.inSchool() ? ['母校|Alma mater', T(p.edu.school || '') + ' ' + '★★★★★'.slice(0, p.edu.tier)] : null, ['语言|Languages', p.langs.map(function (l) { return T(G.LANGS[l]); }).join('、')],
       ['国籍|Country', T(G.C[p.country].n) + ' ' + G.C[p.country].flag], ['城市|City', p.city],
       p.crime.rec ? ['犯罪记录|Criminal record', T('{n}次|{n}', { n: p.crime.rec })] : null,
       p.h.heat > 5 && !p.gang ? ['警方关注|Police heat', String(Math.round(p.h.heat))] : null,
@@ -133,8 +133,10 @@
     ['家人|Family', ['father', 'mother', 'stepparent', 'grand', 'sibling', 'kin']],
     ['子女|Children', ['child', 'grandchild']],
     ['追求者与心动|Admirers & Crushes', ['admirer', 'crush']],
+    ['对象的家人|Partner\'s Family', ['inlaw']],
     ['朋友|Friends', ['friend', 'mentor']],
-    ['同学同事|Classmates & Coworkers', ['classmate', 'colleague', 'boss', 'teacher']],
+    ['老师|Teachers', ['teacher', 'tutor', 'kidteacher', 'kidtutor']],
+    ['同学同事|Classmates & Coworkers', ['classmate', 'colleague', 'boss']],
     ['其他|Others', ['contact', 'ex', 'enemy', 'rival', 'inmate', 'gang']]
   ];
   function npcRow(n, onTap) {
@@ -165,8 +167,8 @@
       function body() {
         var p = G.S.p, rom = N.canRomance(n) || n.rel === 'spouse' || n.rel === 'lover';
         var bars = h('div', { class: 'bars2' });
-        [['颜值|Looks', n.looks, 'c-rose'], ['智力|Smarts', n.smarts, 'c-sky'], ['情商|EQ', n.eq, 'c-violet'], ['健康|Health', n.health, 'c-leaf'], ['好感|Affection', n.aff, 'c-gold'], rom ? ['爱意|Love', n.love, 'c-rose'] : null].forEach(function (x) {
-          if (!x) return; bars.appendChild(h('div', { class: 'st' }, h('div', { class: 'l' }, h('span', null, T(x[0])), h('b', null, String(Math.round(x[1])))), h('div', { class: 'bar' }, h('i', { class: x[2], style: { width: Math.abs(x[1]) + '%' } }))));
+        [['颜值|Looks', n.looks, 'c-violet'], ['智力|Smarts', n.smarts, 'c-sky'], ['情商|EQ', n.eq, 'c-teal'], ['健康|Health', n.health, 'c-leaf'], ['好感|Affection', n.aff, 'c-gold'], rom ? ['爱意|Love', n.love, 'c-rose'] : null].forEach(function (x) {
+          if (!x) return; bars.appendChild(h('div', { class: 'st' }, h('span', { class: 'l' }, T(x[0])), h('div', { class: 'bar' }, h('i', { class: x[2], style: { width: Math.abs(x[1]) + '%' } }), h('b', { class: 'num' }, String(Math.round(x[1]))))));
         });
         var hid = null;
         if (G.vip.seeSincere()) {

@@ -17,7 +17,8 @@
     if (G.has('charm')) l *= 2; if (G.has('peach')) l *= 1.5;
     if (p.flags.rich) l += .6; if (p.flags.elite) l += .6;
     if (p.age > 50) l *= .35; if (p.age < 16) l *= .4;
-    if (N.spouse()) l *= .5;
+    // taken: far fewer people try their luck (the very rich and famous still attract some)
+    if (N.partner()) l *= (p.flags.rich || p.flags.elite || p.st.fame > 60 || N.netWorthScore() > .7) ? .3 : .12;
     return G.clamp(l, 0, 5);
   };
   LO.tick = function (Q) {
@@ -25,7 +26,7 @@
     if (p.jail) return;
     // admirers
     if (p.age >= 14 && p.age <= 75) {
-      var n = Math.min(3, G.poisson(LO.admirerRate() * .45));
+      var n = Math.min(N.partner() ? 1 : 3, G.poisson(LO.admirerRate() * .38));
       for (var i = 0; i < n; i++) {
         var tags = [], et = LO.eliteTags();
         if (p.age >= 18 && et.length && G.ch(.15 + N.netWorthScore() * .25 + p.st.fame / 300)) tags.push(G.pick(et));

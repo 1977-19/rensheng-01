@@ -29,6 +29,8 @@
     if (k === 'fame' && n > 0 && G.has('photogenic')) n *= 1.3;
     var tgt = HID[k] ? p.h : p.st;
     var old = tgt[k] || 0, rng = G.HIDDEN_RANGE[k] || [0, 100];
+    // the higher you are, the harder it is to climb (difficulty)
+    if (n > 0 && (k === 'smarts' || k === 'eq' || k === 'looks' || k === 'fame') && old > 55) n *= Math.max(.18, 1 - (old - 55) / 52);
     var nv = G.clamp(old + n, rng[0], rng[1]);
     if (k === 'happy' && G.has('optimist')) nv = Math.max(nv, 25);
     tgt[k] = nv;

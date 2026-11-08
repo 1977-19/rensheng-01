@@ -124,12 +124,12 @@
   G.PERS_LIST = Object.keys(G.PERS);
 
   G.STATS = {
-    looks: { n: '颜值|Looks', c: 'rose', i: '✨' },
+    looks: { n: '颜值|Looks', c: 'violet', i: '✨' },
     smarts: { n: '智力|Smarts', c: 'sky', i: '🧠' },
     health: { n: '健康|Health', c: 'leaf', i: '❤️' },
-    happy: { n: '心情|Happiness', c: 'gold', i: '😊' },
-    fame: { n: '名声|Fame', c: 'coral', i: '⭐' },
-    eq: { n: '情商|EQ', c: 'violet', i: '💬' }
+    happy: { n: '心情|Mood', c: 'gold', i: '😊' },
+    fame: { n: '名声|Fame', c: 'rose', i: '⭐' },
+    eq: { n: '情商|EQ', c: 'teal', i: '💬' }
   };
   G.STAT_KEYS = ['looks', 'smarts', 'health', 'happy', 'fame', 'eq'];
 })();
