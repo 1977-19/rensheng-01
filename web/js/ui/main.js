@@ -6,15 +6,15 @@
   UI.main = function () {
     UI.closeAllSheets();
     M.on = true; M.shown = 30;
-    var hdr = h('div', { class: 'hdr' }), stats = h('div', { class: 'stats' }), diary = h('div', { class: 'diary lined' });
+    var hdr = h('div', { class: 'hdr' }), stats = h('div', { class: 'stats' }), diary = h('div', { class: 'diary lined' }), jbar = h('div', { class: 'jailbar' });
     var stamp = h('button', { class: 'pencil', 'aria-label': T('结束今年|End this year'), onclick: tap(nextYear) });
     var tools = h('div', { class: 'deskbar' });
     var tabs = h('div', { class: 'tabs' },
       tabBtn('t-yellow', '财产|Assets', UI.tabAssets), tabBtn('t-red', '关系|People', UI.tabRelations),
       tabBtn('t-blue', '人生|Life', UI.tabLife), tabBtn('t-green', '活动|Activities', UI.tabActivities));
-    M.el = { hdr: hdr, stats: stats, diary: diary, stamp: stamp, tools: tools };
+    M.el = { hdr: hdr, stats: stats, diary: diary, stamp: stamp, tools: tools, jbar: jbar };
     var book = h('div', { class: 'book' }, h('i', { class: 'ring r1' }), h('i', { class: 'ring r2' }), h('i', { class: 'ring r3' }), h('i', { class: 'ring r4' }),
-      h('div', { class: 'page' }, h('div', { class: 'ribbon' }, h('span', null, T('我的一生|My Life'))), hdr, stats, diary));
+      h('div', { class: 'page' }, h('div', { class: 'ribbon' }, h('span', null, T('我的一生|My Life'))), hdr, stats, jbar, diary, h('div', { class: 'cage', 'aria-hidden': 'true' })));
     var root = h('div', { class: 'desk' }, h('i', { class: 'leaf l1' }), h('i', { class: 'leaf l2' }), tools, book, tabs, h('div', { class: 'pencilrow' }, stamp));
     UI.screen(root);
     render(true);
@@ -50,9 +50,14 @@
     // stats
     var sb = M.el.stats; sb.innerHTML = '';
     G.STAT_KEYS.forEach(function (k) { var d = G.STATS[k], val = Math.round(p.st[k]); sb.appendChild(h('div', { class: 'st' }, h('span', { class: 'l' }, T(d.n)), h('div', { class: 'bar' }, h('i', { class: 'c-' + d.c, style: { width: Math.max(val, 0) + '%' } }), h('b', { class: 'num' }, val + '%')))); });
+    // prison: bars over the whole page
+    var desk = document.querySelector('.desk'), j = p.jail;
+    if (desk) desk.classList.toggle('jailed', !!j);
+    var jb = M.el.jbar; jb.innerHTML = '';
+    if (j) jb.appendChild(h('div', null, h('b', null, '⛓️ ' + T(j.pn || '监狱|Prison')), h('span', null, T('编号{no} · 刑期{t}年 · 还剩{l}年|No. {no} · {t} yrs · {l} left', { no: j.no || '—', t: j.tot, l: j.left }))));
     // pencil label
     M.el.stamp.innerHTML = '';
-    M.el.stamp.appendChild(h('span', { class: 'body' }, h('b', null, T('结束今年|End This Year')), h('small', null, T('过完{a}岁|Finish age {a}', { a: p.age }))));
+    M.el.stamp.appendChild(h('span', { class: 'body' }, h('b', null, T(j ? '熬过这一年|Endure This Year' : '结束今年|End This Year')), h('small', null, T('过完{a}岁|Finish age {a}', { a: p.age }))));
     M.el.stamp.appendChild(h('span', { class: 'tip' }));
     renderDiary();
   }

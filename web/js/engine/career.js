@@ -145,31 +145,32 @@
 
   /* ===================== FAME CAREERS ===================== */
   var FM = G.fame = {};
-  FM.TH = [0, 20000, 300000, 3000000, 20000000, 80000000];
+  FM.TH = [0, 60000, 900000, 7000000, 45000000, 130000000];
   FM.start = function (id, extra) {
     var p = G.S.p;
     if (p.job && !G.JOB[p.job.id].pt) CR.leave();
-    p.fc = { id: id, rank: 0, fans: G.ri(50, 800), perf: 50, yrs: 0, yr: 0 };
+    p.fc = { id: id, rank: 0, fans: G.ri(20, 300), perf: 45, yrs: 0, yr: 0 };
     if (extra) for (var k in extra) p.fc[k] = extra[k];
     G.major('踏入{f}行业|Started a career as {f}', { f: G.FAME[id].n });
   };
   FM.title = function () { var f = G.S.p.fc; return f ? G.FAME[f.id].r[f.rank] : ''; };
-  FM.income = function () { var f = G.S.p.fc; if (!f) return 0; var F = G.FAME[f.id]; return Math.round(G.$w(F.pay[f.rank]) * (.3 + f.perf / 90) * (1 + Math.log10(f.fans + 10) / 20)); };
+  FM.income = function () { var f = G.S.p.fc; if (!f) return 0; var F = G.FAME[f.id]; return Math.round(G.$w(F.pay[f.rank]) * .55 * (.2 + f.perf / 140) * (1 + Math.log10(f.fans + 10) / 20)); };
   FM.tick = function (Q) {
     var S = G.S, p = S.p, f = p.fc; if (!f) return;
     var F = G.FAME[f.id];
     f.yrs++; f.yr++;
     var stat = p.st[F.st] || 50;
     var tal = (f.id === 'singer' || f.id === 'idol') && G.has('music') || f.id === 'actor' && G.has('actor') || f.id === 'esports' && G.has('gamer') || f.id === 'athlete' && G.has('athletic') || f.id === 'painter' && G.has('art') || f.id === 'writer' && G.has('genius');
-    var gr = (f.perf - 45) / 130 + stat / 450 + p.st.fame / 500 + (tal ? .16 : 0) + G.nrm(-.03, .25) - f.rank * .03;
-    f.fans = Math.max(10, Math.round(f.fans * (1 + gr) + G.ri(0, 300) * (1 + f.rank)));
+    var gr = (f.perf - 50) / 170 + (stat - 50) / 700 + p.st.fame / 900 + (tal ? .08 : 0) + G.nrm(-.07, .22) - f.rank * .045 - (f.wk ? 0 : .12);
+    f.wk = 0;
+    f.fans = Math.max(10, Math.round(f.fans * (1 + gr) + G.ri(0, 120) * (1 + f.rank * .5)));
     G.addStat('fame', Math.round(Math.log10(f.fans + 1) - 2 + f.rank * .7), true);
     f.perf = G.clamp(Math.round(f.perf * .7 + 15 + G.ri(-8, 8)), 0, 100);
     // athletes age out
     if ((f.id === 'athlete' || f.id === 'esports') && p.age > (f.id === 'esports' ? 28 : 34) && G.ch(.35)) { Q.push({ id: 'sys_fame_retire' }); return; }
     if (f.id === 'idol' && p.age > 32 && G.ch(.25)) { Q.push({ id: 'sys_fame_retire' }); return; }
     // rank up
-    if (f.rank < F.r.length - 1 && f.fans >= FM.TH[f.rank + 1] && f.yr >= 2 && G.ch(.3 + f.perf / 300)) Q.push({ id: 'sys_fame_up' });
+    if (f.rank < F.r.length - 1 && f.fans >= FM.TH[f.rank + 1] && f.yr >= 3 && G.ch(.18 + f.perf / 400)) Q.push({ id: 'sys_fame_up' });
     // scandal
     if (f.rank >= 1 && G.ch(.05 + f.rank * .02 + (p.h.karma < -20 ? .08 : 0))) Q.push({ id: 'sys_scandal' });
   };
@@ -179,7 +180,8 @@
     var r = await G.UI.game(gid, { name: F.n });
     var d = Math.round((r.score - .45) * 40);
     f.perf = G.clamp(f.perf + d, 0, 100);
-    var fg = Math.round(f.fans * Math.max(-.2, (r.score - .4) * .5) + r.score * 800 * (f.rank + 1));
+    var fg = Math.round(f.fans * Math.max(-.15, (r.score - .5) * .3) + r.score * 300 * (f.rank + 1));
+    f.wk = (f.wk || 0) + 1; if (f.wk > 2 && fg > 0) fg = Math.round(fg * .35);
     f.fans = Math.max(10, f.fans + fg);
     G.dStart(); G.addStat('happy', r.score > .5 ? 4 : -2); if (r.score > .7) G.addStat('fame', 2); var dl = G.dEnd();
     dl.push({ k: 'fans', n: fg });

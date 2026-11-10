@@ -71,8 +71,19 @@
     o = o || {};
     var age = o.age != null ? o.age : (o.by != null ? G.S.year - o.by : null);
     if (!o.pers && age != null && age < 14) o = Object.assign({}, o, { pers: G.pick(KIDSAFE) });
-    return make.call(this, o);
+    var n = make.call(this, o);
+    // grown-ups never get a child's temperament; parents, teachers and bosses don't act like teenagers
+    if (n && !o.pers) { var fx = grownUp(n, N.age(n)); if (fx) n.pers = fx; }
+    return n;
   };
+  var KID_ONLY = { mature: 'calm', curious: 'nerd' };
+  var ELDER = { tsun: 'sharp', clingy: 'worrier', rebel: 'stubborn', playboy: 'social', curious: 'nerd', mature: 'calm', competitive: 'ambit' };
+  var ELDER_REL = ['father', 'mother', 'grand', 'inlaw', 'birthpar', 'teacher', 'kidteacher', 'tutor', 'kidtutor', 'boss', 'mentor', 'kin'];
+  function grownUp(n, a) {
+    if (a >= 30 && ELDER_REL.indexOf(n.rel) >= 0 && ELDER[n.pers]) return ELDER[n.pers];
+    if (a >= 18 && KID_ONLY[n.pers]) return KID_ONLY[n.pers];
+    return null;
+  }
 
   /* chat flavor for the new personalities */
   if (G.chat && G.chat.FLAVOR) Object.assign(G.chat.FLAVOR, {
@@ -99,20 +110,24 @@
   G.persOf = function (n) {
     var id = n.pers, pe = P[id] || P.cheer;
     if (pe.kid && N.age(n) < 14) { id = pe.kid; pe = P[id] || pe; }
+    var g = grownUp({ rel: n.rel, pers: id }, N.age(n)); if (g) { id = g; pe = P[g]; }
     return { id: id, p: pe };
   };
   G.persona = function (n) {
     var a = N.age(n), b = band(a), main = G.persOf(n);
     var L2 = G.PERS_LIST, sec = L2[seed(n, 1) % L2.length];
     if (sec === main.id || (a < 14 && P[sec].kid)) sec = L2[(seed(n, 1) + 7) % L2.length];
+    if (sec) { var gs = grownUp({ rel: n.rel, pers: sec }, a); if (gs) sec = gs; }
     if (sec === main.id) sec = null;
     var hl = HOB[b], ql = QUIRK[b === 'kid' ? 'kid' : 'adult'];
     var vi = seed(n, 4) % VAL.length;
     // personality nudges values
     var vmap = { gold: 1, greedy: 1, spend: 1, free: 2, rebel: 2, trad: 0, worrier: 0, kind: 7, loyal: 7, nerd: 8, geek: 8, funny: 9, chill: 9, anxious: 10, pious: 12, ambit: 5, boss: 14, social: 15, romantic: 4, clingy: 4, sporty: 6 };
     if (vmap[main.id] != null && seed(n, 5) % 3 !== 0) vi = vmap[main.id];
+    var dd = main.p.d || '', st = G.parentStyle && G.parentStyle(n);
+    if (st && dd) { var a1 = dd.split('|'), b1 = st.d.split('|'), nn = st.n.split('|'); dd = a1[0] + '\n【' + nn[0] + '】' + b1[0] + '|' + a1[1] + '\n[' + nn[1] + '] ' + b1[1]; }
     var out = {
-      name: main.p.n, sec: sec ? P[sec].n : null, d: main.p.d || '', cp: (main.p.cp || [])[seed(n, 6) % Math.max(1, (main.p.cp || []).length)] || null,
+      name: main.p.n, sec: sec ? P[sec].n : null, d: dd, cp: (main.p.cp || [])[seed(n, 6) % Math.max(1, (main.p.cp || []).length)] || null,
       hob: [hl[seed(n, 2) % hl.length], hl[(seed(n, 2) >>> 4) % hl.length]].filter(function (x, i, arr) { return arr.indexOf(x) === i; }),
       quirk: ql[seed(n, 3) % ql.length], val: a >= 10 ? VAL[vi] : null
     };
@@ -132,4 +147,36 @@
     }
     return r;
   };
+
+  /* ---------------- how your parents raise you ---------------- */
+  var STY = {
+    tiger: { n: '虎爸虎妈|Tiger Parent', d: '成绩就是一切。补习班排满周末，考不到前三就没有好脸色。|Grades are everything. Weekends packed with cram school; anything below top three gets the cold shoulder.', fx: { smarts: .6, happy: -.6 } },
+    dote: { n: '溺爱型|Doting', d: '要什么给什么，舍不得你吃一点苦。|You get whatever you want; they can\'t bear to see you struggle.', fx: { happy: .6, eq: -.3, smarts: -.2 } },
+    nag: { n: '唠叨型|Nagging', d: '从起床唠叨到睡觉，“为你好”是口头禅。|Nags from breakfast to bedtime — "It\'s for your own good."', fx: { happy: -.4, smarts: .3 } },
+    demo: { n: '民主型|Democratic', d: '凡事商量着来，会认真听你的想法。|Talks everything through and actually listens to you.', fx: { eq: .5, happy: .2 } },
+    control: { n: '控制型|Controlling', d: '你的朋友、爱好、将来做什么，都由TA来决定。|Your friends, hobbies and future — all decided for you.', fx: { smarts: .3, happy: -.5, eq: -.2 } },
+    free: { n: '放养型|Free-range', d: '基本不管，你爱干什么干什么。|Hands-off: do whatever you like.', fx: { happy: .4, smarts: -.3, eq: .3 } },
+    busy: { n: '忙碌缺席型|Always Busy', d: '总在加班、出差，见面的时间很少。|Always working or traveling; you rarely see them.', fx: { happy: -.3, eq: .3 } },
+    warm: { n: '温和陪伴型|Warm & Present', d: '不严厉也不溺爱，总是在你需要的时候出现。|Neither strict nor spoiling — always there when you need them.', fx: { happy: .4, eq: .2, smarts: .1 } }
+  };
+  var STY_BY = { boss: 'control', perfect: 'tiger', ambit: 'tiger', competitive: 'tiger', stubborn: 'control', proud: 'tiger', trad: 'control', gentle: 'dote', kind: 'dote', worrier: 'nag', anxious: 'nag', gossip: 'nag', calm: 'demo', honest: 'demo', humble: 'demo', nerd: 'demo', chill: 'free', lazy: 'free', free: 'free', rebel: 'free', cold: 'busy', loner: 'busy', geek: 'busy', gold: 'busy', social: 'busy', cheer: 'warm', funny: 'warm', foodie: 'warm', sporty: 'warm' };
+  G.parentStyle = function (n) {
+    if (!n || (n.rel !== 'father' && n.rel !== 'mother')) return null;
+    var id = n.pstyle || STY_BY[G.persOf(n).id] || ['warm', 'nag', 'demo', 'tiger', 'free'][seed(n, 9) % 5];
+    return Object.assign({ id: id }, STY[id]);
+  };
+  var tick0 = FA.tick;
+  FA.tick = function (Q) {
+    var p = G.S.p;
+    if (p.age >= 3 && p.age < 18 && G.dependent && G.dependent()) {
+      N.rel('father', 'mother').forEach(function (n) {
+        if (!n.alive || n.away) return; var st = G.parentStyle(n); if (!st) return;
+        for (var k in st.fx) G.addStat(k, st.fx[k] * G.rf(.5, 1.2), true);
+      });
+      if (p.age === 7 && !p.flags.styleLog) { p.flags.styleLog = 1; var ps = N.rel('father', 'mother').filter(function (n) { return n.alive; }).map(G.parentStyle).filter(Boolean); if (ps.length) G.log('你渐渐明白了自己的爸妈是什么样的人：' + ps.map(function (x) { return x.n.split('|')[0]; }).join('、') + '。|You\'re starting to understand your parents: ' + ps.map(function (x) { return x.n.split('|')[1]; }).join(', ') + '.'); }
+    }
+    return tick0.apply(this, arguments);
+  };
+  if (G.npcInfo) { var inf0 = G.npcInfo; G.npcInfo = function (n) { var r = inf0.apply(this, arguments), st = G.parentStyle(n); if (st) r.push(['教育方式|Parenting', st.n]); return r; }; }
+  G.PSTYLE = STY;
 })();

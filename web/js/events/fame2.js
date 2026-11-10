@@ -3,7 +3,7 @@
   'use strict';
   var N = G.N, H = G.EH, E = H.E, O = H.O, R = H.R, RC = H.RC;
   function fc(ids) { return function (S, p) { return !!(p.fc && [].concat(ids).indexOf(p.fc.id) >= 0); }; }
-  function fans(c, k) { var f = c.p.fc; if (!f) return 0; var d = Math.round(f.fans * k); f.fans = Math.max(10, f.fans + d); G.dPush('fans', d); return d; }
+  function fans(c, k) { var f = c.p.fc; if (!f) return 0; var d = Math.round(f.fans * k * (k > 0 ? .45 : 1)); f.fans = Math.max(10, f.fans + d); G.dPush('fans', d); return d; }
   function rankUp(c) { var f = c.p.fc, F = G.FAME[f.id]; if (f.rank < F.r.length - 1) c.ev('sys_fame_up'); }
 
   /* how a performance reads, per career */
@@ -25,7 +25,7 @@
     var r = await G.UI.game(gid, { name: F.n });
     var d = Math.round((r.score - .45) * 40);
     f.perf = G.clamp(f.perf + d, 0, 100);
-    var fg = Math.round(f.fans * Math.max(-.2, (r.score - .4) * .5) + r.score * 800 * (f.rank + 1));
+    var fg = Math.round(f.fans * Math.max(-.15, (r.score - .5) * .3) + r.score * 300 * (f.rank + 1)); f.wk = (f.wk || 0) + 1; if (f.wk > 2 && fg > 0) fg = Math.round(fg * .35);
     f.fans = Math.max(10, f.fans + fg);
     G.dStart(); G.addStat('happy', r.score > .5 ? 4 : -2); if (r.score > .7) G.addStat('fame', 2); var dl = G.dEnd();
     dl.push({ k: 'fans', n: fg });

@@ -24,7 +24,11 @@
   G.h = h;
   var UI = G.UI = {};
   UI.T = T;
-  function tap(fn) { return function (e) { if (G.audio) G.audio.sfx('tap'); G.native.haptic('light'); fn(e); }; }
+  // guard against double taps: a second tap right after the first (or right after a dialog pops up) is ignored,
+  // so a quick double tap on "Resign" can't also hit "Confirm" in the dialog that appears under your finger
+  var lastOpen = 0;
+  UI.guard = function () { lastOpen = Date.now(); };
+  function tap(fn) { var mine = 0; return function (e) { var now = Date.now(); if (now - lastOpen < 350 || now - mine < 400) return; mine = now; if (G.audio) G.audio.sfx('tap'); G.native.haptic('light'); fn(e); }; }
   UI.tap = tap;
 
   /* ---------- toast ---------- */
@@ -45,7 +49,7 @@
     m.appendChild(head);
     if (o.body) m.appendChild(h('div', { class: 'mb' }, o.body));
     if (o.foot) m.appendChild(h('div', { class: 'mf' }, o.foot));
-    veil.appendChild(m); document.body.appendChild(veil);
+    veil.appendChild(m); document.body.appendChild(veil); lastOpen = Date.now();
     requestAnimationFrame(function () { veil.classList.add('on'); });
     function close() { veil.classList.remove('on'); setTimeout(function () { veil.remove(); }, 180); }
     return { el: veil, m: m, close: close };
@@ -110,7 +114,7 @@
         o.text ? h('div', { class: 'txt', style: { marginBottom: '8px' } }, T(o.text)) : null,
         h('div', { style: { fontSize: '13px', color: 'var(--ink2)', marginBottom: '6px' } }, T('可用：|Available: ') + G.fm(max)),
         inp, h('div', { class: 'sugs' }, presets)),
-        foot: [h('button', { class: 'opt solid', onclick: tap(function () { var v = Math.floor(+inp.value || 0); if (v <= 0) { UI.toast('请输入金额|Enter an amount'); return; } if (v > max) { UI.toast('钱不够|Not enough money'); return; } done = true; md.close(); res(v); }) }, T('确定|Confirm'))] });
+        foot: [h('button', { class: 'opt solid', onclick: tap(function () { var v = Math.floor(+inp.value || 0); if (v <= 0 && !(o.zero && inp.value !== '')) { UI.toast('请输入金额|Enter an amount'); return; } if (v > max) { UI.toast('钱不够|Not enough money'); return; } done = true; md.close(); res(v); }) }, T('确定|Confirm'))] });
     });
   };
   UI.confirm = function (title, text) { return UI.event({ title: title, text: text, opts: [{ t: '确定|Yes' }, { t: '取消|Cancel' }] }).then(function (i) { return i === 0; }); };
@@ -142,12 +146,40 @@
 
   /* ---------- action runner ---------- */
   UI.busy = false;
+  // decisions that change a life: always ask first
+  UI.BIG = {
+    gquit: '辞去公职后，多年的资历就清零了。确定吗？|Resigning from public office wipes out years of seniority. Are you sure?',
+    pquit: '辞去警职后就再也回不去了。确定吗？|Once you leave the force there\'s no going back. Are you sure?',
+    discharge: '退役后军衔和待遇都会失去。确定吗？|You\'ll lose your rank and benefits. Are you sure?',
+    fquit: '退圈后粉丝会散去，名气也会慢慢消失。确定吗？|Your fans will drift away and your fame will fade. Are you sure?',
+    dropout: '退学以后就只有现在的学历了。确定吗？|Drop out and this is the highest schooling you\'ll have. Are you sure?',
+    udrop: '退学以后拿不到学位。确定吗？|Drop out and you won\'t get your degree. Are you sure?',
+    sell: '公司卖掉就不再属于你了。确定吗？|Once sold, the company is no longer yours. Are you sure?',
+    emigrate: '移民会离开熟悉的一切，工作也会丢掉。确定吗？|Emigrating means leaving everything familiar — including your job. Are you sure?',
+    escape: '越狱一旦失败，刑期会大大增加。确定吗？|A failed escape adds years to your sentence. Are you sure?',
+    breakup: '确定要和{n}分手吗？|Are you sure you want to break up with {n}?',
+    divorce: '确定要和{n}离婚吗？财产可能要分走一半。|Are you sure you want to divorce {n}? You may lose half of everything.',
+    block: '确定要和{n}断绝来往吗？|Are you sure you want to cut ties with {n}?',
+    payoff: '确定要用钱打发{n}吗？|Are you sure you want to pay {n} to leave?',
+    unkeep: '确定不再养着{n}了吗？|Are you sure you want to stop supporting {n}?',
+    ack: '公开承认{n}，你的配偶和所有人都会知道。确定吗？|Acknowledging {n} means your spouse — and everyone — will know. Are you sure?',
+    cut: '确定要把{n}从遗嘱里除名吗？|Are you sure you want to cut {n} out of your will?',
+    gy_quit: '金盆洗手后，这条路就断了。确定吗？|Walk away and that road closes for good. Are you sure?',
+    dismiss: true
+  };
   UI.doAction = async function (a, npc) {
     if (UI.busy || G.busy || !G.S || G.S.dead) return;
     var p = G.S.p, e = a.e || 0, price = (!npc && a.$) ? G.$(a.$) : 0;
     if (a.lock && a.lock()) { UI.toast(a.lock()); return; }
     if (p.energy < e) { UI.toast('体力不够了，过完这一年再来吧。|Out of energy — finish the year to recharge.'); G.audio && G.audio.sfx('bad'); return; }
     if (price && p.money < price) { UI.toast(G.L('钱不够，需要{m}。|Not enough money — you need {m}.', { m: G.M(price) })); G.audio && G.audio.sfx('bad'); return; }
+    var big = a.confirm || UI.BIG[a.id];
+    if (big && !G.settings.autoGame) {
+      var nm = typeof a.n === 'function' ? a.n(npc) : a.n;
+      var txt = typeof big === 'string' ? G.L(big, { n: npc ? npc.name : '' }) : G.L('确定要「{a}」吗？这个决定很难挽回。|Are you sure you want to "{a}"? This is hard to undo.', { a: nm });
+      if (!(await UI.confirm(nm, txt))) return;
+      if (UI.busy || G.busy || !G.S || G.S.dead) return;
+    }
     UI.busy = true;
     p.energy -= e; if (price) G.addMoney(-price);
     try {

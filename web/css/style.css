@@ -444,7 +444,7 @@ html, body { background: var(--desk2); }
 @media (max-height: 700px) { .hdr .av { width: 54px; height: 54px; } .st .bar { height: 19px; } .stats { gap: 5px 12px; } .tab { height: 44px; } .pencil { height: 54px; } .yr p { font-size: 15px; } }
 /* personality card on profiles */
 .persona { margin: 8px 0 4px; padding: 9px 11px; border-radius: 10px; background: var(--grid); font-size: 13px; line-height: 1.55; }
-.persona .pd { color: var(--ink); }
+.persona .pd { color: var(--ink); white-space: pre-line; }
 .persona .cp { margin-top: 5px; color: var(--ink2); font-style: italic; }
 .persona .chips { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
 .persona .chip { white-space: normal; background: var(--paper, rgba(255,255,255,.6)); padding: 1px 7px; }
@@ -453,3 +453,23 @@ html, body { background: var(--desk2); }
 .estl .esl b { white-space: nowrap; }
 .estl .esd { margin-top: 4px; color: var(--red); line-height: 1.5; }
 .estl .esd.ok { color: var(--green); }
+/* ---------- prison ---------- */
+.cage { display: none; position: absolute; inset: 0; pointer-events: none; z-index: 6; border-radius: inherit;
+  background:
+    linear-gradient(180deg, transparent 0 13%, #2b2e33 13%, #8d939b 14%, #3b3f45 15.2%, transparent 15.2% 84%, #2b2e33 84%, #8d939b 85%, #3b3f45 86.2%, transparent 86.2%),
+    repeating-linear-gradient(90deg, transparent 0 40px, rgba(30,32,36,.82) 40px, rgba(150,156,165,.85) 43px, rgba(60,64,70,.85) 47px, rgba(30,32,36,.82) 49px, transparent 49px 66px); }
+.desk.jailed .cage { display: block; }
+.desk.jailed .book .page { filter: grayscale(.9) contrast(1.05); background: #e8e6e1; }
+.desk.jailed { background: #3a3c40; }
+.desk.jailed .leaf { display: none; }
+.jailbar { display: none; }
+.desk.jailed .jailbar { display: block; margin: 0 12px 4px; padding: 6px 10px; border-radius: 8px; background: #2c2e32; color: #e9e6df; font-size: 12px; position: relative; z-index: 7; }
+.jailbar b { margin-right: 8px; }
+.cagecard { position: relative; overflow: hidden; border-radius: 14px; background: #2c2e32; color: #ece9e2; padding: 16px 14px; margin-bottom: 10px; line-height: 1.55; font-size: 13px; }
+.cagecard .bars { position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background: repeating-linear-gradient(90deg, transparent 0 26px, #8d939b 26px, #50555c 31px, transparent 31px 44px); }
+.cagecard .tx { position: relative; }
+.cagecard b { font-size: 15px; display: block; margin-bottom: 4px; }
+.cagecard .sz { margin-top: 6px; color: #ffb4a6; }
+.cagecard .q { margin-top: 8px; color: #c9c5bc; }
+.card p.muted { color: var(--ink2); font-size: 13px; margin: 2px 0 8px; line-height: 1.5; }
