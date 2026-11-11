@@ -52,7 +52,7 @@
     var pr = { city: p.city, org: org.n, tier: G.tierName(p.country, tier), cty: cc.n };
     G.yearEntry();
     var BIRTH = { royal: '{y}年，你出生在{cty}的王宫里，是国王和王后的孩子。礼炮鸣响了二十一声。|In {y}, you were born in the royal palace — a child of the King and Queen of {cty}. A 21-gun salute rang out.', noble: '{y}年，你出生在{cty}{city}郊外的家族庄园里，是一个百年望族的继承人之一。|In {y}, you were born on the family estate outside {city}, {cty} — an heir to a centuries-old dynasty.', richest: '{y}年，你出生在{cty}{city}，你家是全国首富。|In {y}, you were born in {city}, {cty}, into the richest family in the country.', red: '{y}年，你出生在{cty}{city}的一个大院里，祖辈是开国元勋。|In {y}, you were born inside a guarded compound in {city}, {cty}; your grandparents were founders of the state.', mafia: '{y}年，你出生在{cty}{city}。你的父亲，是这座城市地下世界的老大。|In {y}, you were born in {city}, {cty}. Your father rules the city\'s underworld.' };
-    G.log(BIRTH[org.id] || '{y}年，你出生在{cty}{city}的一个{org}。|In {y}, you were born into a {org} in {city}, {cty}.', { y: o.by, cty: cc.n, city: p.city, org: org.n });
+    G.log((org.id === 'red' && o.country !== 'cn' ? '{y}年，你出生在{cty}{city}的一个政治世家，家里的客厅里挂满了和总统、总理的合影。|In {y}, you were born into a political dynasty in {city}, {cty}; the living room is lined with photos beside presidents and prime ministers.' : BIRTH[org.id]) || '{y}年，你出生在{cty}{city}的一个{org}。|In {y}, you were born into a {org} in {city}, {cty}.', { y: o.by, cty: cc.n, city: p.city, org: org.n });
     if (fam.text) G.logRaw(fam.text);
     if (p.talents.length) G.log('你的天赋：{t}|Your talents: {t}', { t: G.join(p.talents.map(function (t) { return G.TALENT[t].n; }), '、', ', ') });
     G.major('出生|Born');

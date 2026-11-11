@@ -10,7 +10,7 @@
 
   /* ---------------- schools ---------------- */
   var SCH = G.KSCHOOL = {
-    pub: { n: '公立学校|Public School', i: '🏫', fee: 0, sm: 0, perf: 0, d: '免费，离家近，同学来自各行各业。|Free and close to home; classmates from every walk of life.' },
+    pub: { n: '公立学校|Public School', i: '🏫', fee: 0, sm: .3, perf: 0, d: '免费，离家近，同学来自各行各业。|Free and close to home; classmates from every walk of life.' },
     key: { n: '重点学校|Top Public School', i: '🏅', fee: 1500, once: 15000, sm: 1.4, perf: 6, test: 55, d: '升学率高、竞争激烈。要有学区房或交一笔择校费，还得通过入学考试。|Top results and fierce competition. Needs a school-district home or a one-off fee — and an entrance test.' },
     priv: { n: '私立学校|Private School', i: '🎒', fee: 12000, sm: .9, perf: 3, eq: 1, d: '小班教学，设施一流，家长非富即贵。|Small classes, top facilities, well-connected parents.' },
     intl: { n: '国际学校|International School', i: '🌐', fee: 30000, sm: .8, perf: -2, eq: 1.4, abroad: .8, d: '全英文授课，直通海外大学；学费惊人，也会和本地升学体系脱节。|Taught in English, a pipeline to universities abroad — at a staggering price, and out of step with the local exam system.' },
@@ -52,7 +52,7 @@
       if (f && !G.pay(f)) { G.UI.toast('钱不够|Not enough money'); return 'cancel'; }
       var like = id === 'pub' ? .7 : id === 'board' || id === 'abroad' ? (k.pers === 'rebel' || k.pers === 'clingy' ? .2 : .5) : .7;
       k.sch = id; k.schY = S().year; k.schPaid = S().year;
-      G.dStart(); G.dPush('aff', N.addAff(k, G.ch(like) ? 3 : -6)); var dl = G.dEnd();
+      G.dStart(); G.dPush('aff', N.addAff(k, id === 'board' || id === 'abroad' ? (G.ch(like) ? 3 : -4) : G.ri(2, 5))); var dl = G.dEnd();
       if (id !== 'pub') G.log('{n}转到了{s}。|{n} moved to {s}.', { n: k.name, s: s.n });
       var t = id === 'abroad' ? '机场里，{n}拖着比自己还高的行李箱，回头冲你挥了挥手。|At the airport, {n} dragged a suitcase taller than they were, then turned and waved.'
         : id === 'board' ? '你把{n}送到了寄宿学校。走的时候，{n}没有哭，你却哭了。|You dropped {n} at boarding school. {n} didn\'t cry — you did.'
@@ -61,7 +61,7 @@
         : '{n}背着新书包，走进了新学校。|{n} walked into the new school with a brand-new backpack.';
       return res(act, t, pr(k), dl);
     } });
-    if (a >= 3) add.push({ id: 'kallow', n: n.allow ? '调整每月零花钱|Change Monthly Allowance' : '每月给零花钱|Give a Monthly Allowance', i: '🪙', e: 0, run: async function (k, act) {
+    if (a >= 0) add.push({ id: 'kallow', n: n.allow ? '调整每月零花钱|Change Monthly Allowance' : '每月给零花钱|Give a Monthly Allowance', i: '🪙', e: 0, run: async function (k, act) {
       var base = a < 12 ? G.$(25) : a < 18 ? G.$(120) : G.$(700);
       var v = await G.UI.amount({ title: G.L('每月给{n}多少零花钱？|How much should {n} get each month?', pr(k)), text: G.L('每个月自动从你的账户里给。填0就是停掉。|Paid automatically every month. Enter 0 to stop.'), max: Math.max(Math.round(p.money / 12), base * 40), presets: [], def: k.allow ? Math.round(k.allow / 12) : base, zero: true });
       if (v == null) return 'cancel';
@@ -92,7 +92,10 @@
     }
     // the school shapes them
     if (a >= 5 && a < 18) {
-      k.smarts = G.clamp(k.smarts + (s.sm || 0) * G.rf(.4, 1), 1, 100);
+      // better schools grow every talent faster
+      var q = { pub: 1, key: 2.2, priv: 2, intl: 2, board: 2, abroad: 2.1 }[k.sch || 'pub'] || 1;
+      k.smarts = G.clamp(k.smarts + (s.sm || 0) * 1.6 * G.rf(.5, 1), 1, 100);
+      if (q > 1) { k.eq = G.clamp((k.eq || 50) + .4 * q * G.rf(.4, 1), 1, 100); k.health = G.clamp((k.health || 70) + .2 * q * G.rf(0, 1), 1, 100); if (k.edu) k.edu.perf = G.clamp((k.edu.perf || 50) + q * .6, 0, 100); }
       if (k.edu) k.edu.perf = G.clamp((k.edu.perf || 50) + (s.perf || 0) * .5, 0, 100);
       if (s.eq) k.eq = G.clamp((k.eq || 50) + s.eq * G.rf(.3, 1), 1, 100);
       if (s.aff) N.addAff(k, s.aff);

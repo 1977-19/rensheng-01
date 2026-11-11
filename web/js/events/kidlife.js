@@ -10,6 +10,9 @@
     var r = G.R() * tot, pick = list[0];
     for (var i = 0; i < list.length; i++) { var w = list[i][2] == null ? 1 : (typeof list[i][2] === 'function' ? list[i][2]() : list[i][2]); if ((r -= w) <= 0) { pick = list[i]; break; } }
     var eff = Object.assign({}, pick[1]);
+    // a good moment shouldn't come with a petty penalty attached: drop small minuses when something went well
+    var good = ['smarts', 'happy', 'health', 'eq', 'looks'].some(function (k) { return eff[k] > 0; }) || eff.par > 0;
+    if (good) ['smarts', 'happy', 'health', 'eq', 'looks'].forEach(function (k) { if (eff[k] < 0 && eff[k] >= -2) delete eff[k]; });
     if (eff.par) { var v = eff.par; delete eff.par; par().forEach(function (n) { N.addAff(n, v); }); }
     return G.quick(a, pick[0], eff, prm);
   }
@@ -120,7 +123,7 @@
       if (!p || p.age >= 18 || d.sys || d.noBal) return run ? run.apply(this, arguments) : null;
       var before = { smarts: p.st.smarts, happy: p.st.happy, health: p.st.health, eq: p.st.eq };
       var r = run ? await run.apply(this, arguments) : null;
-      if (G.S && G.S.p === p && !G.S.dead && !p.dead) balance(before);
+      // (no forced cost any more: a kind choice like taking in a kitten is simply good)
       return r;
     };
   }

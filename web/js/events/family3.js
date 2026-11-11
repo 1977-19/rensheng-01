@@ -12,8 +12,8 @@
     rich: { n: '富养|Raised in Comfort', d: '见世面、学才艺、穿好吃好，但容易被宠坏。|Travel, lessons, the best of everything — at the risk of spoiling them.', fx: { happy: .7, looks: .3, eq: .2, smarts: .2 }, cost: 12000 }
   };
   G.RAISE = RAISE;
-  var ABROAD = ['us', 'gb', 'ca', 'au', 'sg', 'jp', 'de', 'fr', 'it', 'es', 'kr'];
-  var CIT_COST = { us: 900000, gb: 2500000, ca: 1200000, au: 1500000, sg: 2500000, jp: 600000, de: 400000, fr: 500000, it: 300000, es: 600000, kr: 600000, cn: 0, ru: 300000, in: 300000, br: 200000, mx: 200000, th: 300000, za: 200000 };
+  var ABROAD = ['us', 'gb', 'ca', 'au', 'sg', 'jp', 'de', 'fr', 'it', 'es', 'kr', 'cn', 'nz', 'ch', 'ie', 'at', 'pt', 'th', 'br', 'mx', 'ar', 'za', 'ru', 'in'];
+  var CIT_COST = { us: 900000, gb: 2500000, ca: 1200000, au: 1500000, sg: 2500000, jp: 600000, de: 400000, fr: 500000, it: 300000, es: 600000, kr: 600000, cn: 0, ru: 300000, in: 300000, br: 200000, mx: 200000, th: 300000, za: 200000, nz: 1200000, ch: 3000000, ie: 900000, at: 800000, pt: 350000, ar: 150000 };
 
   var acts0 = G.npcActs;
   G.npcActs = function (n) {
@@ -38,8 +38,8 @@
         return res(act, '{m}成了{n}的保姆。{n}很快就离不开她了。|{m} became {n}\'s nanny. Before long {n} couldn\'t do without her.', { m: nn.name, n: k.name }, dl);
       } });
     add.push({ id: 'kvisa', n: '签证与国籍|Visas & Citizenship', i: '🛂', e: 10, run: async function (k, act) {
-      var cs = ABROAD.filter(function (c) { return c !== (k.c || p.country) && G.C[c]; });
-      var ci = await G.UI.pick({ title: G.L('为{n}办理哪国的身份？|Which country for {n}?', { n: k.name }), items: cs.map(function (c) { return { t: G.C[c].n, icon: G.C[c].flag, sub: G.T(G.L('投资入籍约{m}|Citizenship by investment ~{m}', { m: G.M(G.$(CIT_COST[c] || 800000)) })) }; }) });
+      var cs = ABROAD.filter(function (c) { return c !== (k.c || p.country) && G.C[c]; }).sort(function (a, b) { return (G.rivalBlock && G.rivalBlock(a) ? 1 : 0) - (G.rivalBlock && G.rivalBlock(b) ? 1 : 0); });
+      var ci = await G.UI.pick({ title: G.L('为{n}办理哪国的身份？|Which country for {n}?', { n: k.name }), items: cs.map(function (c) { var rb = G.rivalBlock && G.rivalBlock(c); if (rb) return { t: G.C[c].n, icon: G.C[c].flag, sub: G.T(rb), dis: true }; return { t: G.C[c].n, icon: G.C[c].flag, sub: G.T(G.L('投资入籍约{m}|Citizenship by investment ~{m}', { m: G.M(G.$(CIT_COST[c] || 800000)) })) }; }) });
       if (ci < 0) return 'cancel';
       var c = cs[ci];
       var kinds = [{ t: G.L('留学签证|Student visa'), sub: G.L('去那里读书|Study there'), k: 'study' }, { t: G.L('工作签证|Work visa'), sub: G.L('去那里工作|Work there'), k: 'work' }, { t: G.L('投资入籍|Citizenship by investment'), sub: G.L('拿到那个国家的国籍|Become a citizen', {}), k: 'cit' }];
@@ -52,7 +52,8 @@
       G.dStart();
       if (!G.ch(ch)) { var dl0 = G.dEnd(); return res(act, '{c}拒绝了{n}的申请，钱打了水漂。|{c} turned down {n}\'s application. The money\'s gone.', { c: G.C[c].n, n: k.name }, dl0); }
       k.visa = k.visa || {}; k.visa[c] = kd;
-      if (kd === 'cit') { k.cits = (k.cits || [k.c || p.country]); if (k.cits.indexOf(c) < 0) k.cits.push(c); }
+      var lost = null;
+      if (kd === 'cit') { k.cits = (k.cits || [k.c || p.country]); if (k.cits.indexOf(c) < 0) k.cits.push(c); var nd = k.cits.filter(function (x) { return x !== c && G.NODUAL && G.NODUAL[x]; }); if (nd.length || (G.NODUAL && G.NODUAL[c])) { lost = (G.NODUAL[c] ? k.cits.filter(function (x) { return x !== c; }) : nd); k.cits = k.cits.filter(function (x) { return lost.indexOf(x) < 0; }); if (lost.length) G.log('{c}不承认双重国籍，{n}拿到新国籍的同时放弃了{o}国籍。|{c} doesn\'t allow dual citizenship: in becoming a citizen, {n} gave up {o} citizenship.', { c: G.C[G.NODUAL[c] ? c : lost[0]].n, n: k.name, o: lost.map(function (x) { return G.T(G.C[x].n); }).join('、') }); } }
       if (kd === 'work' || kd === 'cit') { if (N.age(k) >= 18) k.c = c; }
       if (kd === 'study' && k.edu && N.age(k) < 22) { k.schC = c; }
       G.dPush('aff', N.addAff(k, 6)); var dl = G.dEnd();

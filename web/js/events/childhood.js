@@ -9,16 +9,21 @@
   G.parentsCover = function (m) {
     if (!S() || !underCare() || m <= 0) return false;
     var ps = payers(), fw = G.sum(ps, function (n) { return n.wealth; }), p = S().p;
-    var need = p.age < 18 ? 2 : 4; // grown children have to ask harder
+    var need = p.age < 18 ? 3 : 5; // grown children have to ask harder
+    // a farming or working family can't pay for big things the way a rich one can
+    var cls = G.famClass ? G.famClass() : 1; if (cls === 0 && m > G.$(800)) need *= 2;
     if (!ps.length || fw < m * need) return false;
     var aff = G.sum(ps, function (n) { return n.aff; }) / ps.length;
     if (p.age >= 18 && aff < 20) return false;
     return true;
   };
   function parentsPay(m) {
-    var ps = payers(), left = m;
-    ps.forEach(function (n) { if (left <= 0) return; var take = Math.min(n.wealth, left); n.wealth -= take; left -= take; });
-    if (G.D && G.D.on) G.dNote(G.L('爸妈付了{m}|Your parents paid {m}', { m: G.M(m) }));
+    // father and mother both chip in, each in proportion to what they have
+    var ps = payers(), fw = G.sum(ps, function (n) { return n.wealth; }), left = m, parts = [];
+    ps.forEach(function (n, i) { if (left <= 0) return; var take = i === ps.length - 1 ? left : Math.min(n.wealth, Math.round(m * n.wealth / fw)); take = Math.min(take, n.wealth); n.wealth -= take; left -= take; if (take > 0) parts.push([n, take]); });
+    if (left > 0) ps.forEach(function (n) { if (left <= 0) return; var t2 = Math.min(n.wealth, left); n.wealth -= t2; left -= t2; });
+    parts.forEach(function (x) { if (G.fin) G.fin.add('par', G.fin.who(x[0]), x[1]); });
+    if (G.D && G.D.on) G.dNote(parts.length > 1 ? G.L('{a}付了{x}，{b}付了{y}|{a} paid {x}, {b} paid {y}', { a: N.relName(parts[0][0]), x: G.M(parts[0][1]), b: N.relName(parts[1][0]), y: G.M(parts[1][1]) }) : G.L('爸妈付了{m}|Your parents paid {m}', { m: G.M(m) }));
   }
   var pay0 = G.pay;
   G.pay = function (n) {
@@ -49,17 +54,25 @@
 
   /* allowance & family trusts */
   var TRUST = { royal: 150000, richest: 500000, tycoon: 250000, noble: 80000, merchant: 30000, celebrity: 20000 };
-  var POCKET = G.POCKET = { royal: 20000, richest: 30000, tycoon: 15000, noble: 8000, merchant: 4000, celebrity: 3000, red: 1500 };
+  var POCKET = G.POCKET = { royal: 20000, richest: 30000, tycoon: 15000, noble: 8000, merchant: 4000, celebrity: 3000, red: 6000, mafia: 5000 };
   var FA = G.family, tick0 = FA.tick;
   FA.tick = function (Q) {
     var p = S().p, Sx = S(), ps = payers(), r = tick0.apply(this, arguments);
     if (!S() || S().p !== p || S().dead) return r;
-    // monthly pocket money for children of wealthy families, paid by the parents
-    if (p.age >= 8 && p.age < 18 && POCKET[p.origin] && ps.length && !p.jail) {
-      var amt = Math.round(G.$(POCKET[p.origin]) * (p.age / 14) * (.6 + G.sum(ps, function (n) { return n.aff; }) / ps.length / 100));
-      if (G.sum(ps, function (n) { return n.wealth; }) > amt * 10) {
-        ps[0].wealth -= amt; p.money += amt;
-        if (!p.flags.pocketLog || amt > p.flags.pocketLog * 1.8) { p.flags.pocketLog = amt; G.log(p.origin === 'royal' ? '【零花钱】父王和母后每月给你{x}，今年一共{m}。|[Allowance] The King and Queen give you {x} a month — {m} this year.' : '【零花钱】爸妈每月给你{x}，今年一共{m}。|[Allowance] Your parents give you {x} a month — {m} this year.', { x: G.M(Math.round(amt / 12)), m: G.M(amt) }); }
+    // monthly pocket money from birth for children of wealthy families; each parent gives their own, by their own fondness
+    if (p.age < 18 && POCKET[p.origin] && !p.jail && !p.flags.trafficked) {
+      var royal = p.origin === 'royal', got = [], tot = 0;
+      N.rel('father', 'mother').filter(function (n) { return n.alive && !n.away && (n.wealth || 0) > 0; }).forEach(function (n) {
+        var a = Math.round(G.$(POCKET[p.origin]) / 2 * ((p.age + 2) / 16) * G.clamp(.3 + (n.aff || 0) / 90, .1, 1.5) * (n.sep ? .6 : 1));
+        if (n.wealth < a * 10) return;
+        n.wealth -= a; tot += a; got.push([n, a]); if (G.fin) G.fin.add('in', G.fin.who(n, '零花钱|allowance'), a);
+      });
+      if (!got.length && ps.length && G.sum(ps, function (n) { return n.wealth; }) > G.$(POCKET[p.origin]) * 10) { var a2 = Math.round(G.$(POCKET[p.origin]) / 2 * ((p.age + 2) / 16)); ps[0].wealth -= a2; tot = a2; got.push([ps[0], a2]); }
+      if (tot) {
+        p.money += tot;
+        var who = got.map(function (x) { var n = x[0], mo = G.M(Math.round(x[1] / 12)); return G.T(n.rel === 'father' ? (royal ? '父王' : '爸爸') + '每月{m}|' + (royal ? 'The King' : 'Dad') + ' {m} a month' : n.rel === 'mother' ? (royal ? '母后' : '妈妈') + '每月{m}|' + (royal ? 'The Queen' : 'Mom') + ' {m} a month' : '{r}每月{m}|{r} {m} a month', { m: mo, r: N.relName(n) }); });
+        var first = p.age <= 1 && !p.flags.pocketLog; if (first) { p.flags.pocketLog = tot; G.log('【零花钱】你一出生，家里就给你开了账户，每月往里存零花钱：{w}。|[Allowance] The day you were born, an account was opened in your name with a monthly allowance: {w}.', { w: who.join('，') + '|' + who.join(', ') }); }
+        else if (!p.flags.pocketLog || tot > p.flags.pocketLog * 1.6 || tot < p.flags.pocketLog * .6) { p.flags.pocketLog = tot; G.log('【零花钱】{w}，今年一共{m}。|[Allowance] {w} — {m} this year.', { w: who.join('，') + '|' + who.join(', '), m: G.M(tot) }); }
       }
     }
     // a trust fund matures when you come of age

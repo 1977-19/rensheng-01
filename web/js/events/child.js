@@ -91,7 +91,7 @@
       O('告诉妈妈|Tell Mom', R('妈妈夸你诚实，奖励了你两颗。|Mom praised your honesty and gave you two.', { karma: 2, par: 3 }))
     ]),
     E('c_bike', [4, 9], '学骑自行车|Learning to Ride a Bike', '🚲', '爸爸扶着后座教你骑自行车。|Dad holds the back seat while teaching you to ride.', [
-      O('勇敢地往前骑|Pedal bravely', RC(.65, '你骑出去老远才发现爸爸早就松手了！|You rode far before realizing Dad had let go long ago!', { happy: 6, fit: 3 }, '你摔了个狗啃泥，膝盖破了。|You crashed face-first and skinned your knees.', { health: -3, happy: -2 })),
+      O('勇敢地往前骑|Pedal bravely', RC(.65, '你骑出去老远才发现爸爸早就松手了！|You rode far before realizing Dad had let go long ago!', { happy: 6, health: 2, fit: 3 }, '你摔了一跤，拍拍土又爬上了车，第二天就学会了。|You took a tumble, dusted yourself off, got back on — and had it by the next day.', { happy: 3, eq: 1, health: 1 })),
       O('不敢骑|Too scared', R('你说什么也不肯骑。|You refused to ride no matter what.', { happy: -1 }))
     ], { if: H.hasPar }),
     E('c_sibling', [2, 9], '要有弟弟妹妹了|A New Sibling', '👶', '妈妈的肚子越来越大，你要当哥哥/姐姐了。|Mom\'s belly keeps growing — you\'re going to be a big sibling.', [
@@ -127,7 +127,7 @@
       O('模仿家长签名|Forge the signature', RC(.55, '老师没发现。|The teacher didn\'t notice.', { karma: -2 }, '老师打电话到家里，你被罚得很惨。|The teacher called home. Big trouble.', { par: -8, happy: -8, karma: -2 })),
       O('藏起来|Hide the test', R('你把试卷藏在床底下，提心吊胆了好几天。|You stuffed it under your bed and worried for days.', { stress: 8 }))
     ], { if: function (S, p) { return H.student() && p.edu.perf < 55 && H.hasPar(); } }),
-    E('c_pocket', [6, 12], '零花钱|Allowance', '🪙', '爸妈第一次给了你零花钱。|Your parents give you an allowance for the first time.', [
+    E('c_pocket', [6, 12], '零花钱|Allowance', '🪙', '这个月的零花钱到手了，你第一次可以自己决定怎么花。|This month\'s pocket money is in your hand — and for the first time, it\'s yours to spend.', [
       O('存进小猪存钱罐|Save it in a piggy bank', R('你的存钱罐越来越沉了。|Your piggy bank grows heavier.', { money: 20, smarts: 1 })),
       O('全买零食|Spend it all on snacks', R('你一口气吃了个痛快。|You stuffed yourself happily.', { happy: 5 })),
       O('买漫画书|Buy comic books', R('你沉迷在漫画的世界里。|You lose yourself in comics.', { happy: 4, smarts: 1 }))

@@ -15,14 +15,14 @@
       var t = fam ? G.pick(['你陪{n}聊了一整个下午。|You spent the whole afternoon talking with {n}.', '你和{n}一起做了顿饭。|You and {n} cooked a meal together.']) : isRom(n) ? G.pick(['你们窝在沙发上看了一晚上剧。|You curled up on the couch and binge-watched shows all night.', '你们手牵手在公园散步。|You strolled through the park hand in hand.']) : G.pick(['你和{n}出去玩了一天。|You and {n} hung out all day.', '你和{n}一起打了一下午游戏。|You played games with {n} all afternoon.']);
       return { t: t };
     }) });
-    out.push({ id: 'gift', n: '送礼物|Give a Gift', i: '🎁', e: 5, run: async function (n, a) {
+    out.push({ id: 'gift', n: '送礼物|Give a Gift', i: '🎁', e: 0, run: async function (n, a) {
       var gs = G.GIFTS.filter(function (g) { return (!g.y0 || S.year >= g.y0) && (!g.kid || N.age(n) < 14) && !(N.age(n) < 14 && g.v > 600 && !g.kid); });
       var items = gs.map(function (g) { return { t: g.n, sub: G.M(G.$(g.v)), icon: g.i, dis: p.money < G.$(g.v) }; });
       items.push({ t: G.L('红包（现金）|Cash Gift'), sub: G.L('送{m}|Give {m}', { m: G.M(Math.round(Math.max(G.$(100), p.money * .1))) }), icon: '🧧', dis: p.money < G.$(100) });
       var i = await G.UI.pick({ title: G.L(a.n), items: items }); if (i < 0) return 'cancel';
       var val, g = gs[i], like = false;
       if (i === gs.length) { val = Math.round(Math.max(G.$(100), p.money * .1)); G.addMoney(-val); n.wealth += val; }
-      else { val = G.$(g.v); if (!G.pay(val)) return 'cancel'; like = g.like && g.like.indexOf(n.pers) >= 0; if (g.old && N.age(n) > 50) like = true; }
+      else { val = G.$(g.v); if (p.money < val) { G.UI.toast(G.L('钱不够，需要{m}。|Not enough money — you need {m}.', { m: G.M(val) })); return 'cancel'; } G.addMoney(-val); like = g.like && g.like.indexOf(n.pers) >= 0; if (g.old && N.age(n) > 50) like = true; }
       var rel = val / Math.max(G.$(200), (n.wealth || 0) * .02 + G.$(50));
       var gain = G.clamp(3 + Math.log2(rel + 1) * 4, 2, 25) * (like ? 1.6 : 1) * (n.pers === 'gold' ? 1.4 : 1) * (n.pers === 'honest' && val > G.$(5000) ? .5 : 1);
       G.dStart(); N.touch(n); var da = N.addAff(n, gain); var dlv = isRom(n) || N.canRomance(n) ? N.addLove(n, gain * .6) : 0; G.inc('gifts'); var dl = G.dEnd();

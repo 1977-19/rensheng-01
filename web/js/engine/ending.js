@@ -114,7 +114,7 @@
     var d = EN.compute();
     S.ending = d;
     G.loadMeta();
-    G.meta.lives.push({ name: d.name, c: d.country, by: d.by, dy: d.dy, age: d.age, title: d.title, score: d.score, grade: d.grade, at: Date.now(), gen: S.gen, g: d.g });
+    G.meta.lives.push({ name: d.name, c: d.country, by: d.by, dy: d.dy, age: d.age, title: d.title, score: d.score, grade: d.grade, at: Date.now(), gen: S.gen, g: d.g, td: d.td, ep: d.epitaph, cause: d.cause, nw: d.nw, cur: G.C[d.country] ? G.C[d.country].cur.sym : '', org: S.p.origin, tl: (d.timeline || []).slice(-60).map(function (x) { return [x.a, x.y, x.t]; }) });
     G.meta.lives.sort(function (a, b) { return b.score - a.score; });
     G.meta.lives = G.meta.lives.slice(0, 60);
     G.meta.stats.lives = (G.meta.stats.lives || 0) + 1;
@@ -189,7 +189,6 @@
     A('gen5', '🏯', '百年世家|Century Dynasty', '传承到第5代|Reach the 5th generation', function (S) { return S.gen >= 5; }),
     A('chat', '💬', '话痨|Chatterbox', '发送100条聊天消息|Send 100 chat messages', function (S, p, e, c) { return (c.chats || 0) >= 100; }),
     A('ai', '🤖', '赛博知己|Cyber Confidant', '和AI驱动的角色聊10次|Chat 10 times with AI-powered characters', function (S, p, e, c) { return (c.aiChats || 0) >= 10; }),
-    A('vip', '💠', '尊贵会员|VIP', '激活VIP|Activate VIP', function () { return G.vip.tier() >= 1; }),
     A('lives10', '♾️', '轮回十世|Ten Lives', '完成10段人生|Finish 10 lives', function () { return (G.meta.stats.lives || 0) >= 10; })
   ];
   G.ach = {

@@ -28,7 +28,8 @@
   var SALT = 'mylife-2026|';
   var V = G.vip = {};
   V.state = function () { return G.store.get('vip') || { t: 0, used: [] }; };
-  V.tier = function () { return V.state().t || 0; };
+  // memberships are gone: everyone gets everything
+  V.tier = function () { return 3; };
   V.norm = function (code) { return String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); };
   V.redeem = function (code) {
     var n = V.norm(code); if (n.length < 8) return { ok: false, msg: '兑换码格式不对|Invalid code format' };

@@ -122,6 +122,10 @@
     all.forEach(function (k) { if (k.illegit) r += k.ack ? .08 : .16; if (greedy(k)) r += .06; if (k.aff < 0) r += .05; });
     if (nw > G.$(1e6)) r += .08; if (nw > G.$(2e7)) r += .12;
     r += (S().p.flags.rivalry || 0) * .03;
+    // close families don't fight over money: affection and family reunions keep the peace
+    var avg = G.sum(all, function (k) { return k.aff; }) / all.length;
+    r *= avg >= 70 ? .3 : avg >= 50 ? .55 : avg >= 30 ? .85 : 1.2;
+    r -= (S().p.flags.unity || 0) * .04;
     if (w && w.notary) r -= .18; if (!w && all.length > 1) r += .08;
     return G.clamp(r, .02, .9);
   };
@@ -410,8 +414,10 @@
     { id: 'viewwill', n: '查看遗产安排|Review Your Estate Plan', i: '🗂️', e: 0, a: [18, 120], run: viewWill },
     { id: 'reunion', n: '召集家庭聚会|Hold a Family Reunion', i: '🍲', e: 15, $: 600, a: [30, 120], if: function () { return allKids().filter(function (k) { return N.age(k) >= 10; }).length >= 1; }, run: function (a) {
       var K = allKids(); G.dStart(); K.forEach(function (k) { N.addAff(k, k.feud ? -2 : 6); N.touch(k); }); G.addStat('happy', 8);
-      var fight = K.length >= 2 && G.ch(.15 + (S().p.flags.rivalry || 0) * .06);
-      if (fight) { G.addStat('happy', -10); S().p.flags.rivalry = (S().p.flags.rivalry || 0) + 1; }
+      var avg = G.sum(K, function (k) { return k.aff; }) / Math.max(1, K.length), fl = S().p.flags;
+      var fight = K.length >= 2 && G.ch(G.clamp(.12 + (fl.rivalry || 0) * .05 - (fl.unity || 0) * .03 - (avg - 50) / 400, .02, .5));
+      if (fight) { G.addStat('happy', -10); fl.rivalry = (fl.rivalry || 0) + 1; }
+      else { fl.unity = Math.min(8, (fl.unity || 0) + 1); fl.rivalry = Math.max(0, (fl.rivalry || 0) - 1); K.forEach(function (k) { if (k.feud && k.feud !== 'p' && S().npcs[k.feud] && G.ch(.35)) { var o = S().npcs[k.feud]; o.feud = null; k.feud = null; } }); }
       var dl = G.dEnd();
       return G.result(a.n, fight ? '饭吃到一半，孩子们为了谁出钱多、谁照顾你少吵了起来，不欢而散。|Halfway through dinner the kids started fighting over who pays more and who visits less. Everyone left angry.' : '一大家子人围坐在一起，你看着他们，觉得这辈子值了。|The whole family gathered around the table. Looking at them, you felt your life was worth it.', null, dl, a.i);
     } },

@@ -40,8 +40,8 @@
     }
     if (f && !G.pay(f)) { k.sch = 'pub'; return '学费太贵了，{n}最后还是去了普通学校。|The fees were too high; {n} ended up at an ordinary school.'; }
     k.sch = id; k.schY = S().year; k.schPaid = S().year;
-    var like = id === 'board' || id === 'abroad' ? (['rebel', 'clingy', 'anxious'].indexOf(k.pers) >= 0 ? .25 : .55) : .8;
-    G.dPush('aff', N.addAff(k, G.ch(like) ? 3 : -5));
+    var like = id === 'board' || id === 'abroad' ? (['rebel', 'clingy', 'anxious'].indexOf(k.pers) >= 0 ? .25 : .55) : 1;
+    G.dPush('aff', N.addAff(k, like >= 1 ? G.ri(2, 5) : G.ch(like) ? 3 : -4));
     c.prm.s = (LABEL[a] || LABEL[12])[id];
     if (id === 'abroad') c.prm.c = G.C[k.schC].n;
     return id === 'abroad' ? '{n}一个人去了{c}读书。走之前，{n}抱了你很久。|{n} left to study in {c} alone. Before going, {n} hugged you for a long time.'
@@ -152,9 +152,9 @@
   var grow3 = FA.growKid;
   FA.growKid = function (k, Q) {
     var r = grow3.apply(this, arguments), a = N.age(k), o = otherParent(k);
-    if (k.alive && k.rel === 'child' && a >= 3 && a < 22 && o && o.alive && !o.sep) {
+    if (k.alive && k.rel === 'child' && a >= 0 && a < 22 && o && o.alive && !o.sep) {
       var base = (o.inc || 0) * (o.rel === 'spouse' ? .02 : .04) + Math.max(0, o.wealth || 0) * .004;
-      var amt = Math.round(Math.min(base, Math.max(0, o.wealth || 0) * .2) * (.5 + (o.aff || 50) / 200) * (a < 12 ? .4 : 1));
+      var amt = Math.round(Math.min(base, Math.max(0, o.wealth || 0) * .2) * (.5 + (o.aff || 50) / 200) * (a < 3 ? .25 : a < 12 ? .4 : 1));
       if (amt > 0) { o.wealth = Math.max(0, (o.wealth || 0) - amt); k.wealth = (k.wealth || 0) + amt; k.oAllow = amt; } else k.oAllow = 0;
     } else if (a >= 22) k.oAllow = 0;
     return r;

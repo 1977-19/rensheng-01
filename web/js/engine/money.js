@@ -13,7 +13,8 @@
     hist.forEach(function (h) { if (h.pandemic) wd.pandemicY = S.year; shock.mk += h.mk || 0; if (h.tech != null) shock.tech = (shock.tech || 0) + h.tech; shock.hp += h.hp || 0; shock.job += h.job || 0; });
     var fut = null;
     if (S.year > 2025 && G.ch(.55)) {
-      fut = G.wpick(G.FUTURE.filter(function (f) { return !f.y0 || S.year >= f.y0; }));
+      wd.seen = wd.seen || {}; fut = G.wpick(G.FUTURE.filter(function (f, i) { return (!f.y0 || S.year >= f.y0) && !(f.once && wd.seen[i]) && !(wd.lastF === i); }));
+      if (fut) { wd.lastF = G.FUTURE.indexOf(fut); wd.seen[wd.lastF] = 1; }
       if (fut) { shock.mk += fut.mk || 0; if (fut.tech) shock.tech = (shock.tech || 0) + fut.tech; shock.hp += fut.hp || 0; shock.job += fut.job || 0; if (fut.crypto) shock.crypto = fut.crypto; }
     }
     // market returns
@@ -88,16 +89,16 @@
       return Math.round(G.$w(5500) * (G.has('thrifty') ? .7 : 1));
     }
     // what an ordinary household really burns through: food, transport, phone, insurance, rent, kids
-    var c = G.$w(15000);
+    var c = G.$w(18500);
     var own = S.assets.houses.some(function (h) { return h.live; });
-    if (!own) c += G.$w(13000);
-    var sp = G.N.spouse(); if (sp) c += G.$w(5000);
-    var kids = G.N.rel('child').filter(function (k) { return G.N.age(k) < 18 && !k.illegit; }), kc = kids.length * G.$w(8500);
+    if (!own) c += G.$w(16000);
+    var sp = G.N.spouse(); if (sp) c += G.$w(6500);
+    var kids = G.N.rel('child').filter(function (k) { return G.N.age(k) < 18 && !k.illegit; }), kc = kids.length * G.$w(11000);
     if (G.has('thrifty')) c *= .75; if (G.has('spender')) c *= 1.3;
     if (p.flags.lux) c *= 1.6;
     var earn = inc.work + inc.black - inc.tax;
-    if (earn < c) c = Math.max(G.$w(own ? 6500 : 9500), earn * .94); // low earners scrape by, saving almost nothing
-    else c += (earn - c) * .45;                                         // lifestyle creeps up with income
+    if (earn < c) c = Math.max(G.$w(own ? 6200 : 9000), earn * .96); // low earners scrape by, saving almost nothing
+    else c += (earn - c) * .52;                                         // lifestyle creeps up with income
     return Math.round(c + kc);
   };
   MO.tick = function (Q) {
@@ -120,11 +121,16 @@
     // debts
     A.debt.forEach(function (d) { d.amt = Math.round(d.amt * (1 + d.r)); });
     // kids allowance from parents
-    var allow = 0;
-    if (p.age >= 6 && G.dependent() && !(G.POCKET && G.POCKET[p.origin] && p.age < 18)) {
-      var par = G.N.rel('father', 'mother', 'grand').filter(function (n) { return n.alive; });
-      var fw = G.sum(par, function (n) { return n.wealth; });
-      if (par.length) { var avgAff = G.sum(par, function (n) { return n.aff; }) / par.length; allow = Math.round(Math.max(0, fw) * .002 * (p.age / 10) * (.5 + avgAff / 100) + G.$(30) * p.age / 6); allow = Math.min(allow, Math.max(0, fw) * .02); par[0].wealth -= allow; }
+    // pocket money from the day you're born; each parent gives their own share, by their own fondness for you
+    var allow = 0, allowBy = [];
+    if (G.dependent() && !p.jail && !p.flags.indep && !(G.POCKET && G.POCKET[p.origin] && p.age < 18)) {
+      var par = G.N.rel('father', 'mother', 'grand').filter(function (n) { return n.alive && !n.away; });
+      par.forEach(function (n) {
+        var w = Math.max(0, n.wealth || 0), af = G.clamp(.5 + (n.aff || 0) / 100, .1, 1.5);
+        var a = Math.round(w * .002 * ((p.age + 1) / 10) * af + G.$(30) * (p.age + 1) / 6 / par.length * af);
+        a = Math.min(a, w * .02); if (a < 1) return;
+        n.wealth -= a; allow += a; allowBy.push([n, a]);
+      });
     }
     // no home of your own: renting and moving wear you down
     if (p.age >= 22 && !G.dependent() && !p.jail && !A.houses.some(function (h) { return h.live; })) {
@@ -133,6 +139,7 @@
       if (homeless && G.ch(.3)) G.log('你居无定所，借住在朋友家的沙发上。|With nowhere to live, you crashed on a friend\'s couch.');
     }
     var cash = inc.work - inc.tax + inc.black - spend - other + allow;
+    if (G.fin) G.fin.yearly({ work: inc.work, black: inc.black, tax: inc.tax, living: spend, other: other, allowBy: allowBy, interest: p.money > 0 ? Math.round(p.money * .01) : 0, inv: invGain });
     p.money += Math.round(cash + (p.money > 0 ? p.money * .01 : 0));
     S.cnt.earned = (S.cnt.earned || 0) + Math.max(0, inc.work + inc.black);
     // bills unpaid -> debt
@@ -159,7 +166,11 @@
       if (spend + other) parts.push(G.L('开销{a}|expenses {a}', { a: G.M(spend + other) }));
       if (invGain) parts.push(G.L('投资{s}{a}|investments {s}{a}', { s: invGain > 0 ? '+' : '', a: G.M(invGain) }));
       if (parts.length) G.logRaw(G.join([G.L('【财务】|[Finances] ')].concat([G.join(parts, '，', ', ')]), '', ''));
-    } else if (allow > 0 && (!p.flags.allowY || allow > (p.flags.allowLast || 0) * 2.5)) { p.flags.allowY = S.year; p.flags.allowLast = allow; G.log('家里给了你{m}零花钱。|Your family gave you {m} in allowance.', { m: G.M(allow) }); }
+    } else if (allow > 0 && (!p.flags.allowY || allow > (p.flags.allowLast || 0) * 2.5)) {
+      p.flags.allowY = S.year; p.flags.allowLast = allow;
+      var who = allowBy.map(function (x) { return G.T('{r}{m}|{r} {m}', { r: G.N.relName(x[0]), m: G.M(x[1]) }); });
+      G.log(p.age <= 1 ? '【零花钱】你一出生，家里就给你存起了零花钱：{w}。|[Allowance] From the day you were born, your family started saving pocket money for you: {w}.' : '【零花钱】今年家里给了你{m}：{w}。|[Allowance] Your family gave you {m} this year: {w}.', { m: G.M(allow), w: who.join('，') + '|' + who.join(', ') });
+    }
     G.school.yearCost();
     G.biz.tick(Q);
   };

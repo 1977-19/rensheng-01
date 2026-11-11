@@ -186,6 +186,7 @@
       if (n.health < 30) q += (30 - n.health) / 120;
       if (age < 55) q += .0008;
       if (n.rel === 'child' || n.rel === 'grandchild') q *= .3;
+      if (n.dieY) { q = S.year >= n.dieY ? 1 : 0; if (n.health <= 0) n.health = 5; }
       if (G.ch(Math.min(q, .6)) || n.health <= 0 || age > 108) { n.alive = false; n.died = S.year; out.push(n); return; }
       // aging into adulthood / jobs
       // life stages (range-based so nothing gets stuck if a year is skipped, e.g. after playing on as an heir).

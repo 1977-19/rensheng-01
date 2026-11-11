@@ -33,7 +33,7 @@
         var i = await G.UI.pick({ title: G.L(a.n), text: G.L('你想治疗哪个病？|What do you want treated?'), items: known.map(function (x) { return { t: G.ILL[x.id].n, icon: '🤒' }; }) });
         if (i < 0) return 'cancel';
         var ill = known[i], opts = G.health.options(ill);
-        var j = await G.UI.pick({ title: G.L('选择医院|Choose Care'), items: opts.map(function (o) { return { t: o.n, sub: G.M(o.cost), icon: '🏥', dis: G.S.p.money < o.cost }; }) });
+        var j = await G.UI.pick({ title: G.L('选择医院|Choose Care'), items: opts.map(function (o) { return { t: o.n, sub: G.M(o.cost) + (G.parentsCover && G.parentsCover(o.cost) ? G.T('（爸妈付）| (parents pay)') : ''), icon: '🏥', dis: !G.canPay(o.cost) }; }) });
         if (j < 0) return 'cancel';
         G.dStart(); var ok = G.health.treat(ill, opts[j]); var dl = G.dEnd();
         return G.result(a.n, ok ? '治疗成功，{d}痊愈了！|Treatment worked — {d} is cured!' : ok === null ? '钱不够。|Not enough money.' : '治疗效果不理想。|Treatment didn\'t work this time.', { d: G.ILL[ill.id].n }, dl, a.i);
@@ -82,7 +82,7 @@
       { id: 'mixer', n: '联谊派对|Mixer Party', i: '🎉', e: 15, a: [18, 45], run: function (a) { return meet(a, cands(3), '派对上你认识了几个人。|You met a few people at the party.'); } },
       { id: 'friend', n: '结交新朋友|Make a New Friend', i: '🤝', e: 10, a: [6, 120], run: function (a) { var f = N.make({ rel: 'friend', age: G.clamp(G.S.p.age + G.ri(-5, 5), 5, 100), aff: G.ri(20, 40) }); return quick(a, '你认识了新朋友{n}。|You made a new friend: {n}.', { happy: 3, eq: 1 }, { n: f.name }); } },
       { id: 'party', n: '办派对|Throw a Party', i: '🥳', e: 20, $: 300, a: [14, 100], run: function (a) { N.rel('friend', 'classmate', 'colleague').forEach(function (n) { N.addAff(n, 5); N.touch(n); }); return quick(a, '派对办得很成功，朋友们都玩得很尽兴。|The party was a hit; everyone had a blast.', { happy: 8, fame: 1 }); } },
-      { id: 'trybaby', n: '备孕|Try for a Baby', i: '🍼', e: 10, if: function () { return G.love.canConceive(N.partner()); }, run: function (a) { G.S.p.flags.tryBaby = 1; return quick(a, '你们决定要个孩子。|You decide to try for a baby.', { happy: 3 }); } },
+      { id: 'trybaby', n: '备孕|Try for a Baby', i: '🍼', e: 10, if: function () { var pt = N.partner(); return G.love.canConceive(pt) && !pt.trying && !pt.preg && !G.S.p.preg; }, run: function (a) { var pt = N.partner(); if (pt) pt.trying = G.S.year; return quick(a, '你们决定要个孩子，开始备孕了。怀上以后就不用再操心了。|You decide to try for a baby. Once it happens, there\'s nothing more to do.', { happy: 3 }); } },
       { id: 'ivf', n: '试管/代孕|IVF / Surrogacy', i: '🧬', e: 20, $: 60000, a: [25, 60], if: function () { var pt = N.partner(); return pt && (pt.g === G.S.p.g || G.S.p.age >= 40); }, run: async function (a) { var k = await G.love.baby(N.partner()); return G.result(a.n, '经过漫长的等待，{n}来到了你们身边。|After a long wait, {n} arrived.', { n: k.name }, [], a.i); } },
       { id: 'adopt', n: '领养孩子|Adopt a Child', i: '🏡', e: 20, $: 15000, a: [25, 65], run: async function (a) { var k = await G.love.baby(null, true); return G.result(a.n, '你领养了{n}。|You adopted {n}.', { n: k.name }, [], a.i); } },
       { id: 'affair', n: '寻找婚外情|Look for an Affair', i: '🕯️', e: 15, a: [20, 70], if: function () { return !!N.spouse(); }, run: async function (a) { G.addStat('karma', -5); var who = await pickPerson(G.L(a.n), G.L('你偷偷物色着……|You look around in secret...'), cands(3)); if (!who) return 'cancel'; if (G.ch(N.attract(who))) { who.rel = 'affair'; who.love = 55; who.pin = 1; G.inc('affairs'); return G.result(a.n, '你和{n}开始了秘密关系。|You began a secret relationship with {n}.', { n: who.name }, [], a.i); } return G.result(a.n, '{n}对你没兴趣。|{n} wasn\'t interested.', { n: who.name }, [], a.i); } }
@@ -263,7 +263,7 @@
         return quick(a, '你搬到了{c}。|You moved to {c}.', { happy: 4 }, { c: city });
       } },
       { id: 'emigrate', n: '移民|Emigrate', i: '🛂', e: 30, a: [18, 90], run: async function (a) {
-        var p = G.S.p, cs = G.CLIST.filter(function (x) { return x !== p.country; });
+        var p = G.S.p, cs = G.CLIST.filter(function (x) { return x !== p.country && !(G.sensitive && G.sensitive() && G.isRival(p.country, x)); });
         var i = await G.UI.pick({ title: G.L('目的地|Destination'), items: cs.map(function (c) { return { t: G.C[c].n, icon: G.C[c].flag, sub: p.langs.indexOf(G.C[c].lang) >= 0 ? G.L('会说当地语言|Speaks the language') : '' }; }) });
         if (i < 0) return 'cancel'; var to = cs[i];
         var sp = N.spouse(), mlist = [

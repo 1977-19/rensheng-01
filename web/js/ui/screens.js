@@ -9,6 +9,7 @@
   UI.start = function () {
     UI.closeAllSheets();
     G.S = null;
+    if (UI.applySkin) UI.applySkin('cover');
     var auto = G.slotInfo('auto');
     var btns = [];
     if (auto && !auto.dead) btns.push(h('button', { class: 'big solid', onclick: tap(function () { if (G.load('auto')) UI.main(); }) },
@@ -21,7 +22,6 @@
       h('button', { class: 'big', onclick: tap(function () { UI.records(); }) }, T('名人堂|Hall of Fame')),
       h('button', { class: 'big', onclick: tap(function () { UI.settingsPage(); }) }, T('设置|Settings'))));
     var v = G.vip.tier();
-    btns.push(h('button', { class: 'big', onclick: tap(function () { UI.vipPage(); }) }, v ? T(G.vip.NAMES[v]) + ' ✓' : T('VIP 兑换码|Redeem VIP Code')));
     UI.screen(h('div', { class: 'start grid-paper' },
       h('div', { class: 'title' }, h('h1', { style: G.lang === 'en' ? { letterSpacing: '.08em', marginLeft: '.08em' } : null }, T('我的一生|My Life')), G.lang === 'en' ? null : h('div', { class: 'en' }, 'My Life'), h('div', { class: 'tline' })),
       h('div', { class: 'btns' }, btns),
@@ -35,7 +35,7 @@
     var N_STEPS = 6;
     function drawTalents() {
       var all = G.TALENTS.map(function (t) { return t.id; });
-      if (v >= 3) { w.pool = all; w.talents = []; return; }
+      if (v >= 3) { w.pool = all; w.talents = G.shuffle(G.TALENTS.filter(function (t) { return !t.neg; }).map(function (t) { return t.id; })).filter(function (id, i, arr) { return true; }).reduce(function (acc, id) { if (acc.length < 3 && !G.talentClash(acc, id)) acc.push(id); return acc; }, []); return; }
       if (v >= 2) { w.pool = G.shuffle(all).slice(0, 8); w.talents = []; return; }
       var pick = []; while (pick.length < 3) { var t = G.wpick(G.TALENTS.filter(function (x) { return pick.indexOf(x.id) < 0 && !G.talentClash(pick, x.id); }), function (x) { return x.r === 3 ? 1 : x.r === 2 ? 3 : 6; }); pick.push(t.id); }
       w.pool = pick; w.talents = pick.slice();
@@ -55,6 +55,7 @@
         if (w.step === 4 && w.talents.length < Math.min(3, w.pool.length) && v >= 2) { UI.toast('请选择3个天赋|Pick 3 talents'); return; }
         if (w.step < N_STEPS - 1) { w.step++; if ((w.step === 2 || w.step === 3) && !w.custom) genName(); if (w.step === 4) w.justDrew = true; render(); } else born();
       }) }, w.step < N_STEPS - 1 ? T('下一步|Next') : T('出生！|Be Born!'));
+      if (UI.applySkin) UI.applySkin(wizSkin());
       UI.screen(h('div', { class: 'wiz grid-paper' },
         h('div', { class: 'wh' }, h('button', { class: 'back', onclick: tap(function () { if (w.step) { w.step--; render(); } else UI.start(); }) }, '‹'), h('h3', null, T(titles[w.step])), h('div', { class: 'sp', style: { width: '38px' } })),
         steps, preview(), body, h('div', { class: 'wf' }, next)));
@@ -64,6 +65,8 @@
     var BADGE = { royal: '👑', noble: '🎩', richest: '💎', tycoon: '💰', merchant: '💼', red: '⭐', celebrity: '🌟', military: '🎖️', police: '🚓', scholar: '📚', academic: '🎓', medical: '🩺', artist: '🎨', champion: '🏆', rural: '🌾', orphan: '🕯️', immigrant: '🧳', debt: '🧾' };
     w.seed = w.seed || G.ri(1, 1e9);
     var ageTimer = null;
+    var CLS3 = ['richest', 'tycoon', 'noble', 'red', 'royal'], CLS2 = ['merchant', 'celebrity', 'mafia'];
+    function wizSkin() { G._wizC = w.country; return w.step >= 3 ? G.skinFor({ origin: w.origin, country: w.country, tier: w.tier, age: 0, cls: CLS3.indexOf(w.origin) >= 0 ? 3 : CLS2.indexOf(w.origin) >= 0 ? 2 : 0, flags: {} }) : 'cover'; }
     function preview() {
       var ages = [0, 6, 16, 28, 45, 72], lbl = ['出生|Born', '童年|Childhood', '青春|Youth', '成年|Adulthood', '中年|Middle age', '晚年|Old age'];
       var skin = G.N.skinFor(w.country), box = h('div', { class: 'wpv-av' }), cap = h('div', { class: 'wpv-cap' });
@@ -74,9 +77,10 @@
       ageTimer = setInterval(function () { if (!document.body.contains(box)) { clearInterval(ageTimer); return; } i = (i + 1) % ages.length; paint(); }, 1500);
       var org = G.ORIGIN[w.origin], chips = [G.C[w.country].flag + ' ' + T(G.C[w.country].n), w.by + T('年|'), T(org ? org.n : '')];
       if (w.step >= 4 && w.talents.length) chips.push(w.talents.map(function (t) { return T(G.TALENT[t].n); }).join(' · '));
-      return h('div', { class: 'wpv' },
+      var sk = wizSkin();
+      return h('div', { class: 'wpv' + (w.step >= 3 ? ' sk' : '') }, w.step >= 3 ? h('div', { class: 'wpv-sc', html: G.skinScene(sk) }) : null,
         h('div', { class: 'wpv-l' }, box, w.step >= 3 && BADGE[w.origin] ? h('div', { class: 'wpv-b' }, BADGE[w.origin]) : null, cap),
-        h('div', { class: 'wpv-r' }, h('b', null, w.custom || T(w.name)), h('div', { class: 'wpv-chips' }, chips.filter(Boolean).map(function (c) { return h('span', null, c); }))));
+        h('div', { class: 'wpv-r' }, h('b', null, w.custom || T(w.name)), h('div', { class: 'wpv-chips' }, chips.filter(Boolean).map(function (c) { return h('span', null, c); })), w.step >= 3 ? h('div', { class: 'wpv-sk' }, T(G.skinData(sk).n)) : null));
     }
     function seg(opts, cur, set) { return h('div', { class: 'seg' }, opts.map(function (o) { return h('button', { class: o[0] === cur ? 'on' : '', onclick: tap(function () { set(o[0]); render(); }) }, T(o[1])); })); }
     function step0(b) {
@@ -121,11 +125,11 @@
       G.ORIGINS.filter(originOk).forEach(function (o) {
         var locked = o.vip > v;
         b.appendChild(h('button', { class: 'tal' + (w.origin === o.id ? ' on' : '') + (locked ? ' dis' : ''), style: locked ? { opacity: .5 } : null, onclick: tap(function () { if (locked) { UI.toast(G.L('需要{v}|Requires {v}', { v: G.vip.NAMES[o.vip] })); return; } w.origin = o.id; render(); }) },
-          h('div', { class: 'r ' + (o.vip ? 'r3' : 'r1') }), h('div', null, h('b', null, T(o.n) + (locked ? ' 🔒 ' + T(G.vip.NAMES[o.vip]) : o.vip ? ' 💎' : '')), h('span', null, T(o.d)))));
+          h('div', { class: 'r ' + (o.vip ? 'r3' : 'r1') }), h('div', null, h('b', null, T(o.n)), h('span', null, T(o.d)))));
       });
     }
     function step4(b) {
-      if (v >= 2) b.appendChild(h('p', { style: { color: 'var(--ink2)', fontSize: '13.5px', marginTop: 0 } }, T(v >= 3 ? '钻石VIP：从全部天赋中任选3个。|Diamond VIP: choose any 3 talents.' : '黄金VIP：从8个天赋中选3个。|Gold VIP: choose 3 of these 8.')));
+      if (v >= 2) b.appendChild(h('p', { style: { color: 'var(--ink2)', fontSize: '13.5px', marginTop: 0 } }, T('从全部天赋中任选3个。|Choose any 3 talents.')));
       w.pool.forEach(function (id) {
         var t = G.TALENT[id], on = w.talents.indexOf(id) >= 0;
         b.appendChild(h('button', { class: 'tal' + (w.justDrew ? ' flip' : '') + (on ? ' on' : ''), style: { animationDelay: (w.pool.indexOf(id) * 70) + 'ms' }, onclick: v >= 2 ? tap(function () { if (on) w.talents = w.talents.filter(function (x) { return x !== id; }); else if (G.talentClash(w.talents, id)) UI.toast('这个天赋和已选的天赋互相矛盾|This talent conflicts with one you picked'); else if (w.talents.length < 3) w.talents.push(id); else UI.toast('最多选3个|Pick at most 3'); render(); }) : null },
@@ -181,7 +185,7 @@
       b.appendChild(h('div', { class: 'themes' }, UI.THEMES.map(function (t) {
         var c = t[2], d = t[3];
         var sw = h('div', { class: 'sw', style: { background: d ? 'linear-gradient(90deg,' + c[0] + ' 50%,' + d[0] + ' 50%)' : c[0] } }, h('i', { style: { background: d ? 'linear-gradient(90deg,' + c[1] + ' 50%,' + d[1] + ' 50%)' : c[1] } }));
-        return h('button', { class: 'thm' + ((s.theme || 'auto') === t[0] ? ' on' : ''), onclick: tap(function () { s.theme = t[0]; G.saveSettings(); UI.applyTheme(); rec.refresh(); }) }, sw, T(t[1]));
+        return h('button', { class: 'thm' + ((s.theme || 'identity') === t[0] ? ' on' : ''), onclick: tap(function () { s.theme = t[0]; G.saveSettings(); UI.applyTheme(); rec.refresh(); }) }, sw, T(t[1]));
       })));
       b.appendChild(h('div', { class: 'grp' }, T('声音与反馈|Sound & Feedback')));
       b.appendChild(toggle('背景音乐|Background music', 'music', function () { G.audio.init(); G.audio.music(s.music); }));
@@ -213,14 +217,16 @@
       b.appendChild(h('p', { class: 'empty' }, 'My Life v' + G.VERSION));
     });
   };
-  UI.THEMES = [['auto', '跟随系统|System', ['#a9d3f5', '#ffffff'], ['#1f2547', '#242b4a']], ['sky', '晴空|Clear Sky', ['#a9d3f5', '#ffffff']], ['sakura', '樱花|Sakura', ['#f7bccb', '#fffafb']], ['mint', '薄荷|Mint', ['#a6e0c9', '#fcfffd']], ['night', '星夜|Starry Night', ['#1f2547', '#242b4a']], ['light', '木纹手账|Wood & Paper', ['#8d5d3b', '#fbf6ea']], ['dark', '黑板|Blackboard', ['#3a281d', '#2a2420']]];
+  UI.THEMES = [['identity', '身份手账（推荐）|Identity Journal', ['#1b2850', '#f6f0e1'], ['#b98a52', '#efe2c4']], ['auto', '跟随系统|System', ['#a9d3f5', '#ffffff'], ['#1f2547', '#242b4a']], ['sky', '晴空|Clear Sky', ['#a9d3f5', '#ffffff']], ['sakura', '樱花|Sakura', ['#f7bccb', '#fffafb']], ['mint', '薄荷|Mint', ['#a6e0c9', '#fcfffd']], ['night', '星夜|Starry Night', ['#1f2547', '#242b4a']], ['light', '木纹手账|Wood & Paper', ['#8d5d3b', '#fbf6ea']], ['dark', '黑板|Blackboard', ['#3a281d', '#2a2420']]];
   var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
   UI.applyTheme = function () {
-    if (!G.settings.themeV) { if (G.settings.theme === 'light') G.settings.theme = 'auto'; G.settings.themeV = 2; try { G.saveSettings(); } catch (e) { } }
-    var t = G.settings.theme || 'auto';
+    // v3: every identity gets its own journal — the new default for everyone
+    if ((G.settings.themeV || 0) < 3) { G.settings.theme = 'identity'; G.settings.themeV = 3; try { G.saveSettings(); } catch (e) { } }
+    var t = G.settings.theme || 'identity';
     if (t === 'auto') t = mq && mq.matches ? 'night' : 'sky';
     document.documentElement.setAttribute('data-theme', t);
-    var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--desk2').trim() || '#86bdee');
+    if (UI.skinRefresh) UI.skinRefresh();
+    if (t !== 'identity') { var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--desk2').trim() || '#86bdee'); }
   };
   if (mq && mq.addEventListener) mq.addEventListener('change', function () { if ((G.settings.theme || 'auto') === 'auto') UI.applyTheme(); });
 
@@ -323,7 +329,8 @@
       var i = d.heirs.length === 1 ? 0 : await UI.pick({ title: '选择继承人|Choose an Heir', items: d.heirs.map(function (k) { return { t: k.name, sub: T('{a}岁|age {a}', { a: k.age }), npc: G.S.npcs[k.id] }; }) });
       if (i < 0) return;
       var kid = G.S.npcs[d.heirs[i].id]; if (!kid) return;
-      G.life.continueAs(kid); G.snap = null; G.save('auto'); UI.main();
+      if (UI.chooseContinue) { if (!(await UI.chooseContinue(kid))) return; } else G.life.continueAs(kid);
+      G.snap = null; G.save('auto'); UI.main();
     }) }, T('以子女身份继续人生|Continue as Your Child')));
     if (G.canRewind()) btns.appendChild(h('button', { class: 'big', onclick: tap(function () { if (G.rewind()) { UI.toast('时光倒流！|Time rewinds!'); UI.main(); } }) }, T('⏳ 时光倒流（VIP）|⏳ Rewind Time (VIP)')));
     btns.appendChild(h('button', { class: 'big', onclick: tap(function () { UI.wizard(); }) }, T('开始新的人生|Start a New Life')));

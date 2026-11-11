@@ -31,7 +31,7 @@
       O('当面对质|Confront {him}', RC(.5, '{n}支支吾吾地道了歉。|{n} mumbled an apology.', { npc: -5, rep: 2 }, '你们大吵一架，彻底撕破了脸。|You had a blowout and became enemies.', { npc: -40 })),
       O('一笑置之|Laugh it off', R('清者自清。|The truth will out.', { eq: 2 })),
       O('以牙还牙|Return the favor', function (c) { c.npc.rel = 'rival'; G.dPush('aff', N.addAff(c.npc, -30)); H.fx(c, { karma: -4 }); return '你也开始散布{n}的八卦，你们成了对头。|You started spreading gossip about {n} too. Now you\'re rivals.'; })
-    ], { bad: 1, prep: function (c) { if (!pickNpc(c, ['classmate', 'colleague', 'friend', 'contact'], function (n) { return N.age(n) >= 10; })) return false; } }),
+    ], { bad: 1, prep: function (c) { if (!pickNpc(c, ['classmate', 'colleague', 'friend', 'contact'], function (n) { return N.age(n) >= 10 && n.aff < 35 && !n.bff; })) return false; } }),
     E('n_revenge', [14, 80], '冤家路窄|Old Grudges', '😠', '你的{r}{n}找上门来，扬言要让你好看。|Your {r}, {n}, shows up threatening to make you pay.', [
       O('打一架|Fight', async function (c) { var r = await c.game('fight', { name: '冤家|Grudge' }); if (r.win) { G.dPush('aff', N.addAff(c.npc, -10)); H.fx(c, { rep: 5 }); return '你把{n}打跑了。|You sent {n} running.'; } H.fx(c, { health: -12 }); return '你被{n}揍了一顿。|{n} beat you up.'; }),
       O('主动求和|Make peace', function (c) { if (G.ch(.4 + c.p.st.eq / 250)) { c.npc.rel = 'contact'; c.npc.aff = 0; return '你们握手言和了。|You shook hands and made peace.'; } return '{n}根本不领情。|{n} wanted none of it.'; }),

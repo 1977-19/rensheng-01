@@ -128,9 +128,45 @@
       life: 64, tax: .22, itax: .2, retire: 60, gay: 2006, gamble: true, consc: null, mon: false, dem: true, lang: 'en',
       top: '总统|President', hsq: 700, skin: [1, 1, 1, 2, 3, 6], names: 'za', edu: 'za', imm: 2,
       cities: { 1: ['约翰内斯堡|Johannesburg', '开普敦|Cape Town'], 2: ['德班|Durban', '比勒陀利亚|Pretoria'], 3: ['伊丽莎白港|Gqeberha', '布隆方丹|Bloemfontein', '东伦敦|East London'],
-        4: ['斯泰伦博斯|Stellenbosch', '奈斯纳|Knysna'], 5: ['东开普村落|a village in the Eastern Cape', '卡鲁农场|a Karoo farm'] } })
+        4: ['斯泰伦博斯|Stellenbosch', '奈斯纳|Knysna'], 5: ['东开普村落|a village in the Eastern Cape', '卡鲁农场|a Karoo farm'] } }),
+    nz: C({ id: 'nz', n: '新西兰|New Zealand', flag: '🇳🇿', cur: { sym: 'NZ$', code: 'NZD', n: '新西兰元|NZ dollars' }, fx: 1.65, pl: .95, wg: .8,
+      idx: [[1950, .02], [1960, .04], [1970, .06], [1980, .15], [1990, .32], [2000, .45], [2010, .66], [2020, .83], [2024, 1]], g: .03,
+      life: 82, tax: .24, itax: 0, retire: 65, gay: 2013, gamble: true, consc: null, mon: false, dem: true, lang: 'en',
+      top: '总理|Prime Minister', hsq: 3200, skin: [5, 3, 2, 2, 1, 1], names: 'gb', edu: 'au', imm: 3,
+      cities: { 1: ['奥克兰|Auckland'], 2: ['惠灵顿|Wellington', '基督城|Christchurch'], 3: ['汉密尔顿|Hamilton', '陶朗加|Tauranga', '但尼丁|Dunedin'],
+        4: ['皇后镇|Queenstown', '罗托鲁瓦|Rotorua', '纳尔逊|Nelson'], 5: ['坎特伯雷牧场|a Canterbury sheep station', '霍克斯湾果园|a Hawke\'s Bay orchard'] } }),
+    ie: C({ id: 'ie', n: '爱尔兰|Ireland', flag: '🇮🇪', cur: { sym: '€', code: 'EUR', n: '欧元|euros' }, fx: .92, pl: .95, wg: .85,
+      idx: [[1950, .01], [1960, .02], [1970, .04], [1980, .12], [1990, .25], [2000, .5], [2010, .7], [2020, .88], [2024, 1]], g: .03,
+      life: 82, tax: .25, itax: .33, retire: 66, gay: 2015, gamble: true, consc: null, mon: false, dem: true, lang: 'en',
+      top: '总理|Taoiseach', hsq: 4200, skin: [7, 1, 1, 1, 0, 0], names: 'gb', edu: 'gb', imm: 3,
+      cities: { 1: ['都柏林|Dublin'], 2: ['科克|Cork', '戈尔韦|Galway'], 3: ['利默里克|Limerick', '沃特福德|Waterford'],
+        4: ['基尔肯尼|Kilkenny', '丁格尔|Dingle'], 5: ['康尼马拉乡村|the Connemara countryside', '克里郡农场|a County Kerry farm'] } }),
+    ch: C({ id: 'ch', n: '瑞士|Switzerland', flag: '🇨🇭', cur: { sym: 'CHF ', code: 'CHF', n: '瑞士法郎|Swiss francs' }, fx: .88, pl: 1.35, wg: 1.3,
+      idx: [[1950, .05], [1960, .08], [1970, .12], [1980, .3], [1990, .5], [2000, .65], [2010, .8], [2020, .95], [2024, 1]], g: .015,
+      life: 84, tax: .22, itax: .05, retire: 65, gay: 2022, gamble: true, consc: { g: 'm', age: 19, yrs: 1 }, mon: false, dem: true, lang: 'de',
+      top: '联邦主席|President of the Confederation', hsq: 9000, skin: [6, 2, 1, 1, 0, 0], names: 'de', edu: 'de', imm: 2,
+      cities: { 1: ['苏黎世|Zurich', '日内瓦|Geneva'], 2: ['巴塞尔|Basel', '洛桑|Lausanne', '伯尔尼|Bern'], 3: ['卢塞恩|Lucerne', '卢加诺|Lugano', '圣加仑|St. Gallen'],
+        4: ['因特拉肯|Interlaken', '采尔马特|Zermatt', '达沃斯|Davos'], 5: ['阿尔卑斯山村|an Alpine village', '艾门塔尔农场|an Emmental dairy farm'] } }),
+    at: C({ id: 'at', n: '奥地利|Austria', flag: '🇦🇹', cur: { sym: '€', code: 'EUR', n: '欧元|euros' }, fx: .92, pl: .9, wg: .8,
+      idx: [[1950, .03], [1960, .05], [1970, .1], [1980, .25], [1990, .42], [2000, .55], [2010, .72], [2020, .86], [2024, 1]], g: .02,
+      life: 82, tax: .3, itax: 0, retire: 65, gay: 2019, gamble: true, consc: { g: 'm', age: 18, yrs: 1 }, mon: false, dem: true, lang: 'de',
+      top: '总理|Chancellor', hsq: 4500, skin: [6, 2, 1, 1, 0, 0], names: 'de', edu: 'de', imm: 2,
+      cities: { 1: ['维也纳|Vienna'], 2: ['格拉茨|Graz', '林茨|Linz', '萨尔茨堡|Salzburg'], 3: ['因斯布鲁克|Innsbruck', '克拉根福|Klagenfurt'],
+        4: ['哈尔施塔特|Hallstatt', '巴德伊舍|Bad Ischl'], 5: ['蒂罗尔山村|a Tyrolean village', '瓦豪河谷葡萄园|a Wachau vineyard'] } }),
+    pt: C({ id: 'pt', n: '葡萄牙|Portugal', flag: '🇵🇹', cur: { sym: '€', code: 'EUR', n: '欧元|euros' }, fx: .92, pl: .62, wg: .45,
+      idx: [[1950, .005], [1960, .01], [1970, .02], [1980, .08], [1990, .25], [2000, .5], [2010, .7], [2020, .85], [2024, 1]], g: .03,
+      life: 81, tax: .25, itax: .1, retire: 66, gay: 2010, gamble: true, consc: null, mon: false, dem: true, lang: 'pt',
+      top: '总理|Prime Minister', hsq: 2800, skin: [5, 3, 2, 1, 1, 0], names: 'br', edu: 'es', imm: 2,
+      cities: { 1: ['里斯本|Lisbon'], 2: ['波尔图|Porto'], 3: ['布拉加|Braga', '科英布拉|Coimbra', '法鲁|Faro'],
+        4: ['辛特拉|Sintra', '卡斯凯什|Cascais', '埃武拉|Évora'], 5: ['杜罗河谷葡萄园|a Douro Valley vineyard', '阿连特茹乡村|an Alentejo village'] } }),
+    ar: C({ id: 'ar', n: '阿根廷|Argentina', flag: '🇦🇷', cur: { sym: 'AR$', code: 'ARS', n: '比索|pesos' }, fx: 900, pl: .4, wg: .12,
+      idx: [[1950, .0001], [1970, .0005], [1980, .001], [1990, .01], [2000, .02], [2010, .05], [2020, .3], [2024, 1]], g: .08,
+      life: 77, tax: .2, itax: 0, retire: 65, gay: 2010, gamble: true, consc: null, mon: false, dem: true, lang: 'es',
+      top: '总统|President', hsq: 1500, skin: [5, 3, 2, 1, 0, 0], names: 'es', edu: 'mx', imm: 2,
+      cities: { 1: ['布宜诺斯艾利斯|Buenos Aires'], 2: ['科尔多瓦|Córdoba', '罗萨里奥|Rosario'], 3: ['门多萨|Mendoza', '拉普拉塔|La Plata', '马德普拉塔|Mar del Plata'],
+        4: ['巴里洛切|Bariloche', '萨尔塔|Salta'], 5: ['潘帕斯牧场|a Pampas estancia', '巴塔哥尼亚农场|a Patagonian ranch'] } })
   };
-  G.CLIST = ['cn', 'us', 'jp', 'kr', 'gb', 'fr', 'de', 'ru', 'in', 'br', 'au', 'ca', 'sg', 'it', 'es', 'mx', 'th', 'za'];
+  G.CLIST = ['cn', 'us', 'jp', 'kr', 'gb', 'fr', 'de', 'ru', 'in', 'br', 'au', 'ca', 'sg', 'it', 'es', 'mx', 'th', 'za', 'nz', 'ie', 'ch', 'at', 'pt', 'ar'];
   G.LANGS = { zh: '中文|Chinese', en: '英语|English', ja: '日语|Japanese', ko: '韩语|Korean', fr: '法语|French', de: '德语|German', ru: '俄语|Russian', hi: '印地语|Hindi', pt: '葡萄牙语|Portuguese', es: '西班牙语|Spanish', it: '意大利语|Italian', th: '泰语|Thai' };
   G.tierName = function (cid, t) { return (cid === 'cn' ? G.TIERS_CN : G.TIERS)[t]; };
   G.canGayMarry = function (cid, y) { var c = G.C[cid]; return !!c.gay && y >= c.gay; };
