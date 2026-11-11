@@ -232,7 +232,7 @@
     items.push({ t: sys.art, sub: G.L('艺术院校 · 需专业面试|Arts school · audition', {}), icon: '🎭', v: { n: sys.art, t: 4, spec: 'art', ch: 0 } });
     items.push({ t: sys.mus, sub: G.L('音乐学院 · 需专业面试|Conservatory · audition', {}), icon: '🎼', v: { n: sys.mus, t: 4, spec: 'mus', ch: 0 } });
     if (p.st.health >= 65) items.push({ t: sys.spo, sub: G.L('体育院校 · 需体能测试|Sports university · fitness test', {}), icon: '🏅', v: { n: sys.spo, t: 3, spec: 'spo', ch: 0 } });
-    if (G.famClass && G.famClass() >= 2) items.push({ t: G.L('捐资入学|Donate Your Way In'), sub: G.L('任选一所大学，家里出一大笔“捐赠”|Pick any university — your family makes a large "donation"'), icon: '💰', v: { donate: 1 } });
+    if ((G.famClass && G.famClass() >= 2) || fw >= G.$(200000)) items.push({ t: G.L('捐资入学|Donate Your Way In'), sub: G.L('任选一所大学，家里出一大笔“捐赠”|Pick any university — your family makes a large "donation"'), icon: '💰', v: { donate: 1 } });
     if (fw > SC.tuition(cid) * 25 || p.flags.rich) items.push({ t: G.L('出国留学|Study Abroad'), sub: G.L('选择其他国家的大学|Pick a university in another country'), icon: '✈️', v: { abroad: 1 } });
     if (e.retake < 3) items.push({ t: G.eduSys(cid).retake, sub: G.L('明年再考一次|Try again next year'), icon: '🔁', v: { retake: 1 } });
     items.push({ t: G.L('不上大学了|Skip university'), icon: '🚶', v: { none: 1 } });
@@ -249,7 +249,7 @@
       var di = await G.UI.pick({ title: G.L('选择大学|Choose a University'), text: G.L('分数不够没关系，只要“捐赠”到位。|Your score doesn\'t matter if the "donation" is right.'), items: pool.map(function (x) { var m = Math.round(G.$(DON[x.u.t] * (x.c === cid ? 1 : 1.5))); return { t: x.u.n, sub: G.C[x.c].flag + ' ' + G.L('{t}星 · 捐赠{m}|{t}★ · donation {m}', { t: x.u.t, m: G.M(m) }), icon: '🏛️' }; }) });
       if (di < 0) di = pool.length - 1;
       var pk = pool[di], cost = Math.round(G.$(DON[pk.u.t] * (pk.c === cid ? 1 : 1.5)));
-      if (!G.pay(cost)) { e.stage = 'done'; c.add('happy', -8); return G.L('家里一时拿不出这笔捐赠，你错过了入学。|Your family couldn\'t raise the donation in time, and you missed enrollment.'); }
+      if (!(G.famFund ? G.famFund(cost) : G.pay(cost))) { e.stage = 'done'; c.add('happy', -8); return G.L('家里一时拿不出这笔捐赠，你错过了入学。|Your family couldn\'t raise the donation in time, and you missed enrollment.'); }
       var dm = await SC.pickMajor(c);
       SC.admit(pk.u, dm); if (pk.c !== cid) { e.abroad = pk.c; SC.payTuition(SC.tuition(pk.c, true)); } else SC.payTuition(SC.tuition(cid));
       c.add('happy', 6); c.add('karma', -2); G.inc('donateAdmit');

@@ -9,7 +9,8 @@
   G.parentsCover = function (m) {
     if (!S() || !underCare() || m <= 0) return false;
     var ps = payers(), fw = G.sum(ps, function (n) { return n.wealth; }), p = S().p;
-    var need = p.age < 18 ? 3 : 5; // grown children have to ask harder
+    if (p.age >= 18) return false; // from 18 on, you pay your own way
+    var need = 3;
     // a farming or working family can't pay for big things the way a rich one can
     var cls = G.famClass ? G.famClass() : 1; if (cls === 0 && m > G.$(800)) need *= 2;
     if (!ps.length || fw < m * need) return false;

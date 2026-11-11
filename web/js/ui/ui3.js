@@ -21,7 +21,11 @@
   UI.doAction = async function (a, npc) {
     var prev = G.fin ? G.fin.tag : null;
     try { if (G.fin) { var nm = typeof a.n === 'function' ? a.n(npc) : a.n; G.fin.tag = npc ? G.L('{x}（{n}）|{x} ({n})', { x: nm, n: npc.name }) : nm; } return await da0.apply(this, arguments); }
-    finally { if (G.fin) G.fin.tag = prev; }
+    finally {
+      if (G.fin) G.fin.tag = prev;
+      // someone you met during this action opens now, when their buttons can actually be pressed
+      if (UI.openAfter) { var w = UI.openAfter; UI.openAfter = null; setTimeout(function () { if (G.S && !G.S.dead && UI.profile) UI.profile(w); }, 120); }
+    }
   };
 
   /* ---------------- me ---------------- */
@@ -35,13 +39,16 @@
           h('div', { class: 'mebtns' },
             h('button', { class: 'pk', onclick: tap(async function () { var t = await UI.input({ title: G.L('改名|Change Your Name'), text: G.L('新名字会出现在所有地方。|Your new name will show everywhere.'), def: p.name }); if (t && t.trim()) { p.avSeed = p.avSeed == null ? G.hash(p.name + p.birthYear) : p.avSeed; p.name = t.trim(); G.log('你改名为{n}。|You changed your name to {n}.', { n: p.name }); G.save('auto'); rec.refresh(); G.emit('change'); } }) }, T('✏️ 改名|✏️ Rename')),
             h('button', { class: 'pk', onclick: tap(function () { UI.lookPage(function () { rec.refresh(); }); }) }, T('🎨 换形象|🎨 Change Look')),
-            h('button', { class: 'pk', onclick: tap(function () { UI.finance(); }) }, T('📒 财务明细|📒 Ledger'))))));
+            h('button', { class: 'pk', onclick: tap(function () { UI.finance(); }) }, T('📒 财务明细|📒 Ledger')),
+            h('button', { class: 'pk', onclick: tap(async function () { var o = ['het', 'gay', 'bi'], i = await UI.pick({ title: G.L('性取向|Orientation'), items: [{ t: G.L('异性恋|Straight') }, { t: G.L('同性恋|Gay') }, { t: G.L('双性恋|Bisexual') }] }); if (i >= 0 && o[i] !== p.orient) { p.orient = o[i]; G.log('你更了解自己了。|You understand yourself a little better now.'); rec.refresh(); } }) }, T('🌈 性取向|🌈 Orientation'))))));
       var cits = (p.cits && p.cits.length ? p.cits : [p.country]).map(function (c) { return G.C[c] ? G.C[c].flag + ' ' + G.T(G.C[c].n) : c; }).join('  ');
       b.appendChild(h('div', { class: 'card' }, h('h5', null, T('身份|Identity')), kv([
         ['出身|Born into', G.ORIGIN[p.origin] ? G.ORIGIN[p.origin].n : '—'],
         ['祖籍|Ancestral home', G.ancName ? G.ancName(p) : '—'],
         ['国籍|Citizenship', cits],
-        ['居住地|Lives in', G.T(G.C[p.country].n) + ' · ' + G.T(p.city)],
+        ['居住地|Lives in', G.residence && G.residence() !== p.country ? G.C[G.residence()].flag + ' ' + G.T(G.C[G.residence()].n) + G.T('（留学·学生签证）| (studying · student visa)') : G.T(G.C[p.country].n) + ' · ' + G.T(p.city)],
+        ['性取向|Orientation', { het: '异性恋|Straight', gay: '同性恋|Gay', bi: '双性恋|Bisexual' }[p.orient] || '—'],
+        S.assets.trust && S.assets.trust.amt ? ['家族信托|Family trust', G.fm(S.assets.trust.amt)] : null,
         ['手账风格|Journal', G.skinData(G.skin()).n]
       ].filter(function (r) { return r && r[1]; }))));
       (UI.statusCards ? UI.statusCards() : []).forEach(function (c) { b.appendChild(c); });

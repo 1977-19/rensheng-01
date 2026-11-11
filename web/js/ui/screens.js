@@ -193,25 +193,6 @@
       b.appendChild(toggle('震动反馈|Haptics', 'haptic'));
       b.appendChild(h('div', { class: 'grp' }, T('玩法|Gameplay')));
       b.appendChild(toggle('小游戏自动结算（不玩小游戏）|Auto-resolve mini-games', 'autoGame'));
-      // AI
-      var ai = s.ai = s.ai || { on: false, provider: 'deepseek', url: '', key: '', model: '' };
-      b.appendChild(h('div', { class: 'grp' }, T('AI 聊天|AI Chat')));
-      b.appendChild(h('p', { style: { fontSize: '13px', color: 'var(--ink2)', margin: '0 2px 8px' } }, T('填入你自己的 API Key 后，所有角色都会由真正的 AI 扮演，按照自己的性格和你聊天。Key 只保存在这台手机上。不填则使用内置的离线聊天。|Add your own API key and every character will be played by a real AI, chatting in character. The key stays on this phone only. Without it, the built-in offline chat is used.')));
-      b.appendChild(h('button', { class: 'row', onclick: tap(function () { ai.on = !ai.on; G.saveSettings(); rec.refresh(); }) }, h('div', { class: 'tx' }, h('div', { class: 't' }, T('启用 AI 聊天|Enable AI chat'))), h('div', { class: 'rt' }, h('span', { class: 'chip' + (ai.on ? ' e' : '') }, ai.on ? T('开|On') : T('关|Off')))));
-      var pv = Object.keys(G.chat.PROVIDERS);
-      b.appendChild(h('div', { class: 'label' }, T('服务商|Provider')));
-      b.appendChild(h('div', { class: 'pickgrid' }, pv.map(function (k) { return h('button', { class: 'pk' + (ai.provider === k ? ' on' : ''), onclick: tap(function () { ai.provider = k; ai.url = ''; ai.model = ''; G.saveSettings(); rec.refresh(); }) }, T(G.chat.PROVIDERS[k].n)); })));
-      function field(label, key, ph, type) { var inp = h('input', { class: 'inp', type: type || 'text', value: ai[key] || '', placeholder: ph || '', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false' }); inp.addEventListener('change', function () { ai[key] = inp.value.trim(); G.saveSettings(); }); return [h('div', { class: 'label' }, T(label)), inp]; }
-      var P = G.chat.PROVIDERS[ai.provider] || G.chat.PROVIDERS.custom;
-      b.appendChild(h('div', null, field('API Key|API Key', 'key', 'sk-...', 'password')));
-      b.appendChild(h('div', null, field('模型（留空用默认）|Model (blank = default)', 'model', P.model || 'model-name')));
-      b.appendChild(h('div', null, field('接口地址（留空用默认）|Endpoint URL (blank = default)', 'url', P.url || 'https://.../v1/chat/completions')));
-      b.appendChild(h('button', { class: 'big', style: { width: '100%', marginTop: '10px' }, onclick: tap(async function () {
-        if (!ai.key) { UI.toast('请先填写 API Key|Enter an API key first'); return; }
-        UI.toast('正在测试…|Testing…');
-        try { var r = await G.native.http({ url: ai.url || P.url, headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + ai.key }, body: JSON.stringify({ model: ai.model || P.model, messages: [{ role: 'user', content: '用一句话打个招呼' }], max_tokens: 40 }) }); var j = JSON.parse(r); UI.toast(G.L('连接成功：{x}|Connected: {x}', { x: ((j.choices || [{}])[0].message || {}).content || 'OK' })); }
-        catch (e) { UI.toast(G.L('连接失败：{x}|Failed: {x}', { x: String(e.message || e).slice(0, 90) })); }
-      }) }, T('测试连接|Test connection')));
       b.appendChild(h('div', { class: 'grp' }, T('数据|Data')));
       b.appendChild(h('button', { class: 'row', onclick: tap(function () { UI.confirm('清除所有数据|Erase Everything', '所有存档、成就和记录都会被删除，VIP 会保留。确定吗？|All saves, achievements and records will be deleted. VIP is kept. Continue?').then(function (ok) { if (!ok) return; ['auto', '1', '2', '3', '4', '5', '6'].forEach(function (k) { G.store.del('save_' + k); }); G.store.del('meta'); G.store.del('snap'); G.loadMeta(); G.meta = { ach: {}, lives: [], stats: {} }; G.saveMeta(); UI.toast('已清除|Erased'); UI.start(); }); }) }, h('div', { class: 'ic' }, '🗑️'), h('div', { class: 'tx' }, h('div', { class: 't', style: { color: 'var(--red)' } }, T('清除所有数据|Erase all data')))));
       b.appendChild(h('p', { class: 'empty' }, 'My Life v' + G.VERSION));

@@ -22,7 +22,7 @@
     var who = await pickPerson(G.L(a.n), G.L(intro || '你认识了这几个人，想进一步了解谁？|You met these people. Who do you want to know better?'), list);
     if (!who) return 'cancel';
     N.addAff(who, 8); N.addLove(who, Math.round(N.attract(who) * 15));
-    if (G.UI.profile) await G.UI.profile(who);
+    G.UI.openAfter = who; // opened once this action has finished, so its buttons work
   }
 
   G.ACT_CATS = [

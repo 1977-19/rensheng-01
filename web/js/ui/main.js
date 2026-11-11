@@ -55,7 +55,7 @@
     var nmEl = h('span', { class: 'nmt' }, T(p.name));
     hd.appendChild(h('div', { class: 'who' },
       h('div', { class: 'nm' }, nmEl),
-      h('div', { class: 'ttl' }, h('span', null, G.C[p.country].flag + ' ' + T(G.title()) + (S.gen > 1 ? ' · ' + T('第{g}代|Gen {g}', { g: S.gen }) : ''))),
+      h('div', { class: 'ttl' }, h('span', null, G.C[G.residence ? G.residence() : p.country].flag + ' ' + T(G.title()) + (S.gen > 1 ? ' · ' + T('第{g}代|Gen {g}', { g: S.gen }) : ''))),
       h('div', { class: 'purse2' },
         h('div', { class: 'money num' + (p.money < 0 ? ' neg' : '') }, h('i', { class: 'note' }), G.fm(p.money)),
         h('div', { class: 'energy' }, h('span', { class: 'lbl' }, T('体力|Energy')), h('span', { class: 'bar' }, h('i', { style: { width: (p.energy / Math.max(1, p.emax) * 100) + '%' } })), h('b', { class: 'num' }, p.energy + '/' + p.emax)))));
@@ -63,7 +63,6 @@
     var un = G.chat.unread(), tb = M.el.tools; tb.innerHTML = '';
     tb.appendChild(h('div', { class: 'agechip num' }, T('{a}岁|Age {a}', { a: p.age }), h('small', null, T('{y}年|{y}', { y: G.numEn(S.year) }))));
     tb.appendChild(h('div', { class: 'pills' },
-      h('button', { class: 'pill', 'aria-label': T('消息|Messages'), onclick: tap(function () { if (!UI.busy && !G.busy) UI.chatList(); }) }, h('i', { class: 'pi', html: ICON.chat }), un ? h('span', { class: 'badge' }, String(un)) : null),
       h('button', { class: 'pill', 'aria-label': T('菜单|Menu'), onclick: tap(menu) }, h('i', { class: 'pi', html: ICON.menu }))));
     // stats
     var sb = M.el.stats; sb.innerHTML = '';

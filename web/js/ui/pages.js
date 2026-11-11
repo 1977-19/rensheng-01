@@ -164,9 +164,10 @@
   function npcRow(n, onTap) {
     var rom = n.rel === 'spouse' || n.rel === 'lover' || n.rel === 'affair' || n.rel === 'admirer' || n.rel === 'crush';
     var v = rom ? n.love : n.aff;
-    return h('button', { class: 'row', onclick: tap(onTap) }, h('div', { class: 'avs', html: G.avatarOf(n) }),
+    var cits = n.rel === 'child' || n.rel === 'grandchild' || (n.c && G.S && n.c !== G.S.p.country) ? (n.cits && n.cits.length ? n.cits : [n.c || G.S.p.country]) : null;
+    return h('button', { class: 'row', onclick: tap(onTap) }, h('div', { class: 'avwrap' }, h('div', { class: 'avs', html: G.avatarOf(n) }), cits ? h('span', { class: 'natf' }, cits.slice(0, 3).map(function (c) { return G.C[c] ? G.C[c].flag : ''; }).join('')) : null),
       h('div', { class: 'tx' }, h('div', { class: 't' }, T(n.name), n.tags.length ? h('span', { class: 'chip tag' }, T({ rich: '富豪|Rich', celeb: '明星|Star', red: '权贵|Elite', royal: '王室|Royal' }[n.tags[0]])) : null, n.unread ? h('span', { class: 'badge', style: { position: 'static' } }, String(n.unread)) : null),
-        h('div', { class: 's' }, T(N.relName(n)) + ' · ' + (n.alive ? T('{a}岁|{a}', { a: N.age(n) }) : T('已故|Deceased')) + ' · ' + T(n.job || ''))),
+        h('div', { class: 's' }, T(N.relName(n)) + ' · ' + (n.alive ? T('{a}岁|{a}', { a: N.age(n) }) : T('已故|Deceased')) + ' · ' + T(n.job || '') + (n.rel === 'child' && n.alive && G.kidScore ? ' · ' + T('潜力{s}|Potential {s}', { s: G.kidScore(n).g }) : ''))),
       h('div', { class: 'rt' }, h('span', null, rom ? '❤️' : '🙂'), h('div', { class: 'mini' }, h('i', { class: v < 0 ? 'neg' : '', style: { width: Math.abs(v) + '%' } }))));
   }
   UI.tabRelations = function () {
@@ -176,7 +177,7 @@
         var list = all.filter(function (n) { return g[1].indexOf(n.rel) >= 0; });
         if (!list.length) return; any = true;
         b.appendChild(h('div', { class: 'grp' }, T(g[0]) + ' ' + list.length));
-        list.sort(function (a, c) { return g[1].indexOf(a.rel) - g[1].indexOf(c.rel) || c.aff - a.aff; }).forEach(function (n) { b.appendChild(npcRow(n, async function () { await UI.profile(n); rec.refresh(); })); });
+        list.sort(function (a, c) { return g[1].indexOf(a.rel) - g[1].indexOf(c.rel) || (['child', 'sibling', 'grandchild'].indexOf(a.rel) >= 0 ? (a.by - c.by) || ((a.older ? 0 : 1) - (c.older ? 0 : 1)) : 0) || c.aff - a.aff; }).forEach(function (n) { b.appendChild(npcRow(n, async function () { await UI.profile(n); rec.refresh(); })); });
       });
       var pets = G.S.assets.pets;
       if (pets.length) { b.appendChild(h('div', { class: 'grp' }, T('宠物|Pets'))); pets.forEach(function (x) { var d = G.PETS.filter(function (y) { return y.id === x.kind; })[0] || {}; b.appendChild(h('div', { class: 'row' }, h('div', { class: 'ic' }, d.i || '🐾'), h('div', { class: 'tx' }, h('div', { class: 't' }, T(x.name)), h('div', { class: 's' }, T(d.n || ''))))); }); }

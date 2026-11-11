@@ -28,7 +28,7 @@
   // so a quick double tap on "Resign" can't also hit "Confirm" in the dialog that appears under your finger
   var lastOpen = 0;
   UI.guard = function () { lastOpen = Date.now(); };
-  function tap(fn) { var mine = 0; return function (e) { var now = Date.now(); if (now - lastOpen < 350 || now - mine < 400) return; mine = now; if (G.audio) G.audio.sfx('tap'); G.native.haptic('light'); fn(e); }; }
+  function tap(fn) { var mine = 0; return function (e) { var now = Date.now(); if (now - lastOpen < 700 || now - mine < 450) return; mine = now; if (G.audio) G.audio.sfx('tap'); G.native.haptic('light'); fn(e); }; }
   UI.tap = tap;
   // shrink text until it fits its box (long names), then allow it to wrap as a last resort
   UI.fitText = function (el, max, min) {
@@ -109,7 +109,7 @@
       var inp = h('input', { class: 'inp', value: T(o.def || ''), maxlength: 24 });
       var sugs = (o.sug || []).map(function (s) { return h('button', { class: 'sug', onclick: tap(function () { inp.value = T(s); }) }, T(s)); });
       var md = UI.modal({ title: o.title, body: h('div', null, o.text ? h('div', { class: 'txt', style: { marginBottom: '10px' } }, T(o.text)) : null, inp, h('div', { class: 'sugs' }, sugs)),
-        foot: [h('button', { class: 'opt solid', onclick: tap(function () { var v = inp.value.replace(/\|/g, '').trim(); md.close(); res(v ? v + '|' + v : null); }) }, T('确定|Confirm'))] });
+        foot: [h('button', { class: 'opt solid', onclick: tap(function () { var v = inp.value.replace(/\|/g, '').trim(); if (!v && o.require) { UI.toast(T(o.require)); inp.focus(); return; } md.close(); res(v ? v + '|' + v : null); }) }, T('确定|Confirm'))] });
     });
   };
   /* money amount picker: free input + quick presets; resolves to a number (local currency) or null */

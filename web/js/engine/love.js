@@ -48,7 +48,7 @@
       // npc cheating
       if (!pt.cheat && G.ch((100 - pt.loyal) / 100 * .07 * (pt.love < 50 ? 2 : 1))) pt.cheat = 1;
       if (pt.cheat && G.ch(.3 + p.st.eq / 300 + (G.has('mind') ? .3 : 0))) Q.push({ id: 'sys_partner_cheat', nid: pt.id });
-      else if (pt.love < 12) Q.push({ id: pt.rel === 'spouse' ? 'sys_divorce_req' : 'sys_dumped', nid: pt.id });
+      else if (pt.rel === 'spouse' ? (pt.love <= 0 && !(G.keepForMoney && G.keepForMoney(pt))) : pt.love < 12) Q.push({ id: pt.rel === 'spouse' ? 'sys_divorce_req' : 'sys_dumped', nid: pt.id });
       else if (pt.rel === 'lover' && !pt.engaged && pt.love >= 80 && pt.yrs >= 2 && p.age >= 21 && G.ch(.25)) Q.push({ id: 'sys_npc_propose', nid: pt.id });
       // pregnancy
       if (LO.canConceive(pt)) {
@@ -66,7 +66,7 @@
   LO.canConceive = function (pt) {
     var p = G.S.p; if (!pt || pt.g === p.g) return false;
     if (pt.rel !== 'spouse' && pt.rel !== 'lover') return false;
-    return p.age >= 18 && N.age(pt) >= 18 && (p.g === 'f' ? p.age : N.age(pt)) < 50;
+    return p.age >= 18 && N.age(pt) >= 18 && (p.g === 'f' ? p.age : N.age(pt)) < 60;
   };
 
   /* ---------- actions ---------- */
@@ -148,7 +148,7 @@
     var sur = p.g === 'm' ? p.sur : (other && other.g === 'm' ? other.sur : p.sur);
     var cul = p.cul || G.C[p.country].names;
     var sug = [0, 1, 2].map(function () { return G.genGiven(cul, g, S.year); });
-    var txt = await G.UI.input({ title: G.L('给宝宝起名|Name the Baby'), text: G.L('是个{g}！给{h}起个名字吧。|It\'s a {g}! Give {h} a name.', { g: g === 'm' ? '男孩|boy' : '女孩|girl', h: g === 'm' ? '他|him' : '她|her' }), sug: sug.map(function (s) { return G.mkName(cul, sur, s, g); }), def: G.mkName(cul, sur, sug[0], g) });
+    var txt = await G.UI.input({ title: G.L('给宝宝起名|Name the Baby'), text: G.L('是个{g}！给{h}起个名字吧。|It\'s a {g}! Give {h} a name.', { g: g === 'm' ? '男孩|boy' : '女孩|girl', h: g === 'm' ? '他|him' : '她|her' }), sug: G.nameSeries ? G.nameSeries(cul, sur, g, S.year, N.rel('child')) : sug.map(function (s) { return G.mkName(cul, sur, s, g); }), def: '', require: G.L('先写一个名字，或者点一个推荐的名字。|Type a name first, or tap one of the suggestions.') });
     var name = txt || G.mkName(cul, sur, sug[0], g);
     var lk = other ? Math.round((p.st.looks + other.looks) / 2 + G.ri(-12, 12)) : G.ri(30, 80);
     var sm = other ? Math.round((p.st.smarts + other.smarts) / 2 + G.ri(-12, 12)) : G.ri(30, 80);
@@ -174,7 +174,7 @@
     // grandchildren appear
     N.rel('child').forEach(function (k) {
       var a = N.age(k);
-      if (a >= 23 && !k.spouseId && G.ch(.12)) { var sp = N.make({ rel: 'contact', g: k.g === 'm' ? 'f' : 'm', age: a + G.ri(-3, 3), c: k.c }); sp.pin = 1; sp.inlaw = k.id; k.spouseId = sp.id; G.log('{k}结婚了，对象是{s}。|{k} got married to {s}.', { k: k.name, s: sp.name }); G.addStat('happy', 6, true); }
+      if (a >= 23 && !k.spouseId && G.ch(.12)) { var sp = G.kidSpouse ? G.kidSpouse(k, a) : N.make({ rel: 'contact', g: k.g === 'm' ? 'f' : 'm', age: a + G.ri(-3, 3), c: k.c }); sp.pin = 1; sp.inlaw = k.id; k.spouseId = sp.id; G.log('{k}结婚了，对象是{s}。|{k} got married to {s}.', { k: k.name, s: sp.name }); G.addStat('happy', 6, true); }
       if (k.spouseId && a >= 25 && a <= 42 && G.ch(.12)) { var gk = N.make({ rel: 'grandchild', age: 0, sur: k.g === 'm' ? k.sur : null, c: k.c, aff: 60 }); gk.pin = 1; k.kids = (k.kids || []).concat([gk.id]); G.log('你当{x}了！{k}生了{g}。|You became a grand{y}! {k} had {g}.', { x: p.g === 'm' ? '爷爷|' : '奶奶|', y: p.g === 'm' ? 'father' : 'mother', k: k.name, g: gk.name }); G.addStat('happy', 8, true); G.inc('grandkids'); }
     });
   };

@@ -49,7 +49,7 @@
         if (ci < 0) return 'cancel';
         k.schC = ABROAD.filter(function (c) { return c !== p.country; })[ci];
       }
-      if (f && !G.pay(f)) { G.UI.toast('钱不够|Not enough money'); return 'cancel'; }
+      if (f && !G.payKid(k, f)) { G.UI.toast('钱不够|Not enough money'); return 'cancel'; }
       var like = id === 'pub' ? .7 : id === 'board' || id === 'abroad' ? (k.pers === 'rebel' || k.pers === 'clingy' ? .2 : .5) : .7;
       k.sch = id; k.schY = S().year; k.schPaid = S().year;
       G.dStart(); G.dPush('aff', N.addAff(k, id === 'board' || id === 'abroad' ? (G.ch(like) ? 3 : -4) : G.ri(2, 5))); var dl = G.dEnd();
@@ -87,7 +87,7 @@
     // tuition
     if (k.sch && k.sch !== 'pub' && a < 18 && k.schPaid !== S().year) {
       var f = feeOf(k, k.sch);
-      if (p.jail || (p.flags.blacklist && S().year < p.flags.blacklist) || !G.pay(f)) { G.log('交不起{s}的学费，{n}只好转回了公立学校。|You couldn\'t pay {s}\'s fees, so {n} had to move back to public school.', { s: s.n, n: k.name }); k.sch = 'pub'; N.addAff(k, -8); s = SCH.pub; }
+      if (p.jail || (p.flags.blacklist && S().year < p.flags.blacklist) || !G.payKid(k, f)) { G.log('交不起{s}的学费，{n}只好转回了公立学校。|You couldn\'t pay {s}\'s fees, so {n} had to move back to public school.', { s: s.n, n: k.name }); k.sch = 'pub'; N.addAff(k, -8); s = SCH.pub; }
       else k.schPaid = S().year;
     }
     // the school shapes them

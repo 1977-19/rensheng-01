@@ -110,6 +110,24 @@
     }
     return G.pick(g === 'f' ? c.f : c.m);
   };
+  /* naming suggestions in families of names: one shared generation character, different second characters */
+  G.nameSeries = function (cul, sur, g, by, sibs) {
+    var out = [], c = N[cul] || N.us;
+    if (cul === 'cn') {
+      var pool = g === 'f' ? c.f : c.m, gens = [];
+      // if the older siblings already share a generation character, offer that series first
+      (sibs || []).forEach(function (n) { var z = String(n.giv || '').split('|')[0]; if (z.length === 2) { var ch = z[0]; c.m.concat(c.f).forEach(function (x) { if (zh(x) === ch && gens.indexOf(x) < 0) gens.unshift(x); }); } });
+      while (gens.length < 3) { var a = G.pick(c.m.concat(c.f)); if (gens.indexOf(a) < 0) gens.push(a); }
+      gens.slice(0, 3).forEach(function (a) {
+        var used = {};
+        for (var i = 0, k = 0; k < 4 && i < 40; i++) { var b = G.pick(pool); if (b === a || used[b]) continue; used[b] = 1; k++; out.push(G.mkName(cul, sur, zh(a) + zh(b) + '|' + en(a) + en(b).toLowerCase(), g)); }
+      });
+      return out;
+    }
+    var seen = {};
+    for (var j = 0; j < 30 && out.length < 9; j++) { var x = G.genGiven(cul, g, by); if (seen[x]) continue; seen[x] = 1; out.push(G.mkName(cul, sur, x, g)); }
+    return out;
+  };
   /* returns {name, sur, giv} */
   G.genName = function (cul, g, by, sur) {
     var c = N[cul] || N.us;

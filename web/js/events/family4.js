@@ -30,7 +30,7 @@
     var k = c.npc, p = c.p, s = SCH[id], a = c.prm.a, f = fee(k, id);
     if (id === 'key') {
       var dist = S().assets.houses.some(function (h) { return h.school; });
-      if (!dist) { var once = G.$w(s.once, k.c || p.country); if (!G.pay(once)) { k.sch = 'pub'; return '你拿不出择校费，{n}只能去普通学校。|You couldn\'t pay the placement fee, so {n} went to an ordinary school.'; } }
+      if (!dist) { var once = G.$w(s.once, k.c || p.country); if (!G.payKid(k, once)) { k.sch = 'pub'; return '你拿不出择校费，{n}只能去普通学校。|You couldn\'t pay the placement fee, so {n} went to an ordinary school.'; } }
       if (k.smarts + G.ri(-10, 10) < s.test) { k.sch = 'pub'; G.dPush('aff', N.addAff(k, -3)); return '{n}没通过重点学校的入学考试，只好去了普通学校。|{n} failed the top school\'s entrance test and went to an ordinary school.'; }
     }
     if (id === 'abroad') {
@@ -38,7 +38,7 @@
       var ci = await G.UI.pick({ title: G.L('去哪个国家？|Which country?'), items: cs.map(function (x) { return { t: G.C[x].n, icon: G.C[x].flag }; }), noCancel: 1 });
       k.schC = cs[ci < 0 ? 0 : ci];
     }
-    if (f && !G.pay(f)) { k.sch = 'pub'; return '学费太贵了，{n}最后还是去了普通学校。|The fees were too high; {n} ended up at an ordinary school.'; }
+    if (f && !G.payKid(k, f)) { k.sch = 'pub'; return '学费太贵了，{n}最后还是去了普通学校。|The fees were too high; {n} ended up at an ordinary school.'; }
     k.sch = id; k.schY = S().year; k.schPaid = S().year;
     var like = id === 'board' || id === 'abroad' ? (['rebel', 'clingy', 'anxious'].indexOf(k.pers) >= 0 ? .25 : .55) : 1;
     G.dPush('aff', N.addAff(k, like >= 1 ? G.ri(2, 5) : G.ch(like) ? 3 : -4));
@@ -73,7 +73,7 @@
           var k = c.npc, e = k.edu, cs = ABROAD.filter(function (x) { return x !== c.p.country; });
           var ci = await G.UI.pick({ title: G.L('去哪个国家？|Which country?'), items: cs.map(function (x) { return { t: G.C[x].n, icon: G.C[x].flag }; }), noCancel: 1 });
           var to = cs[ci < 0 ? 0 : ci];
-          if (!G.pay(G.$(140000))) return '钱不够。|Not enough money.';
+          if (!G.payKid(k, G.$(140000))) return '钱不够。|Not enough money.';
           var tier = G.clamp(Math.round(1.5 + k.smarts / 25 + (k.sch === 'intl' || k.sch === 'abroad' ? .8 : 0) + G.rf(-.6, .6)), 2, 5);
           var u = G.pick(G.eduSys(to).u.filter(function (x) { return x.t === tier; })) || G.pick(G.eduSys(to).u);
           e.stage = 'uni'; e.grade = 0; e.school = u.n; e.tier = u.t; e.abroad = to; e.major = e.major || G.pick(G.MAJOR_LIST);
@@ -81,9 +81,9 @@
           G.dPush('aff', N.addAff(k, 8)); c.prm.u = u.n; c.prm.c = G.C[to].n;
           return '{n}被{c}的{u}录取了！|{n} was admitted to {u} in {c}!';
         } },
-        { t: '捐一栋楼，上顶尖名校|Donate a building for a top university', if: function (c) { return G.famClass && G.famClass() >= 2; }, run: function (c) {
+        { t: function (c) { return G.L('捐资{m}，上顶尖名校|Donate {m} for a top university', { m: G.M(G.$(3000000)) }); }, if: function (c) { return G.famClass && G.famClass() >= 2 || G.netWorth() >= G.$(4000000); }, run: function (c) {
           var k = c.npc, e = k.edu, cost = G.$(3000000);
-          if (!G.pay(cost)) return '这笔捐赠实在拿不出来。|You couldn\'t raise that donation.';
+          if (!G.payKid(k, cost)) return '这笔捐赠实在拿不出来。|You couldn\'t raise that donation.';
           var u = G.pick(G.eduSys(k.c || c.p.country).u.filter(function (x) { return x.t >= 5; })) || G.pick(G.eduSys(k.c || c.p.country).u);
           e.stage = 'uni'; e.grade = 0; e.school = u.n; e.tier = u.t; e.abroad = null; e.major = e.major || G.pick(G.MAJOR_LIST); c.prm.u = u.n; c.add('karma', -2);
           return '学校多了一座以你家命名的图书馆，{n}进了{u}。|The university gained a library bearing your family\'s name — and {n} got into {u}.';

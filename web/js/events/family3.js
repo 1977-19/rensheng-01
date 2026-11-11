@@ -47,7 +47,7 @@
       var ki = await G.UI.pick({ title: G.L('办理什么？|What kind?'), items: kinds });
       if (ki < 0) return 'cancel';
       var kd = kinds[ki].k, cost = kd === 'cit' ? G.$(CIT_COST[c] || 800000) : G.$(kd === 'study' ? 3000 : 6000);
-      if (!G.pay(cost)) { G.UI.toast('钱不够|Not enough money'); return 'cancel'; }
+      if (!(await G.kidPayAsk(k, cost))) { G.UI.toast('钱不够|Not enough money'); return 'cancel'; }
       var ch = kd === 'cit' ? .75 : kd === 'study' ? .8 + (k.smarts - 50) / 300 : .55 + (k.smarts - 50) / 250;
       G.dStart();
       if (!G.ch(ch)) { var dl0 = G.dEnd(); return res(act, '{c}拒绝了{n}的申请，钱打了水漂。|{c} turned down {n}\'s application. The money\'s gone.', { c: G.C[c].n, n: k.name }, dl0); }
@@ -82,7 +82,7 @@
       var i = await G.UI.pick({ title: G.L('给{n}安排什么职位？|What position for {n}?', { n: k.name }), items: items });
       if (i < 0) return 'cancel';
       var x = POS[i];
-      if (x.fee && !G.pay(G.$(x.fee))) { G.UI.toast('钱不够|Not enough money'); return 'cancel'; }
+      if (x.fee && !G.payKid(k, G.$(x.fee))) { G.UI.toast('钱不够|Not enough money'); return 'cancel'; }
       G.dStart();
       var ch = x.ch + (k.smarts - 50) / 250 + st * .08 + (G.famClass ? G.famClass() * .04 : 0);
       if (!G.ch(ch)) { G.dPush('aff', N.addAff(k, -2)); var dl0 = G.dEnd(); return res(act, '对方婉拒了，说{n}“还需要历练”。|They declined politely: {n} "needs more experience."', { n: k.name }, dl0); }
