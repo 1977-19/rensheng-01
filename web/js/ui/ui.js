@@ -28,7 +28,7 @@
   // so a quick double tap on "Resign" can't also hit "Confirm" in the dialog that appears under your finger
   var lastOpen = 0;
   UI.guard = function () { lastOpen = Date.now(); };
-  function tap(fn) { var mine = 0; return function (e) { var now = Date.now(); if (now - lastOpen < 700 || now - mine < 450) return; mine = now; if (G.audio) G.audio.sfx('tap'); G.native.haptic('light'); fn(e); }; }
+  function tap(fn) { var mine = 0; return function (e) { var now = Date.now(); var gd = (G.settings && G.settings.tapDelay) || 700; if (now - lastOpen < gd || now - mine < Math.min(450, gd)) return; mine = now; if (G.audio) G.audio.sfx('tap'); G.native.haptic('light'); fn(e); }; }
   UI.tap = tap;
   // shrink text until it fits its box (long names), then allow it to wrap as a last resort
   UI.fitText = function (el, max, min) {
@@ -57,7 +57,7 @@
     m.appendChild(head);
     if (o.body) m.appendChild(h('div', { class: 'mb' }, o.body));
     if (o.foot) m.appendChild(h('div', { class: 'mf' }, o.foot));
-    veil.appendChild(m); document.body.appendChild(veil); lastOpen = Date.now();
+    m.style.setProperty('--tapd', (((G.settings && G.settings.tapDelay) || 700) / 1000) + 's'); veil.appendChild(m); document.body.appendChild(veil); lastOpen = Date.now();
     requestAnimationFrame(function () { veil.classList.add('on'); });
     function close() { veil.classList.remove('on'); setTimeout(function () { veil.remove(); }, 180); }
     return { el: veil, m: m, close: close };

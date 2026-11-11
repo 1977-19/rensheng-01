@@ -193,6 +193,10 @@
       b.appendChild(toggle('震动反馈|Haptics', 'haptic'));
       b.appendChild(h('div', { class: 'grp' }, T('玩法|Gameplay')));
       b.appendChild(toggle('小游戏自动结算（不玩小游戏）|Auto-resolve mini-games', 'autoGame'));
+      // how long a freshly opened dialog ignores taps, so a quick finger doesn't pick something by accident
+      b.appendChild(h('div', { class: 'label' }, T('点按灵敏度（防误触）|Tap sensitivity (mis-tap guard)')));
+      b.appendChild(seg([[300, T('灵敏|Quick')], [700, T('标准|Normal')], [1200, T('稳妥|Careful')], [1800, T('很稳|Very careful')]], s.tapDelay || 700, function (v) { s.tapDelay = v; }));
+      b.appendChild(h('p', { style: { fontSize: '12.5px', color: 'var(--ink2)', margin: '6px 2px 0' } }, T('弹窗出现后，要等这么久才能点选项：灵敏0.3秒 · 标准0.7秒 · 稳妥1.2秒 · 很稳1.8秒。|After a dialog appears, options can only be tapped after this delay: Quick 0.3s · Normal 0.7s · Careful 1.2s · Very careful 1.8s.')));
       b.appendChild(h('div', { class: 'grp' }, T('数据|Data')));
       b.appendChild(h('button', { class: 'row', onclick: tap(function () { UI.confirm('清除所有数据|Erase Everything', '所有存档、成就和记录都会被删除，VIP 会保留。确定吗？|All saves, achievements and records will be deleted. VIP is kept. Continue?').then(function (ok) { if (!ok) return; ['auto', '1', '2', '3', '4', '5', '6'].forEach(function (k) { G.store.del('save_' + k); }); G.store.del('meta'); G.store.del('snap'); G.loadMeta(); G.meta = { ach: {}, lives: [], stats: {} }; G.saveMeta(); UI.toast('已清除|Erased'); UI.start(); }); }) }, h('div', { class: 'ic' }, '🗑️'), h('div', { class: 'tx' }, h('div', { class: 't', style: { color: 'var(--red)' } }, T('清除所有数据|Erase all data')))));
       b.appendChild(h('p', { class: 'empty' }, 'My Life v' + G.VERSION));

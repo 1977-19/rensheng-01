@@ -734,5 +734,5 @@ html, body { background: var(--desk2); }
 .kv dd { white-space: pre-line; }
 .avwrap { position: relative; flex: none; }
 .natf { position: absolute; right: -6px; bottom: -4px; font-size: 12px; line-height: 1; padding: 1px 2px; border-radius: 6px; background: var(--paper); box-shadow: 0 1px 2px rgba(0, 0, 0, .2); letter-spacing: -1px; }
-.veil .modal .opt { animation: optin .7s ease both; }
+.veil .modal .opt { animation: optin var(--tapd, .7s) ease both; }
 @keyframes optin { 0% { opacity: .35; } 100% { opacity: 1; } }
