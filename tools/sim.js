@@ -62,7 +62,7 @@ async function doActions() {
     if (!list.length) return;
     const a = rpick(list);
     if (a.e && p.energy < a.e) continue;
-    if (a.$) { const pr = G.$(a.$); if (p.money < pr) continue; G.addMoney(-pr); }
+    if (a.$) { const pr = G.$(a.$); if (!G.canPay(pr)) continue; G.charge(pr); }
     p.energy -= a.e || 0;
     curEvent = 'act:' + a.id; stats.acts[a.id] = (stats.acts[a.id] || 0) + 1;
     await a.run(a);

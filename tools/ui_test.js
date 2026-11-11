@@ -37,6 +37,7 @@ fs.mkdirSync(OUT, { recursive: true });
   for (let y = 0; y < YEARS; y++) {
     const dead = await page.evaluate(() => !G.S || G.S.dead);
     if (dead) break;
+    await page.evaluate(() => G.UI.closeAllSheets());
     await page.click('.pencil');
     await page.waitForTimeout(200);
     if (y === 3 && !shotYear) { const v = await page.$('.veil'); if (v) { await shot('07_event'); shotYear = 1; } }

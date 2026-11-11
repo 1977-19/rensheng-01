@@ -53,12 +53,22 @@
       p.talents.length ? ['天赋|Talents', p.talents.map(function (t) { return T(G.TALENT[t].n); }).join(' ')] : null])));
     return out;
   };
+  UI.openGrp = UI.openGrp || {};
   UI.tabLife = function () {
     UI.sheet('人生|Life', function (b, rec) {
       UI.statusCards().forEach(function (c) { b.appendChild(c); });
       var acts = G.lifeActs().filter(visible);
       if (acts.length) b.appendChild(h('div', { class: 'grp' }, T('能做的事|What you can do')));
-      acts.forEach(function (a) { b.appendChild(actRow(a, function () { rec.refresh(); })); });
+      // grouped actions (e.g. extracurriculars) fold open in place instead of opening another page
+      var seen = {};
+      acts.forEach(function (a) {
+        if (!a.grp) { b.appendChild(actRow(a, function () { rec.refresh(); })); return; }
+        if (seen[a.grp]) return; seen[a.grp] = 1;
+        var kids = acts.filter(function (x) { return x.grp === a.grp; }), open = !!UI.openGrp[a.grp];
+        b.appendChild(h('button', { class: 'row fold' + (open ? ' open' : ''), onclick: tap(function () { UI.openGrp[a.grp] = !open; rec.refresh(); }) },
+          h('div', { class: 'tx' }, h('div', { class: 't' }, T(a.grp))), h('div', { class: 'rt' }, h('span', { class: 'chip' }, String(kids.length)), h('span', { class: 'car' }, open ? '▴' : '▾'))));
+        if (open) { var box = h('div', { class: 'foldbox' }); kids.forEach(function (x) { box.appendChild(actRow(x, function () { rec.refresh(); })); }); b.appendChild(box); }
+      });
     });
   };
 
@@ -142,6 +152,7 @@
   var GROUPS = [
     ['伴侣|Partner', ['spouse', 'lover', 'affair']],
     ['家人|Family', ['father', 'mother', 'stepparent', 'grand', 'sibling', 'birthpar', 'kin']],
+    ['家里的人|Household', ['staff']],
     ['子女|Children', ['child', 'grandchild']],
     ['追求者与心动|Admirers & Crushes', ['admirer', 'crush']],
     ['对象的家人|Partner\'s Family', ['inlaw']],
@@ -190,10 +201,11 @@
         var acts = h('div', { class: 'actgrid' }, G.npcActs(n).filter(function (a) { return !a.if || a.if(); }).filter(function (a) { return !a.a || (p.age >= a.a[0] && p.age <= a.a[1]); }).map(function (a) {
           return h('button', { class: 'ab', onclick: tap(async function () {
             if (a.id === 'chat') { md.close(); res(); UI.chat(n); return; }
+            if (a.id === 'kplan') { md.close(); res(); UI.parentPlan(n); return; }
             await UI.doAction(a, n);
             if (!G.S.npcs[n.id] || G.S.dead) { md.close(); res(); return; }
             refresh();
-          }) }, h('span', null, a.i), T(a.n), a.e ? h('div', { class: 'c' }, '⚡' + a.e) : null);
+          }) }, h('span', null, a.i), T(G.L(a.n, Object.assign({ n: n.name }, G.pr(n.g)))), a.e ? h('div', { class: 'c' }, '⚡' + a.e) : null);
         }));
         return h('div', null,
           h('div', { class: 'prof' }, h('div', { class: 'avs', html: G.avatarOf(n) }), h('div', null, h('div', { class: 'nm' }, T(n.name)), h('div', { class: 'rl' }, T(N.relName(n))), h('div', { style: { fontSize: '13px', color: 'var(--ink2)' } }, (n.g === 'm' ? '♂ ' : '♀ ') + T('{a}岁|age {a}', { a: N.age(n) }) + '  ' + (G.C[n.c] ? G.C[n.c].flag : '')))),

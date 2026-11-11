@@ -90,8 +90,8 @@
   G.MIL = {
     enl: R('列兵|Private,上等兵|Private First Class,下士|Corporal,中士|Sergeant,上士|Staff Sergeant,军士长|Sergeant Major'),
     enlPay: [24000, 29000, 35000, 43000, 52000, 62000],
-    off: R('少尉|Second Lieutenant,中尉|First Lieutenant,上尉|Captain,少校|Major,中校|Lieutenant Colonel,上校|Colonel,少将|Major General,中将|Lieutenant General,上将|General'),
-    offPay: [46000, 54000, 66000, 80000, 96000, 115000, 150000, 190000, 240000],
+    off: R('少尉|Second Lieutenant,中尉|First Lieutenant,上尉|Captain,少校|Major,中校|Lieutenant Colonel,上校|Colonel,少将|Major General,中将|Lieutenant General,上将|General,一级上将|Senior General,五星上将|Five-Star General,三军总司令|Commander-in-Chief'),
+    offPay: [46000, 54000, 66000, 80000, 96000, 115000, 150000, 190000, 240000, 300000, 380000, 480000],
     br: { army: '陆军|Army', navy: '海军|Navy', air: '空军|Air Force', sf: '特种部队|Special Forces' }
   };
   G.POLICE = { r: R('警员|Police Officer,警长|Senior Officer,警司|Sergeant,督察|Inspector,高级督察|Chief Inspector,警司长|Superintendent,总警司|Chief Superintendent,副局长|Deputy Commissioner,警察局长|Police Commissioner'),

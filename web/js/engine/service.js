@@ -37,9 +37,13 @@
     if (G.ch(S.world.war ? .7 : .35)) Q.push({ id: 'sys_mission' });
     var max = m.off ? G.MIL.off.length - 1 : G.MIL.enl.length - 1;
     var need = m.off ? 2 + Math.floor(m.rank / 2) : 1 + Math.floor(m.rank / 2);
-    if (m.rank < max && m.yr >= need && m.merit >= 10 + m.rank * 8) Q.push({ id: 'sys_assess', prm: { k: 'mil' } });
+    var topOk = !m.off || m.rank < 9 || (m.rank === 9 && (m.merit >= 95 || S.world.war)) || (m.rank === 10 && m.merit >= 110 && G.ch(.35));
+    if (m.rank < max && m.yr >= need && m.merit >= 10 + m.rank * 8 && topOk) Q.push({ id: 'sys_assess', prm: { k: 'mil' } });
     else if (!m.off && m.rank >= 3 && m.merit >= 40 && !m.offTry && G.ch(.3)) Q.push({ id: 'sys_officer' });
-    if (p.age >= (m.off && m.rank >= 6 ? 62 : 55) || m.yrs >= 35) Q.push({ id: 'sys_mil_retire' });
+    // generals made young stay on: a general's career doesn't end at 55
+    if (m.off && m.rank >= 6 && !m.genAge) m.genAge = p.age;
+    var lifer = m.off && m.genAge && m.genAge <= 52;
+    if (lifer ? (p.age >= (m.rank >= 9 ? 78 : 72) && !m.stayOn) : (p.age >= (m.off && m.rank >= 6 ? 62 : 55) || m.yrs >= 35)) Q.push({ id: 'sys_mil_retire' });
   };
   ML.promote = function () {
     var m = G.S.p.mil; m.rank++; m.yr = 0; m.merit = Math.round(m.merit * .4);
@@ -233,6 +237,7 @@
       prep: function (c) { c.prm.y = c.p.mil.yrs; },
       o: [
         { t: '退役领取养老金|Retire on a pension', run: function (c) { G.career.retire(); return G.L('你光荣退役，每年领取{m}。|You retired honorably with {m}/yr.', { m: G.M(c.p.pension) }); } },
+        { t: '留任，继续执掌军队|Stay on and keep command', if: function (c) { return c.p.mil.off && c.p.mil.rank >= 8 && c.p.age < 82 && c.p.st.health >= 45; }, run: function (c) { c.p.mil.stayOn = 1; c.add('fame', 2); return '你选择留任。军队需要你。|You chose to stay on. The armed forces need you.'; } },
         { t: '转业到地方政府|Transfer to civil government', if: function (c) { return c.p.mil.off && c.p.age < 58; }, run: function (c) { var r = Math.min(Math.floor(c.p.mil.rank * .8), 6); c.p.mil = null; c.p.gov = { track: 'civil', rank: r, yrs: 0, yr: 0, perf: 55, appr: 50 }; return G.L('你转业到地方，担任{r}。|You transferred to the civil service as {r}.', { r: GV.civilRanks()[r] }); } }
       ] },
     { id: 'sys_mission', sys: 1, title: '军事任务|Military Mission', icon: '🪖',

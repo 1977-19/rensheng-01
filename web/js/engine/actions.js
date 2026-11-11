@@ -69,11 +69,14 @@
     { n: '舞蹈比赛|Dance Competition', i: '💃', g: 'rhythm', st: 'looks', sk: 'dance' },
     { n: '电竞社|Esports Club', i: '🎮', g: 'rhythm', st: 'smarts', y0: 2000 }
   ];
+  G.EXTRA = EXTRA;
   async function extracurricular(a) {
     var list = EXTRA.filter(function (x) { return !x.y0 || G.S.year >= x.y0; });
     var i = await G.UI.pick({ title: G.L('课外活动|Extracurriculars'), items: list.map(function (x) { return { t: x.n, icon: x.i }; }) });
     if (i < 0) return 'cancel';
-    var x = list[i];
+    return G.runExtra(list[i]);
+  }
+  G.runExtra = async function (x) {
     if (!x.g) { G.dStart(); G.addStat('karma', 5); G.addStat('eq', 2); G.addStat('happy', 4); var d0 = G.dEnd(); return G.result(x.n, '你照顾了好多流浪小动物，心里暖暖的。|You cared for lots of stray animals and felt warm inside.', null, d0, x.i); }
     var r = await G.UI.game(x.g, { name: x.n });
     if (x.sk) sk(x.sk, 4);
@@ -86,14 +89,14 @@
     return G.result(x.n, txt, null, dl, x.i);
   }
   G.ACT_SCHOOL = [
-    { id: 'study', n: '努力学习|Study Hard', i: '📖', e: 20, run: function (a) { G.S.p.edu.study++; return quick(a, ['你埋头苦读，成绩突飞猛进。|You buried yourself in books, and your grades shot up.', '你刷完了一整本习题集。|You finished an entire workbook.', '你熬夜复习到凌晨。|You studied until the small hours.'], { smarts: 2, happy: -2, stress: 4 }); } },
+    { id: 'study', n: '努力学习|Study Hard', i: '📖', e: 20, run: function (a) { G.S.p.edu.study++; return quick(a, ['你埋头苦读，成绩突飞猛进。|You buried yourself in books, and your grades shot up.', '你刷完了一整本习题集。|You finished an entire workbook.', '你熬夜复习到凌晨。|You studied until the small hours.'], { smarts: 2, perf: G.ri(3, 6), happy: -2, stress: 4 }); } },
     { id: 'slack', n: '上课摸鱼|Goof Off in Class', i: '😴', e: 5, run: function (a) { G.S.p.edu.study -= .5; if (G.ch(.25)) { par().forEach(function (n) { N.addAff(n, -4); }); return quick(a, '你上课睡觉被老师抓到，叫了家长。|The teacher caught you sleeping and called your parents.', { happy: -4 }); } return quick(a, ['你在课本上画了一整节课的漫画。|You doodled comics in your textbook all class.', '你和同桌传了一整节课的纸条。|You passed notes with your deskmate all period.'], { happy: 4 }); } },
     { id: 'skip', n: '逃课|Skip Class', i: '🏃', e: 10, a: [10, 18], run: function (a) { G.S.p.edu.study -= 1; if (G.ch(.35)) { par().forEach(function (n) { N.addAff(n, -8); }); return quick(a, '你逃课去网吧，被爸妈抓了个正着。|You skipped class for the internet café and got caught red-handed.', { happy: -6 }); } return quick(a, ['你翻墙出去玩了一下午，爽！|You hopped the wall and had the afternoon off. Sweet!', '你逃课去游戏厅打了一下午游戏。|You ditched class for the arcade.'], { happy: 7 }); } },
     { id: 'tutor', n: '找家教补课|Get a Tutor', i: '👩‍🏫', e: 15, $: 400, run: function (a) { var t = G.circle.tutorBoost(); G.S.p.edu.study += t.b; return quick(a, t.fresh ? '家里给你请了家教{n}，在“关系”里能找到{h}。|Your family hired {n} as your tutor. Find them under Relationships.' : G.pick(['{n}帮你把薄弱的科目补了上来。|{n} helped you shore up your weak subjects.', '{n}押中了好几道考题！|{n} predicted several exam questions!', '{n}给你讲了一套独家解题思路。|{n} taught you a trick for solving problems.']), { smarts: t.b >= 4 ? 3 : 2, happy: -1 }, { n: t.n.name, h: t.n.g === 'm' ? '他|him' : '她|her' }); } },
     { id: 'friend', n: '结交同学|Make a Friend', i: '🤝', e: 10, run: function (a) { var f = N.make({ rel: 'classmate', age: G.S.p.age + G.ri(-1, 1), aff: G.ri(15, 35) }); return quick(a, '你和同学{n}聊得很投机。|You hit it off with your classmate {n}.', { happy: 3, eq: 1 }, { n: f.name }); } },
-    { id: 'extra', n: '课外活动|Extracurriculars', i: '🏆', e: 20, run: extracurricular },
+  ].concat(EXTRA.map(function (x, k) { return { id: 'ex' + k, n: x.n, i: x.i, e: 15, grp: '🏆 课外活动|🏆 Extracurriculars', if: function () { return !x.y0 || G.S.year >= x.y0; }, run: function () { return G.runExtra(x); } }; })).concat([
     { id: 'monitor', n: '竞选班干部|Run for Class Monitor', i: '🎗️', e: 15, run: function (a) { var ok = G.ch(.2 + G.S.p.st.eq / 150); if (ok) G.S.p.flags.monitor = 1; return quick(a, ok ? '你当选了班长！|You were elected class monitor!' : '你落选了，只差几票。|You lost by a handful of votes.', ok ? { eq: 3, happy: 5 } : { happy: -3 }); } },
-    { id: 'cheat', n: '考试作弊|Cheat on a Test', i: '📝', e: 10, a: [8, 30], run: function (a) { if (G.ch(.6)) { G.S.p.edu.perf += 6; return quick(a, '你偷偷抄了答案，没被发现。|You copied answers and didn\'t get caught.', { karma: -4 }); } G.S.p.edu.perf -= 10; par().forEach(function (n) { N.addAff(n, -10); }); return quick(a, '作弊被监考老师当场抓获，记了处分！|The proctor caught you cheating; it went on your record!', { happy: -10, karma: -4 }); } },
+    { id: 'cheat', n: '考试作弊|Cheat on a Test', i: '📝', e: 10, a: [8, 30], run: function (a) { if (G.ch(.6)) { return quick(a, '你偷偷抄了答案，没被发现，这次考了个高分。|You copied answers, didn\'t get caught, and scored high.', { perf: G.ri(6, 10), karma: -4, smarts: -1 }); } par().forEach(function (n) { N.addAff(n, -10); }); return quick(a, '作弊被监考老师当场抓获，记了处分！|The proctor caught you cheating; it went on your record!', { perf: -10, happy: -10, karma: -4 }); } },
     { id: 'crush', n: '暗恋/早恋|Crush', i: '💘', e: 10, a: [13, 17], run: async function (a) {
       var cur = G.S.p.flags.crush && G.S.npcs[G.S.p.flags.crush];
       if (cur && cur.alive && ['classmate', 'friend', 'crush'].indexOf(cur.rel) >= 0 && N.canRomance(cur) && G.ch(.75)) {
@@ -111,7 +114,7 @@
     { id: 'brawl', n: '和人打架|Get in a Fight', i: '👊', e: 15, a: [8, 18], run: async function (a) { var r = await G.UI.game('fight', { name: a.n }); G.dStart(); if (r.win) { G.addStat('rep', 5); G.addStat('happy', 3); } else { G.addStat('health', -6); G.addStat('happy', -5); } G.addStat('karma', -2); var dl = G.dEnd(); return G.result(a.n, r.win ? '你把对方揍趴下了，从此没人敢惹你。|You knocked them flat; nobody messes with you now.' : '你被揍得鼻青脸肿。|You got beaten black and blue.', null, dl, a.i); } },
     { id: 'skipgrade', n: '申请跳级|Skip a Grade', i: '⏩', e: 20, if: function () { var e = G.S.p.edu; return (G.has('prodigy') || G.has('genius')) && e.perf >= 80 && ['primary', 'middle'].indexOf(e.stage) >= 0 && !G.S.p.flags.skipped; }, run: function (a) { var e = G.S.p.edu; G.S.p.flags.skipped = 1; e.grade = Math.min(e.grade + 1, G.school.stageYears() - 1); return quick(a, '学校批准你跳级了！|The school approved your grade skip!', { happy: 6, fame: 2 }); } },
     { id: 'dropout', n: '退学|Drop Out', i: '🚪', e: 5, a: [14, 30], run: async function (a) { var ok = await G.UI.event({ title: G.L(a.n), text: G.L('确定要退学吗？|Are you sure you want to drop out?'), opts: [{ t: G.L('确定|Yes') }, { t: G.L('算了|Never mind') }] }); if (ok) return 'cancel'; G.S.p.edu.stage = 'done'; G.major('退学|Dropped out'); return quick(a, '你收拾书包，离开了学校。|You packed your bag and left school.', { happy: 2 }); } }
-  ];
+  ]);
   G.ACT_UNI = [
     { id: 'ustudy', n: '泡图书馆|Hit the Library', i: '📚', e: 20, run: function (a) { G.S.p.edu.study++; return quick(a, ['你在图书馆从早坐到晚。|You sat in the library from dawn to dusk.', '你的论文得了A。|Your paper got an A.'], { smarts: 2, happy: -1 }); } },
     { id: 'uskip', n: '翘课睡懒觉|Skip Class & Sleep In', i: '🛏️', e: 5, run: function (a) { G.S.p.edu.study -= .5; return quick(a, '你睡到了中午，舒服。|You slept until noon. Bliss.', { happy: 5 }); } },

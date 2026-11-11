@@ -21,6 +21,7 @@
   G.addStat = function (k, n, silent) {
     var p = G.S.p; if (!n) return 0;
     if (k === 'money') return G.addMoney(n);
+    if (k === 'perf') { var e0 = p.edu, o0 = e0.perf || 50; e0.perf = G.clamp(o0 + n, 0, 100); if (!silent) pushD('perf', e0.perf - o0); return e0.perf - o0; }
     if (k === 'happy') {
       if (n < 0 && G.has('sensitive')) n *= 1.5;
       if (n > 0 && G.has('sensitive')) n *= 1.2;

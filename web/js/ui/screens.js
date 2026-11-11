@@ -48,24 +48,48 @@
       // keep the list where it was when re-rendering the same step (tapping a talent/origin/city must not jump to the top)
       var oldBody = document.querySelector('.wiz .wb'), keep = oldBody && lastStep === w.step ? oldBody.scrollTop : 0;
       lastStep = w.step;
-      var body = h('div', { class: 'wb' }), titles = ['性别与取向|Gender & Orientation', '出生地|Birthplace', '出生年份|Birth Year', '出身|Family Background', '天赋|Talents', '名字|Name'];
+      var body = h('div', { class: 'wb' }), titles = ['你是谁|Who Are You', '出生地|Birthplace', '出生年份|Birth Year', '出身|Family Background', '天赋|Talents', '出生证明|Birth Certificate'];
       [step0, step1, step2, step3, step4, step5][w.step](body);
       var steps = h('div', { class: 'steps' }); for (var i = 0; i < N_STEPS; i++) steps.appendChild(h('i', { class: i <= w.step ? 'on' : '' }));
       var next = h('button', { class: 'big solid', style: { width: '100%' }, onclick: tap(function () {
         if (w.step === 4 && w.talents.length < Math.min(3, w.pool.length) && v >= 2) { UI.toast('请选择3个天赋|Pick 3 talents'); return; }
-        if (w.step < N_STEPS - 1) { w.step++; if (w.step === 5) genName(); render(); } else born();
+        if (w.step < N_STEPS - 1) { w.step++; if ((w.step === 2 || w.step === 3) && !w.custom) genName(); if (w.step === 4) w.justDrew = true; render(); } else born();
       }) }, w.step < N_STEPS - 1 ? T('下一步|Next') : T('出生！|Be Born!'));
       UI.screen(h('div', { class: 'wiz grid-paper' },
         h('div', { class: 'wh' }, h('button', { class: 'back', onclick: tap(function () { if (w.step) { w.step--; render(); } else UI.start(); }) }, '‹'), h('h3', null, T(titles[w.step])), h('div', { class: 'sp', style: { width: '38px' } })),
-        steps, body, h('div', { class: 'wf' }, next)));
+        steps, preview(), body, h('div', { class: 'wf' }, next)));
       if (keep) body.scrollTop = keep;
+    }
+    // a little "you" that grows up in front of you while you choose
+    var BADGE = { royal: '👑', noble: '🎩', richest: '💎', tycoon: '💰', merchant: '💼', red: '⭐', celebrity: '🌟', military: '🎖️', police: '🚓', scholar: '📚', academic: '🎓', medical: '🩺', artist: '🎨', champion: '🏆', rural: '🌾', orphan: '🕯️', immigrant: '🧳', debt: '🧾' };
+    w.seed = w.seed || G.ri(1, 1e9);
+    var ageTimer = null;
+    function preview() {
+      var ages = [0, 6, 16, 28, 45, 72], lbl = ['出生|Born', '童年|Childhood', '青春|Youth', '成年|Adulthood', '中年|Middle age', '晚年|Old age'];
+      var skin = G.N.skinFor(w.country), box = h('div', { class: 'wpv-av' }), cap = h('div', { class: 'wpv-cap' });
+      var i = 0;
+      function paint() { box.innerHTML = G.avatar({ seed: w.seed, age: ages[i], g: w.g, skin: skin, cul: w.country, happy: 80 }); box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop'); cap.textContent = T(lbl[i]) + ' · ' + (w.by + ages[i]); }
+      paint();
+      if (ageTimer) clearInterval(ageTimer);
+      ageTimer = setInterval(function () { if (!document.body.contains(box)) { clearInterval(ageTimer); return; } i = (i + 1) % ages.length; paint(); }, 1500);
+      var org = G.ORIGIN[w.origin], chips = [G.C[w.country].flag + ' ' + T(G.C[w.country].n), w.by + T('年|'), T(org ? org.n : '')];
+      if (w.step >= 4 && w.talents.length) chips.push(w.talents.map(function (t) { return T(G.TALENT[t].n); }).join(' · '));
+      return h('div', { class: 'wpv' },
+        h('div', { class: 'wpv-l' }, box, w.step >= 3 && BADGE[w.origin] ? h('div', { class: 'wpv-b' }, BADGE[w.origin]) : null, cap),
+        h('div', { class: 'wpv-r' }, h('b', null, w.custom || T(w.name)), h('div', { class: 'wpv-chips' }, chips.filter(Boolean).map(function (c) { return h('span', null, c); }))));
     }
     function seg(opts, cur, set) { return h('div', { class: 'seg' }, opts.map(function (o) { return h('button', { class: o[0] === cur ? 'on' : '', onclick: tap(function () { set(o[0]); render(); }) }, T(o[1])); })); }
     function step0(b) {
-      b.appendChild(h('div', { class: 'label' }, T('性别|Gender')));
-      b.appendChild(seg([['m', '男|Male'], ['f', '女|Female']], w.g, function (x) { w.g = x; }));
-      b.appendChild(h('div', { class: 'label' }, T('喜欢的人|Attracted to')));
-      b.appendChild(seg([['het', '异性|Opposite sex'], ['gay', '同性|Same sex'], ['bi', '都可以|Both']], w.orient, function (x) { w.orient = x; }));
+      b.appendChild(h('div', { class: 'label' }, T('这一世，你想成为……|This time, you\'ll be born...')));
+      b.appendChild(h('div', { class: 'gcards' }, [['m', '男孩|A boy'], ['f', '女孩|A girl']].map(function (o) {
+        return h('button', { class: 'gcard' + (w.g === o[0] ? ' on' : ''), onclick: tap(function () { if (w.g !== o[0]) { w.g = o[0]; genName(); } render(); }) },
+          h('div', { class: 'gav', html: G.avatar({ seed: w.seed + (o[0] === 'm' ? 1 : 2), age: 7, g: o[0], skin: G.N.skinFor(w.country), cul: w.country, happy: 90 }) }), h('b', null, T(o[1])));
+      })));
+      b.appendChild(h('div', { class: 'label' }, T('长大后，你会喜欢……|When you grow up, you\'ll fall for...')));
+      var om = w.g === 'm' ? ['👨‍❤️‍👩', '👨‍❤️‍👨', '💞'] : ['👩‍❤️‍👨', '👩‍❤️‍👩', '💞'];
+      b.appendChild(h('div', { class: 'ocards' }, [['het', '异性|Opposite sex', om[0]], ['gay', '同性|Same sex', om[1]], ['bi', '都可以|Anyone', om[2]]].map(function (o) {
+        return h('button', { class: 'ocard' + (w.orient === o[0] ? ' on' : ''), onclick: tap(function () { w.orient = o[0]; render(); }) }, h('span', { class: 'e' }, o[2]), T(o[1]));
+      })));
       b.appendChild(h('p', { style: { color: 'var(--ink2)', fontSize: '13px', marginTop: '14px' } }, T('同性能否结婚，取决于你所在国家当年的法律。|Whether same-sex couples can marry depends on your country\'s laws that year.')));
     }
     function step1(b) {
@@ -84,8 +108,14 @@
       b.appendChild(h('div', { class: 'pickgrid' }, decs.map(function (d) { var on = Math.floor(w.by / 10) * 10 === d; return h('button', { class: 'pk' + (on ? ' on' : ''), onclick: tap(function () { w.by = d + (d === 2020 ? G.ri(0, 5) : G.ri(0, 9)); render(); }) }, h('span', { class: 'e', style: { fontSize: '20px' } }, d + 's')); })));
       b.appendChild(h('div', { class: 'label' }, T('具体年份|Exact Year')));
       b.appendChild(h('div', { class: 'slider' }, h('button', { onclick: tap(function () { w.by = Math.max(1950, w.by - 1); render(); }) }, '−'), h('div', { style: { flex: 1, textAlign: 'center', fontSize: '28px', fontFamily: 'var(--serif)', fontWeight: 700 } }, String(w.by)), h('button', { onclick: tap(function () { w.by = Math.min(2025, w.by + 1); render(); }) }, '+')));
-      var note = (DEC_NOTE[w.country] || {})[Math.floor(w.by / 10) * 10];
+      var note = ((G.DEC_NOTE || DEC_NOTE)[w.country] || {})[Math.floor(w.by / 10) * 10];
       b.appendChild(h('p', { style: { color: 'var(--ink2)', fontSize: '13.5px' } }, note ? T(note) : T('你会经历这个国家真实的历史大事，2025年以后的世界由随机事件书写。|You\'ll live through real historical events; the world after 2025 is shaped by random events.')));
+      var hs = G.HISTORY.filter(function (x) { return (x.c === w.country || x.c === 'all') && x.y >= w.by + 4 && x.y <= Math.min(w.by + 80, 2025); }).sort(function (a, c) { return a.y - c.y; });
+      if (hs.length) {
+        var shown = hs.filter(function (x) { return x.c === w.country; }).concat(hs.filter(function (x) { return x.c === 'all'; })).slice(0, 8).sort(function (a, c) { return a.y - c.y; });
+        b.appendChild(h('div', { class: 'label' }, T('你会亲历的大事|History you\'ll live through')));
+        b.appendChild(h('div', { class: 'tline2' }, shown.map(function (x) { var t = T(x.t), cut = t.split(/[，。,.;；]/)[0]; return h('div', { class: 'ti' }, h('b', null, x.y), h('span', null, T('{a}岁 · |Age {a} · ', { a: x.y - w.by }) + cut)); })));
+      }
     }
     function step3(b) {
       G.ORIGINS.filter(originOk).forEach(function (o) {
@@ -98,10 +128,11 @@
       if (v >= 2) b.appendChild(h('p', { style: { color: 'var(--ink2)', fontSize: '13.5px', marginTop: 0 } }, T(v >= 3 ? '钻石VIP：从全部天赋中任选3个。|Diamond VIP: choose any 3 talents.' : '黄金VIP：从8个天赋中选3个。|Gold VIP: choose 3 of these 8.')));
       w.pool.forEach(function (id) {
         var t = G.TALENT[id], on = w.talents.indexOf(id) >= 0;
-        b.appendChild(h('button', { class: 'tal' + (on ? ' on' : ''), onclick: v >= 2 ? tap(function () { if (on) w.talents = w.talents.filter(function (x) { return x !== id; }); else if (G.talentClash(w.talents, id)) UI.toast('这个天赋和已选的天赋互相矛盾|This talent conflicts with one you picked'); else if (w.talents.length < 3) w.talents.push(id); else UI.toast('最多选3个|Pick at most 3'); render(); }) : null },
+        b.appendChild(h('button', { class: 'tal' + (w.justDrew ? ' flip' : '') + (on ? ' on' : ''), style: { animationDelay: (w.pool.indexOf(id) * 70) + 'ms' }, onclick: v >= 2 ? tap(function () { if (on) w.talents = w.talents.filter(function (x) { return x !== id; }); else if (G.talentClash(w.talents, id)) UI.toast('这个天赋和已选的天赋互相矛盾|This talent conflicts with one you picked'); else if (w.talents.length < 3) w.talents.push(id); else UI.toast('最多选3个|Pick at most 3'); render(); }) : null },
           h('div', { class: 'r ' + (t.neg ? 'rneg' : 'r' + t.r) }), h('div', null, h('b', null, T(t.n)), h('span', null, T(t.d)))));
       });
-      if (v < 2) b.appendChild(h('button', { class: 'big', style: { width: '100%', marginTop: '6px' }, disabled: w.rerolls <= 0 || null, onclick: tap(function () { if (w.rerolls <= 0) return; w.rerolls--; drawTalents(); render(); }) }, T('🎲 重抽（剩{n}次）|🎲 Reroll ({n} left)', { n: w.rerolls })));
+      w.justDrew = false;
+      if (v < 2) b.appendChild(h('button', { class: 'big', style: { width: '100%', marginTop: '6px' }, disabled: w.rerolls <= 0 || null, onclick: tap(function () { if (w.rerolls <= 0) return; w.rerolls--; drawTalents(); w.justDrew = true; render(); }) }, T('🎲 重抽（剩{n}次）|🎲 Reroll ({n} left)', { n: w.rerolls })));
       if (v >= 3) {
         var left = 30 - G.sum(Object.keys(w.bonus), function (k) { return w.bonus[k]; });
         b.appendChild(h('div', { class: 'label' }, T('额外属性点（剩余{n}）|Bonus stat points ({n} left)', { n: left })));
@@ -142,7 +173,7 @@
   UI.settingsPage = function () {
     UI.sheet('设置|Settings', function (b, rec) {
       var s = G.settings;
-      function seg(opts, cur, set) { return h('div', { class: 'seg' }, opts.map(function (o) { return h('button', { class: o[0] === cur ? 'on' : '', onclick: tap(function () { set(o[0]); G.saveSettings(); UI.applyTheme(); rec.refresh(); if (G.S) G.emit('change'); }) }, o[1]); })); }
+    function seg(opts, cur, set) { return h('div', { class: 'seg' }, opts.map(function (o) { return h('button', { class: o[0] === cur ? 'on' : '', onclick: tap(function () { set(o[0]); G.saveSettings(); UI.applyTheme(); rec.refresh(); if (G.S) G.emit('change'); }) }, o[1]); })); }
       function toggle(label, key, after) { return h('button', { class: 'row', onclick: tap(function () { s[key] = !s[key]; G.saveSettings(); if (after) after(); rec.refresh(); }) }, h('div', { class: 'tx' }, h('div', { class: 't' }, T(label))), h('div', { class: 'rt' }, h('span', { class: 'chip' + (s[key] ? ' e' : '') }, s[key] ? T('开|On') : T('关|Off')))); }
       b.appendChild(h('div', { class: 'grp' }, T('语言|Language')));
       b.appendChild(seg([['zh', '简体中文'], ['tw', '繁體中文'], ['en', 'English']], G.lang, function (x) { s.lang = x; G.setLang(x); }));

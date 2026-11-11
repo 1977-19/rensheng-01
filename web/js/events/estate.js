@@ -47,7 +47,7 @@
     ES.partners().forEach(function (n) {
       if (!LO.canConceive(n)) return;
       var base = fertileAge(p, n); if (G.has('fertile')) base *= 1.4;
-      var trying = n.trying === y - 1 || n.trying === y;
+      var trying = !!n.trying; // trying stays on until a baby is on the way or you stop
       var ch = trying ? base : n.rel === 'spouse' ? base * .1 : n.rel === 'affair' ? base * .07 : base * .04;
       if (!G.ch(ch)) return;
       if (p.g === 'f') p.preg = { with: n.id, due: y + 1 }; else n.preg = { due: y + 1, by: 'p' };
@@ -94,7 +94,7 @@
       if (w.mode === 'spouse' && spAlive) share[sp.id] = 1;
       else if (w.mode === 'one' && S().npcs[w.main] && S().npcs[w.main].alive) {
         var m = S().npcs[w.main], rest = pool.filter(function (k) { return k !== m; });
-        share[m.id] = rest.length ? .7 : 1; rest.forEach(function (k) { share[k.id] = .3 / rest.length; });
+        var mp = w.mainPct != null ? w.mainPct : .7; share[m.id] = rest.length ? mp : 1; if (mp < 1) rest.forEach(function (k) { share[k.id] = (1 - mp) / rest.length; });
       } else if (w.mode === 'custom' && w.pct) {
         var tot = 0; Object.keys(w.pct).forEach(function (id) { var n = S().npcs[id]; if (n && n.alive) tot += w.pct[id]; });
         Object.keys(w.pct).forEach(function (id) { var n = S().npcs[id]; if (n && n.alive && tot > 0) share[id] = w.pct[id] / tot; });
@@ -217,7 +217,7 @@
     }
     if (n.preg) rows.push(['状态|Status', G.L('怀孕中，预产期{y}年|Pregnant — due {y}', { y: G.numEn(n.preg.due) })]);
     else if (p.preg && p.preg.with === n.id) rows.push(['状态|Status', G.L('你怀着{h}的孩子，预产期{y}年|You\'re carrying {h} child — due {y}', { h: n.g === 'm' ? '他|his' : '她|her', y: G.numEn(p.preg.due) })]);
-    else if (n.trying && n.trying >= y - 1 && LO.canConceive(n)) rows.push(['状态|Status', '备孕中|Trying for a baby']);
+    else if (n.trying && LO.canConceive(n)) rows.push(['状态|Status', '备孕中|Trying for a baby']);
     if (n.rel === 'affair' && n.kept) rows.push(['包养|Allowance', G.fm(n.kept) + G.T(' / 年| / yr')]);
     if (n.feud && S().npcs[n.feud]) rows.push(['恩怨|Feud', G.L('和{n}反目|At odds with {n}', { n: S().npcs[n.feud].name })]);
     return rows;
@@ -230,12 +230,12 @@
     if (!n.alive) return out;
     // baby plans live on the partner's page
     if (['spouse', 'lover', 'affair'].indexOf(n.rel) >= 0 && n.g !== p.g && p.age >= 18 && a >= 18) {
-      if (LO.canConceive(n) && n.trying !== y) add.push({ id: 'trybaby', n: '和{n}备孕|Try for a Baby', i: '🍼', e: 10, run: async function (n, act) {
+      if (LO.canConceive(n) && !n.trying) add.push({ id: 'trybaby', n: '和{n}备孕|Try for a Baby', i: '🍼', e: 10, run: async function (n, act) {
         if (n.rel === 'affair' && N.spouse() && !(await G.UI.confirm(G.L('确定吗？|Are you sure?'), G.L('和情人要孩子，纸可包不住火。|A baby with your secret lover — that\'s a secret that won\'t keep.')))) return 'cancel';
         n.trying = y; G.dStart(); G.dPush('love', N.addLove(n, n.rel === 'affair' ? 8 : 4)); var dl = G.dEnd();
-        return res(act, '你和{n}开始备孕了。能不能怀上，就看缘分了。|You and {n} are trying for a baby. Now it\'s up to fate.', pr(n), dl);
+        return res(act, '你和{n}开始备孕了。每年都会继续努力，直到怀上为止。|You and {n} are trying for a baby — and you\'ll keep trying every year until it happens.', pr(n), dl);
       } });
-      if (n.trying === y && !n.preg) add.push({ id: 'stopbaby', n: '暂停备孕|Stop Trying', i: '⏸️', e: 0, run: async function (n, act) { n.trying = 0; return res(act, '你们决定再等等。|You decide to wait.', pr(n)); } });
+      if (n.trying && !n.preg) add.push({ id: 'stopbaby', n: '暂停备孕|Stop Trying', i: '⏸️', e: 0, run: async function (n, act) { n.trying = 0; return res(act, '你们决定再等等。|You decide to wait.', pr(n)); } });
     }
     // affairs
     if (n.rel === 'affair') {
@@ -355,14 +355,14 @@
   async function writeWill(a) {
     var p = S().p, sp = N.spouse(), K = kids(true), y = S().year;
     if (!K.length && !(sp && sp.alive)) return G.result(a.n, '你还没有可以继承遗产的家人。|You have no family to inherit yet.', null, [], a.i);
-    var modes = [['平分给所有子女|Split evenly among the children', 'equal'], ['大部分留给一个孩子|Most to one child', 'one'], ['全部留给配偶|Everything to your spouse', 'spouse'], ['我来逐个分配|I\'ll set each share', 'custom']];
+    var modes = [['平分给所有子女|Split evenly among the children', 'equal'], ['留给一个孩子（可以是全部）|To one child (up to everything)', 'one'], ['全部留给配偶|Everything to your spouse', 'spouse'], ['我来逐个分配|I\'ll set each share', 'custom']];
     if (!(sp && sp.alive)) modes = modes.filter(function (m) { return m[1] !== 'spouse'; });
     if (!K.length) modes = modes.filter(function (m) { return m[1] === 'spouse'; });
     var mi = await G.UI.pick({ title: G.L('立遗嘱|Write a Will'), text: G.L('不立遗嘱的话，法律会按配偶一半、婚生子女平分来分配，私生子女可能会起诉。|Without a will, the law gives your spouse half and splits the rest among children born in wedlock — secret children may sue.'), items: modes.map(function (m) { return { t: m[0] }; }) });
     if (mi < 0) return 'cancel';
     var w = { mode: modes[mi][1], y: y, cut: (p.will && p.will.cut) || {}, houses: {}, incl: false, notary: 0, charity: 0 };
     if (K.some(function (k) { return k.illegit && !k.ack; })) w.incl = (await G.UI.pick({ title: G.L('私生子女|Secret children'), items: [{ t: G.L('也给他们一份|Include them too') }, { t: G.L('不给|Leave them out') }], noCancel: 1 })) === 0;
-    if (w.mode === 'one') { var ci = await G.UI.pick({ title: G.L('留给谁？|To whom?'), items: K.map(function (k) { return { t: k.name, sub: N.relName(k) + ' · ' + G.T('{a}岁|age {a}', { a: N.age(k) }), npc: k }; }) }); if (ci < 0) return 'cancel'; w.main = K[ci].id; }
+    if (w.mode === 'one') { var ci = await G.UI.pick({ title: G.L('留给谁？|To whom?'), items: K.map(function (k) { return { t: k.name, sub: N.relName(k) + ' · ' + G.T('{a}岁|age {a}', { a: N.age(k) }), npc: k }; }) }); if (ci < 0) return 'cancel'; w.main = K[ci].id; var pi = await G.UI.pick({ title: G.L('给{n}多少？|How much to {n}?', { n: K[ci].name }), items: [100, 90, 70, 50].map(function (v) { return { t: v + '%', sub: v === 100 ? G.T('全部留给TA，其他人一分没有|Everything — the others get nothing') : G.T('其余{r}%由其他子女平分|The other children split the remaining {r}%', { r: 100 - v }) }; }), noCancel: 1 }); w.mainPct = [1, .9, .7, .5][pi] || 1; }
     if (w.mode === 'custom') {
       w.pct = {}; var ppl = (sp && sp.alive ? [sp] : []).concat(K), steps = [0, 10, 20, 30, 40, 50, 70, 100];
       for (var j = 0; j < ppl.length; j++) { var si = await G.UI.pick({ title: G.L('给{n}几成？|Share for {n}?', { n: ppl[j].name }), items: steps.map(function (s) { return { t: s + '%' }; }), noCancel: 1 }); w.pct[ppl[j].id] = steps[si] || 0; }

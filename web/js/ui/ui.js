@@ -56,7 +56,7 @@
   };
   function deltas(dl) {
     if (!dl || !dl.length) return null;
-    var names = { money: '钱|Money', aff: '好感|Affection', love: '爱意|Love', fans: '粉丝|Fans', appr: '支持率|Approval', fit: '体能|Fitness', stress: '压力|Stress', karma: '品德|Karma', heat: '警方关注|Police heat', rep: '江湖地位|Street rep' };
+    var names = { perf: '成绩|Grades', money: '钱|Money', aff: '好感|Affection', love: '爱意|Love', fans: '粉丝|Fans', appr: '支持率|Approval', fit: '体能|Fitness', stress: '压力|Stress', karma: '品德|Karma', heat: '警方关注|Police heat', rep: '江湖地位|Street rep' };
     return h('div', { class: 'deltas' }, dl.map(function (d) {
       if (d.k === 'note') return h('span', { class: 'dl note' }, T(d.x));
       var nm = G.STATS[d.k] ? G.STATS[d.k].n : names[d.k] || d.k;
@@ -172,7 +172,7 @@
     var p = G.S.p, e = a.e || 0, price = (!npc && a.$) ? G.$(a.$) : 0;
     if (a.lock && a.lock()) { UI.toast(a.lock()); return; }
     if (p.energy < e) { UI.toast('体力不够了，过完这一年再来吧。|Out of energy — finish the year to recharge.'); G.audio && G.audio.sfx('bad'); return; }
-    if (price && p.money < price) { UI.toast(G.L('钱不够，需要{m}。|Not enough money — you need {m}.', { m: G.M(price) })); G.audio && G.audio.sfx('bad'); return; }
+    if (price && !(G.canPay ? G.canPay(price) : p.money >= price)) { UI.toast(G.L('钱不够，需要{m}。|Not enough money — you need {m}.', { m: G.M(price) })); G.audio && G.audio.sfx('bad'); return; }
     var big = a.confirm || UI.BIG[a.id];
     if (big && !G.settings.autoGame) {
       var nm = typeof a.n === 'function' ? a.n(npc) : a.n;
@@ -181,10 +181,10 @@
       if (UI.busy || G.busy || !G.S || G.S.dead) return;
     }
     UI.busy = true;
-    p.energy -= e; if (price) G.addMoney(-price);
+    p.energy -= e; var by = null; if (price) { by = G.charge ? G.charge(price) : (G.addMoney(-price), 'self'); if (by === 'par') UI.toast(G.L('爸妈帮你付了{m}|Your parents paid {m}', { m: G.M(price) })); }
     try {
       var r = npc ? await a.run(npc, a) : await a.run(a);
-      if (r === 'cancel') { p.energy += e; if (price) G.addMoney(price); }
+      if (r === 'cancel') { p.energy += e; if (price) { if (G.refund) G.refund(price, by); else G.addMoney(price); } }
       G.ach.check();
       G.save('auto');
     } catch (err) { console.error(err); UI.toast('出错了：|Error: ' + (err && err.message)); }

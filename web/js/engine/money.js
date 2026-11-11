@@ -121,7 +121,7 @@
     A.debt.forEach(function (d) { d.amt = Math.round(d.amt * (1 + d.r)); });
     // kids allowance from parents
     var allow = 0;
-    if (p.age >= 6 && G.dependent()) {
+    if (p.age >= 6 && G.dependent() && !(G.POCKET && G.POCKET[p.origin] && p.age < 18)) {
       var par = G.N.rel('father', 'mother', 'grand').filter(function (n) { return n.alive; });
       var fw = G.sum(par, function (n) { return n.wealth; });
       if (par.length) { var avgAff = G.sum(par, function (n) { return n.aff; }) / par.length; allow = Math.round(Math.max(0, fw) * .002 * (p.age / 10) * (.5 + avgAff / 100) + G.$(30) * p.age / 6); allow = Math.min(allow, Math.max(0, fw) * .02); par[0].wealth -= allow; }

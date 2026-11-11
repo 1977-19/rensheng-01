@@ -10,8 +10,7 @@ G.UI = { amount: async o => Math.floor((o.max || 0) * .1) || null, confirm: asyn
 (async () => {
   G.life.create({ g: rnd() < .5 ? 'm' : 'f', country: process.argv[4] || 'cn', tier: 3, by: +process.argv[5] || 1975 + Math.floor(rnd() * 20), origin: process.argv[6] || 'worker', talents: ['smart', 'social'] });
   while (!G.S.dead && G.S.p.age < 110) {
-    const acts = G.lifeActs().filter(a => (!a.a || (G.S.p.age >= a.a[0] && G.S.p.age <= a.a[1])) && (!a.era || G.eraOk(a.era)) && (!a.if || a.if()) && !/quit|drop|cheat|skip/.test(a.id));
-    for (let k = 0; k < 2 && acts.length; k++) { const a = acts[Math.floor(rnd() * acts.length)]; if (G.S.p.energy >= (a.e || 0)) { G.S.p.energy -= a.e || 0; await a.run(a); } }
+    for (let k = 0; k < 2; k++) { const acts = G.lifeActs().filter(a => (!a.a || (G.S.p.age >= a.a[0] && G.S.p.age <= a.a[1])) && (!a.era || G.eraOk(a.era)) && (!a.if || a.if()) && !/quit|drop|cheat|skip/.test(a.id)); if (!acts.length) break; const a = acts[Math.floor(rnd() * acts.length)]; if (G.S.p.energy >= (a.e || 0)) { G.S.p.energy -= a.e || 0; await a.run(a); } }
     await G.ageUp();
   }
   G.S.log.forEach(e => { console.log(G.T('{a}岁|Age {a}', { a: e.a }) + ' (' + e.y + ')'); e.t.forEach(l => console.log('   ' + G.T(l))); });
