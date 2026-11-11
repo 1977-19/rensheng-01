@@ -30,6 +30,14 @@
   UI.guard = function () { lastOpen = Date.now(); };
   function tap(fn) { var mine = 0; return function (e) { var now = Date.now(); if (now - lastOpen < 350 || now - mine < 400) return; mine = now; if (G.audio) G.audio.sfx('tap'); G.native.haptic('light'); fn(e); }; }
   UI.tap = tap;
+  // shrink text until it fits its box (long names), then allow it to wrap as a last resort
+  UI.fitText = function (el, max, min) {
+    if (!el || !el.parentNode) return;
+    var box = el.parentNode, w = box.clientWidth - (box.children.length > 1 ? box.lastChild.offsetWidth + 8 : 0);
+    el.style.fontSize = max + 'px'; el.style.whiteSpace = 'nowrap';
+    for (var f = max; f > min && el.scrollWidth > w; f--) el.style.fontSize = (f - 1) + 'px';
+    if (el.scrollWidth > w) { el.style.whiteSpace = 'normal'; el.style.lineHeight = '1.15'; }
+  };
 
   /* ---------- toast ---------- */
   var toastBox;

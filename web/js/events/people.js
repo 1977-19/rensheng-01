@@ -132,11 +132,11 @@
   G.love.proactive = function () {
     var S = G.S, p = S.p; if (p.age < 7 || p.jail) return;
     var cand = N.all(function (n) { return n.alive && N.age(n) >= 6 && (n.unread || 0) < 2 && n.aff > -30 && n.rel !== 'enemy' && n.rel !== 'rival'; });
-    var budget = G.ri(1, p.age < 14 ? 2 : 3);
+    var budget = G.ch(.55) ? 1 : 0; // a message now and then, not an inbox that never empties
     G.shuffle(cand).forEach(function (n) {
       if (budget <= 0) return;
       var close = N.isFamily(n) || n.rel === 'spouse' || n.rel === 'lover' || n.rel === 'admirer' || n.rel === 'inlaw' || n.rel === 'teacher';
-      if (!G.ch(close ? .45 : .25)) return;
+      if (!G.ch((close ? .3 : .15) * (n.rel === 'child' || n.rel === 'grandchild' ? .5 : 1))) return;
       var b = poolFor(n, p); if (!b) return;
       var prm = {}, of = n.of && S.npcs[n.of], kid = n.kid && S.npcs[n.kid];
       if (of) prm.p = of.giv || of.name; if (kid) prm.k = kid.giv || kid.name;

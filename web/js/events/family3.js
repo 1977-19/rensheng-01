@@ -91,10 +91,13 @@
       return res(act, pr ? '{n}去了{c}做{j}，却说：“我本来想靠自己的。”|{n} took the {j} post in {c}, but said: "I wanted to make it on my own."' : '{n}在{c}当上了{j}。|{n} is now a {j} in {c}.', { n: k.name, c: G.C[c].n, j: x.n }, dl);
     } });
     add.push({ id: 'kplan', n: '育儿方案|Parenting Plan', i: '👪', e: 0, run: function (k) { if (G.UI.parentPlan) G.UI.parentPlan(k); return 'cancel'; } });
-    if (G._planAll) return out.filter(function (x) { return x.id !== 'kplan'; }).concat(add.filter(function (x) { return x.id !== 'kplan' && (!x.if || x.if()); }));
-    // on the profile, the parenting tools are gathered behind one button
-    var rest = out.filter(function (x) { return PLAN.indexOf(x.id) < 0; });
-    return [add[add.length - 1]].concat(rest);
+    // everything sits directly on the child's profile — no extra page; duplicates are dropped
+    var all = out.concat(add.filter(function (x) { return x.id !== 'kplan'; }));
+    var drop = ['classes', 'support', 'kjob', 'setup', 'abroad'];
+    if (!all.some(function (x) { return x.id === 'kidclass'; })) drop.splice(drop.indexOf('classes'), 1);
+    if (!all.some(function (x) { return x.id === 'givemoney'; })) drop.splice(drop.indexOf('support'), 1);
+    if (!all.some(function (x) { return x.id === 'match'; })) drop.splice(drop.indexOf('setup'), 1);
+    return all.filter(function (x) { return drop.indexOf(x.id) < 0; });
   };
 
   /* yearly effects: raising style and nanny */

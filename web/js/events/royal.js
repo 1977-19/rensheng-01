@@ -54,7 +54,7 @@
   var rn0 = N.relName;
   N.relName = function (n) {
     var q = p();
-    if (q.flags.monarch && n.rel === 'child') return n.g === 'm' ? '王子|Prince' : '公主|Princess';
+    if (q.flags.monarch && n.rel === 'child' && (!n.illegit || n.ack)) return n.g === 'm' ? '王子|Prince' : '公主|Princess';
     if (q.flags.monarch && n.rel === 'spouse') return n.g === 'm' ? '亲王|Prince Consort' : '王后|Queen Consort';
     return rn0.apply(this, arguments);
   };

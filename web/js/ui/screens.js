@@ -178,7 +178,11 @@
       b.appendChild(h('div', { class: 'grp' }, T('语言|Language')));
       b.appendChild(seg([['zh', '简体中文'], ['tw', '繁體中文'], ['en', 'English']], G.lang, function (x) { s.lang = x; G.setLang(x); }));
       b.appendChild(h('div', { class: 'grp' }, T('外观|Appearance')));
-      b.appendChild(seg([['auto', T('跟随系统|System')], ['light', T('作文本|Notebook')], ['dark', T('黑板|Blackboard')]], s.theme, function (x) { s.theme = x; }));
+      b.appendChild(h('div', { class: 'themes' }, UI.THEMES.map(function (t) {
+        var c = t[2], d = t[3];
+        var sw = h('div', { class: 'sw', style: { background: d ? 'linear-gradient(90deg,' + c[0] + ' 50%,' + d[0] + ' 50%)' : c[0] } }, h('i', { style: { background: d ? 'linear-gradient(90deg,' + c[1] + ' 50%,' + d[1] + ' 50%)' : c[1] } }));
+        return h('button', { class: 'thm' + ((s.theme || 'auto') === t[0] ? ' on' : ''), onclick: tap(function () { s.theme = t[0]; G.saveSettings(); UI.applyTheme(); rec.refresh(); }) }, sw, T(t[1]));
+      })));
       b.appendChild(h('div', { class: 'grp' }, T('声音与反馈|Sound & Feedback')));
       b.appendChild(toggle('背景音乐|Background music', 'music', function () { G.audio.init(); G.audio.music(s.music); }));
       b.appendChild(toggle('音效|Sound effects', 'sfx'));
@@ -209,7 +213,16 @@
       b.appendChild(h('p', { class: 'empty' }, 'My Life v' + G.VERSION));
     });
   };
-  UI.applyTheme = function () { var t = G.settings.theme; if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t); };
+  UI.THEMES = [['auto', '跟随系统|System', ['#a9d3f5', '#ffffff'], ['#1f2547', '#242b4a']], ['sky', '晴空|Clear Sky', ['#a9d3f5', '#ffffff']], ['sakura', '樱花|Sakura', ['#f7bccb', '#fffafb']], ['mint', '薄荷|Mint', ['#a6e0c9', '#fcfffd']], ['night', '星夜|Starry Night', ['#1f2547', '#242b4a']], ['light', '木纹手账|Wood & Paper', ['#8d5d3b', '#fbf6ea']], ['dark', '黑板|Blackboard', ['#3a281d', '#2a2420']]];
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  UI.applyTheme = function () {
+    if (!G.settings.themeV) { if (G.settings.theme === 'light') G.settings.theme = 'auto'; G.settings.themeV = 2; try { G.saveSettings(); } catch (e) { } }
+    var t = G.settings.theme || 'auto';
+    if (t === 'auto') t = mq && mq.matches ? 'night' : 'sky';
+    document.documentElement.setAttribute('data-theme', t);
+    var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--desk2').trim() || '#86bdee');
+  };
+  if (mq && mq.addEventListener) mq.addEventListener('change', function () { if ((G.settings.theme || 'auto') === 'auto') UI.applyTheme(); });
 
   /* ===================== SAVES ===================== */
   UI.saves = function () {

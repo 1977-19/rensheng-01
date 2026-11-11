@@ -36,12 +36,15 @@
     // header
     var hd = M.el.hdr; hd.innerHTML = '';
     hd.appendChild(h('div', { class: 'av', html: G.avatarOf(p) }));
+    // the name gets the whole width; money and energy sit on their own line underneath
+    var nmEl = h('span', { class: 'nmt' }, T(p.name));
     hd.appendChild(h('div', { class: 'who' },
-      h('div', { class: 'nm' }, h('span', null, T(p.name)), v ? h('span', { class: 'vipmark' }, 'VIP' + v) : null),
-      h('div', { class: 'ttl' }, G.C[p.country].flag + ' ' + T(G.title()) + (S.gen > 1 ? ' · ' + T('第{g}代|Gen {g}', { g: S.gen }) : ''))));
-    hd.appendChild(h('div', { class: 'purse' },
-      h('div', { class: 'money num' + (p.money < 0 ? ' neg' : '') }, h('i', { class: 'note' }), G.fm(p.money)),
-      h('div', { class: 'energy' }, h('span', { class: 'lbl' }, T('体力|Energy')), h('span', { class: 'bar' }, h('i', { style: { width: (p.energy / Math.max(1, p.emax) * 100) + '%' } }), h('b', { class: 'num' }, p.energy + '/' + p.emax)))));
+      h('div', { class: 'nm' }, nmEl, v ? h('span', { class: 'vipmark' }, 'VIP' + v) : null),
+      h('div', { class: 'ttl' }, G.C[p.country].flag + ' ' + T(G.title()) + (S.gen > 1 ? ' · ' + T('第{g}代|Gen {g}', { g: S.gen }) : '')),
+      h('div', { class: 'purse2' },
+        h('div', { class: 'money num' + (p.money < 0 ? ' neg' : '') }, h('i', { class: 'note' }), G.fm(p.money)),
+        h('div', { class: 'energy' }, h('span', { class: 'lbl' }, T('体力|Energy')), h('span', { class: 'bar' }, h('i', { style: { width: (p.energy / Math.max(1, p.emax) * 100) + '%' } }), h('b', { class: 'num' }, p.energy + '/' + p.emax))))));
+    requestAnimationFrame(function () { UI.fitText(nmEl, 22, 12); });
     var un = G.chat.unread(), tb = M.el.tools; tb.innerHTML = '';
     tb.appendChild(h('div', { class: 'agechip num' }, T('{a}岁|Age {a}', { a: p.age }), h('small', null, T('{y}年|{y}', { y: G.numEn(S.year) }))));
     tb.appendChild(h('div', { class: 'pills' },

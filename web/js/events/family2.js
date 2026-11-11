@@ -61,13 +61,13 @@
         : '{n}背着新书包，走进了新学校。|{n} walked into the new school with a brand-new backpack.';
       return res(act, t, pr(k), dl);
     } });
-    if (a >= 3) add.push({ id: 'kallow', n: n.allow ? '调整零花钱|Change Allowance' : '定期给零花钱|Set a Yearly Allowance', i: '🪙', e: 0, run: async function (k, act) {
-      var base = a < 12 ? G.$(300) : a < 18 ? G.$(1500) : G.$(8000);
-      var v = await G.UI.amount({ title: G.L('每年给{n}多少零花钱？|How much should {n} get each year?', pr(k)), text: G.L('每年自动从你的账户里扣。填0就是停掉。|Paid automatically every year. Enter 0 to stop.'), max: Math.max(p.money, base * 20), presets: [], def: k.allow || base, zero: true });
+    if (a >= 3) add.push({ id: 'kallow', n: n.allow ? '调整每月零花钱|Change Monthly Allowance' : '每月给零花钱|Give a Monthly Allowance', i: '🪙', e: 0, run: async function (k, act) {
+      var base = a < 12 ? G.$(25) : a < 18 ? G.$(120) : G.$(700);
+      var v = await G.UI.amount({ title: G.L('每月给{n}多少零花钱？|How much should {n} get each month?', pr(k)), text: G.L('每个月自动从你的账户里给。填0就是停掉。|Paid automatically every month. Enter 0 to stop.'), max: Math.max(Math.round(p.money / 12), base * 40), presets: [], def: k.allow ? Math.round(k.allow / 12) : base, zero: true });
       if (v == null) return 'cancel';
-      var old = k.allow || 0; k.allow = Math.max(0, Math.round(v));
-      G.dStart(); G.dPush('aff', N.addAff(k, k.allow > old ? G.clamp(3 + Math.log2(k.allow / base + 1) * 2, 2, 12) : k.allow < old ? -8 : 0)); var dl = G.dEnd();
-      return res(act, !k.allow ? '你停掉了{n}的零花钱。|You stopped {n}\'s allowance.' : k.allow > base * 6 ? '{n}的零花钱比很多大人的工资还多。|{n}\'s allowance is more than many grown-ups earn.' : '从今年起，{n}每年有{m}零花钱。|From this year on, {n} gets {m} a year.', { n: k.name, m: G.M(k.allow) }, dl);
+      var old = k.allow || 0; k.allow = Math.max(0, Math.round(v)) * 12;
+      G.dStart(); G.dPush('aff', N.addAff(k, k.allow > old ? G.clamp(3 + Math.log2(k.allow / (base * 12) + 1) * 2, 2, 12) : k.allow < old ? -8 : 0)); var dl = G.dEnd();
+      return res(act, !k.allow ? '你停掉了{n}的零花钱。|You stopped {n}\'s allowance.' : k.allow > base * 72 ? '{n}每个月的零花钱比很多大人的工资还多。|{n}\'s monthly allowance is more than many grown-ups earn.' : '从这个月起，{n}每月有{m}零花钱。|From this month on, {n} gets {m} a month.', { n: k.name, m: G.M(Math.round(k.allow / 12)) }, dl);
     } });
     if (a >= 22 && (n.unemp || !n.jobT) && n.rel === 'child' && (G.famClass ? G.famClass() >= 2 : G.netWorth() > G.$(3e6))) add.push({ id: 'kjob', n: '托关系安排工作|Pull Strings for a Job', i: '🤝', e: 15, run: async function (k, act) {
       var good = G.pick([['投资公司分析师|Investment Analyst', 140000], ['国企管理岗|State Enterprise Manager', 90000], ['律所助理|Law Firm Associate', 110000], ['家族企业副总|Family Firm VP', 220000]]);
@@ -148,7 +148,6 @@
     var rows = info0.apply(this, arguments);
     if (n.rel === 'child' || n.rel === 'grandchild') {
       if (n.sch && N.age(n) < 18) rows.unshift(['就读|Attends', G.T(SCH[n.sch].n) + (n.schC ? ' ' + G.C[n.schC].flag : '')]);
-      if (n.allow) rows.push(['零花钱|Allowance', G.fm(n.allow) + G.T(' / 年| / yr')]);
       if (n.jobBase && n.jy) rows.push(['工龄|Years working', G.L('{y}年|{y} yr', { y: n.jy })]);
     }
     return rows;
