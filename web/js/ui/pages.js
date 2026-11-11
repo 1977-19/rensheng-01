@@ -166,7 +166,7 @@
     var v = rom ? n.love : n.aff;
     var cits = n.rel === 'child' || n.rel === 'grandchild' || (n.c && G.S && n.c !== G.S.p.country) ? (n.cits && n.cits.length ? n.cits : [n.c || G.S.p.country]) : null;
     return h('button', { class: 'row', onclick: tap(onTap) }, h('div', { class: 'avwrap' }, h('div', { class: 'avs', html: G.avatarOf(n) }), cits ? h('span', { class: 'natf' }, cits.slice(0, 3).map(function (c) { return G.C[c] ? G.C[c].flag : ''; }).join('')) : null),
-      h('div', { class: 'tx' }, h('div', { class: 't' }, T(n.name), n.tags.length ? h('span', { class: 'chip tag' }, T({ rich: '富豪|Rich', celeb: '明星|Star', red: '权贵|Elite', royal: '王室|Royal' }[n.tags[0]])) : null, n.unread ? h('span', { class: 'badge', style: { position: 'static' } }, String(n.unread)) : null),
+      h('div', { class: 'tx' }, h('div', { class: 't' }, T(n.name), n.tags.length ? h('span', { class: 'chip tag' }, T({ rich: '富豪|Rich', celeb: '明星|Star', red: '权贵|Elite', royal: '王室|Royal' }[n.tags[0]])) : null),
         h('div', { class: 's' }, T(N.relName(n)) + ' · ' + (n.alive ? T('{a}岁|{a}', { a: N.age(n) }) : T('已故|Deceased')) + ' · ' + T(n.job || '') + (n.rel === 'child' && n.alive && G.kidScore ? ' · ' + T('潜力{s}|Potential {s}', { s: G.kidScore(n).g }) : ''))),
       h('div', { class: 'rt' }, h('span', null, rom ? '❤️' : '🙂'), h('div', { class: 'mini' }, h('i', { class: v < 0 ? 'neg' : '', style: { width: Math.abs(v) + '%' } }))));
   }

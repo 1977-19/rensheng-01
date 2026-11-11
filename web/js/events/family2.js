@@ -139,7 +139,7 @@
       k.jr = (k.jr || 0) + 1; k.inc = Math.round(k.inc * G.rf(1.2, 1.45)); k.job = jobName(k);
       G.log('{n}升职了，现在是{j}。|{n} was promoted to {j}.', { n: k.name, j: k.job }); N.addAff(k, 2);
     } else if (G.ch(.025 + (k.smarts < 40 ? .03 : 0)) && a < 55) {
-      k.unemp = 1; k.inc0 = k.inc; k.inc = 0; k.job = '待业|Between Jobs';
+      k.lastJob = k.job; k.laidY = S().year; k.unemp = 1; k.inc0 = k.inc; k.inc = 0; k.job = '被裁员·找工作中|Laid off · job hunting';
       Q.push({ id: 'k_laidoff', nid: k.id });
     } else if (!k.founder && a >= 26 && a <= 45 && G.ch(.012 + (k.pers === 'ambit' || k.pers === 'brave' ? .02 : 0))) {
       Q.push({ id: 'k_startup', nid: k.id });
