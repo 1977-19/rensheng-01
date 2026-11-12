@@ -8,7 +8,7 @@
   G.HOUSE_TIER = [1, 4.5, 2, 1, 0.55, 0.3];
 
   G.C = {
-    cn: C({ id: 'cn', n: '中国|China', flag: '🇨🇳', cur: { sym: '¥', code: 'CNY', n: '元|yuan' }, fx: 7.2, pl: 0.45, wg: 0.22,
+    cn: C({ id: 'cn', n: '中国|China', flag: '🏮', cur: { sym: '¥', code: 'CNY', n: '元|yuan' }, fx: 7.2, pl: 0.45, wg: 0.22,
       idx: [[1950, .003], [1960, .0045], [1970, .005], [1980, .008], [1990, .025], [2000, .09], [2010, .32], [2020, .82], [2024, 1]], g: .04,
       life: 78, tax: .12, itax: 0, retire: 60, gay: 0, gamble: false, consc: null, mon: false, dem: false, lang: 'zh',
       top: '国家最高领导人|Paramount Leader', hsq: 1300, skin: [0, 4, 6, 1, 0, 0], names: 'cn', edu: 'cn', imm: 3,

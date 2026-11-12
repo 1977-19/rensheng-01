@@ -1,4 +1,4 @@
-# 我的一生 · My Life
+# 我的一生模拟器 · My Life Simulator
 
 一款中国式（也可以是全世界）人生模拟游戏。支持简体中文、繁體中文、English。
 

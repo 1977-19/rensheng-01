@@ -11,7 +11,7 @@ const html = `<!doctype html>
 <meta name="theme-color" content="#f6f9f3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1d3a2e" media="(prefers-color-scheme: dark)">
 <meta name="format-detection" content="telephone=no">
-<title>我的一生 · My Life</title>
+<title>我的一生模拟器 · My Life Simulator</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>

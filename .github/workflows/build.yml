@@ -57,7 +57,7 @@ jobs:
         run: |
           TAG="v1.1.${{ github.run_number }}"
           gh release create "$TAG" MyLife.ipa \
-            --title "我的一生 My Life $TAG" \
+            --title "我的一生模拟器 My Life Simulator $TAG" \
             --notes "点下面的 MyLife.ipa 下载，然后用万能签签名安装。Download MyLife.ipa below and sign it to install."
 
       - name: Upload IPA artifact

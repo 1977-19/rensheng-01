@@ -255,6 +255,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .start { flex: 1; display: flex; flex-direction: column; padding: calc(var(--safe-t) + 30px) 24px calc(var(--safe-b) + 20px); overflow-y: auto; }
 .start .title { text-align: center; margin: 4vh 0 4vh; }
 .start .title h1 { font-family: var(--serif); font-size: 46px; letter-spacing: .32em; margin: 0 0 0 .32em; font-weight: 700; }
+.start .title h1.long { font-size: clamp(30px, 9.6vw, 40px); letter-spacing: .12em; margin-left: .12em; white-space: nowrap; }
 .start .title .en { color: var(--ink2); font-size: 14px; letter-spacing: .2em; }
 .start .title .tline { width: 220px; margin: 12px auto 0; border-top: 2px solid var(--red); }
 .start .btns { display: flex; flex-direction: column; gap: 10px; max-width: 360px; width: 100%; margin: 0 auto; }
