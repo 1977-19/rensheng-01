@@ -55,7 +55,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="v1.1.${{ github.run_number }}"
+          TAG="v1.2.${{ github.run_number }}"
           gh release create "$TAG" MyLife.ipa \
             --title "我的一生模拟器 My Life Simulator $TAG" \
             --notes "点下面的 MyLife.ipa 下载，然后用万能签签名安装。Download MyLife.ipa below and sign it to install."
@@ -115,19 +115,19 @@ jobs:
         working-directory: android
         env:
           VERSION_CODE: ${{ github.run_number }}
-          VERSION_NAME: 1.1.${{ github.run_number }}
+          VERSION_NAME: 1.2.${{ github.run_number }}
           KS_PASS: ${{ secrets.ANDROID_KS_PASS }}
         run: |
           if [ -z "$KS_PASS" ]; then export KS_PASS="$(cat keystore/password.txt)"; fi
           if [ -n "${{ secrets.ANDROID_KEYSTORE_B64 }}" ]; then echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 -d > "$RUNNER_TEMP/release.jks"; export KS_FILE="$RUNNER_TEMP/release.jks"; fi
           gradle --no-daemon assembleRelease 2>&1 | tee ../android-build.log
-          cp app/build/outputs/apk/release/app-release.apk "../MyLife-1.1.${{ github.run_number }}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "../MyLife-1.2.${{ github.run_number }}.apk"
           ls -la ..
 
       - name: Attach APK to the release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "v1.1.${{ github.run_number }}" "MyLife-1.1.${{ github.run_number }}.apk" --clobber
+        run: gh release upload "v1.2.${{ github.run_number }}" "MyLife-1.2.${{ github.run_number }}.apk" --clobber
 
       - name: Save Android build log
         if: always()
