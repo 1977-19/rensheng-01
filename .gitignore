@@ -4,3 +4,8 @@ Payload/
 node_modules/
 .DS_Store
 *.xcodeproj/
+android/.gradle/
+android/build/
+android/app/build/
+android/app/src/main/assets/
+*.apk
