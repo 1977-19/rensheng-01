@@ -41,7 +41,7 @@
   /* ================= one heir to a throne, chosen by you ================= */
   function crown(k, line) {
     var s = S();
-    k.crowned = 1; k.c = line; k.cits = [line]; k.visa = {}; k.studyIn = null;
+    k.crowned = 1; k.crownY = s.year; k.c = line; k.cits = [line]; k.visa = {}; k.studyIn = null;
     k.job = k.g === 'm' ? '国王|King' : '女王|Queen'; k.jobBase = null; k.jobT = null; k.jr = 0; k.unemp = 0; k.neet = 0;
     k.inc = G.$w(2e6, line); k.wealth = (k.wealth || 0) + G.$(5e7); k.tags = ['royal'];
     (k.kids || []).forEach(function (id) { var g = s.npcs[id]; if (g) { g.tags = ['royal']; g.c = line; g.cits = [line]; } });
@@ -52,7 +52,7 @@
       prep: function (c) {
         var k = c.npc, p = c.p; if (!k || !k.royalLine) return false;
         var line = k.royalLine; p.flags.throneLine = p.flags.throneLine || {}; if (p.flags.throneLine[line]) return false;
-        c.line = line; c.cands = N.rel('child').filter(function (x) { return x.alive && x.royalLine === line && N.age(x) >= 18 && !x.crowned; }).sort(function (a, b) { return G.kidScore(b).v - G.kidScore(a).v; });
+        c.line = line; c.cands = N.rel('child').filter(function (x) { return x.alive && x.royalLine === line && N.age(x) >= 18 && !x.crowned && !x.illegit && !x.adopted; }).sort(function (a, b) { return G.kidScore(b).v - G.kidScore(a).v; });
         if (!c.cands.length) return false;
         c.prm.c = G.C[line] ? G.C[line].n : '';
       },

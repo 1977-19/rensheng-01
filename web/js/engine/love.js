@@ -148,7 +148,7 @@
     var sur = p.g === 'm' ? p.sur : (other && other.g === 'm' ? other.sur : p.sur);
     var cul = p.cul || G.C[p.country].names;
     var sug = [0, 1, 2].map(function () { return G.genGiven(cul, g, S.year); });
-    var txt = await G.UI.input({ title: G.L('给宝宝起名|Name the Baby'), text: G.L('是个{g}！给{h}起个名字吧。|It\'s a {g}! Give {h} a name.', { g: g === 'm' ? '男孩|boy' : '女孩|girl', h: g === 'm' ? '他|him' : '她|her' }), sug: G.nameSeries ? G.nameSeries(cul, sur, g, S.year, N.rel('child')) : sug.map(function (s) { return G.mkName(cul, sur, s, g); }), def: '', require: G.L('先写一个名字，或者点一个推荐的名字。|Type a name first, or tap one of the suggestions.') });
+    var txt = await G.UI.input({ title: G.L('给宝宝起名|Name the Baby'), text: G.L('是个{g}！给{h}起个名字吧。|It\'s a {g}! Give {h} a name.', { g: g === 'm' ? '男孩|boy' : '女孩|girl', h: g === 'm' ? '他|him' : '她|her' }), groups: G.nameGroups ? G.nameGroups(cul, sur, g, S.year, N.rel('child')) : null, sug: G.nameSeries ? G.nameSeries(cul, sur, g, S.year, N.rel('child')) : sug.map(function (s) { return G.mkName(cul, sur, s, g); }), def: '', require: G.L('先写一个名字，或者点一个推荐的名字。|Type a name first, or tap one of the suggestions.') });
     var name = txt || G.mkName(cul, sur, sug[0], g);
     var lk = other ? Math.round((p.st.looks + other.looks) / 2 + G.ri(-12, 12)) : G.ri(30, 80);
     var sm = other ? Math.round((p.st.smarts + other.smarts) / 2 + G.ri(-12, 12)) : G.ri(30, 80);

@@ -56,6 +56,7 @@
     hd.appendChild(h('div', { class: 'who' },
       h('div', { class: 'nm' }, nmEl),
       h('div', { class: 'ttl' }, h('span', null, G.C[G.residence ? G.residence() : p.country].flag + ' ' + T(G.title()) + (S.gen > 1 ? ' · ' + T('第{g}代|Gen {g}', { g: S.gen }) : ''))),
+      (G.megaDone && (G.megaDone() > 0 || (S.lineage || []).length > 0)) ? h('button', { class: 'legacy', onclick: tap(function (e) { e.stopPropagation(); if (UI.familyTree) UI.familyTree(); }) }, T('📜 家族第{g}代|📜 Generation {g}', { g: S.gen || 1 }) + (G.megaDone() ? T(' · 🏛️ 百亿项目{m}项| · 🏛️ {m} mega projects', { m: G.megaDone() }) : '')) : null,
       h('div', { class: 'purse2' },
         h('div', { class: 'money num' + (p.money < 0 ? ' neg' : '') }, h('i', { class: 'note' }), G.fm(p.money)),
         h('div', { class: 'energy' }, h('span', { class: 'lbl' }, T('体力|Energy')), h('span', { class: 'bar' }, h('i', { style: { width: (p.energy / Math.max(1, p.emax) * 100) + '%' } })), h('b', { class: 'num' }, p.energy + '/' + p.emax)))));
@@ -94,7 +95,7 @@
   }
   async function menu() {
     if (UI.busy || G.busy) return;
-    var items = [{ t: '💾 存档|💾 Saves', f: UI.saves }, { t: '🏆 成就|🏆 Achievements', f: UI.achievements }, { t: '🏛️ 名人堂|🏛️ Hall of Fame', f: UI.records }, { t: '⚙️ 设置|⚙️ Settings', f: UI.settingsPage }];
+    var items = [{ t: '💾 存档|💾 Saves', f: UI.saves }, { t: '🏆 成就|🏆 Achievements', f: UI.achievements }, { t: '🏛️ 名人堂|🏛️ Hall of Fame', f: UI.records }, { t: '📜 家族谱系|📜 Family Tree', f: function () { UI.familyTree(); } }, { t: '🕯️ 扫墓|🕯️ Visit the Graves', f: function () { UI.graves(); } }, { t: '⚙️ 设置|⚙️ Settings', f: UI.settingsPage }];
     if (G.canRewind()) items.push({ t: '⏳ 时光倒流到今年年初（VIP）|⏳ Rewind to start of year (VIP)', f: function () { if (G.rewind()) { UI.toast('时光倒流！|Time rewinds!'); UI.main(); } } });
     items.push({ t: '🪦 结束这段人生|🪦 End this life', f: async function () { if (await UI.confirm('结束人生|End This Life', '确定要结束这段人生，查看结局吗？|End this life and see the ending?')) { G.die('自愿结束了人生旅程|Chose to end the journey'); G.ending.run(); } } });
     items.push({ t: '🏠 回到首页|🏠 Home', f: function () { G.save('auto'); UI.start(); } });

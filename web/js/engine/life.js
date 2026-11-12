@@ -223,7 +223,7 @@
     var est = Math.max(0, G.netWorthOf(old, A));
     var share = estateShare == null ? 1 : estateShare;
     var tax = (G.C[old.country].itax || 0);
-    var inh, keep = share >= 1 && !(spouse && spouse.alive);
+    var inh, keep = share >= 1; // the chosen heir keeps the whole estate
     if (keep) { // sole heir keeps everything, pays estate tax from cash
       inh = Math.round(est * (1 - tax));
       np.money = Math.round(money - est * tax);

@@ -736,3 +736,37 @@ html, body { background: var(--desk2); }
 .natf { position: absolute; right: -6px; bottom: -4px; font-size: 12px; line-height: 1; padding: 1px 2px; border-radius: 6px; background: var(--paper); box-shadow: 0 1px 2px rgba(0, 0, 0, .2); letter-spacing: -1px; }
 .veil .modal .opt { animation: optin var(--tapd, .7s) ease both; }
 @keyframes optin { 0% { opacity: .35; } 100% { opacity: 1; } }
+/* v1.2 — pickers scroll, premium gold, legacy, naming groups, the cemetery */
+.modal { max-height: calc(100% - 16px); }
+.modal .mb { min-height: 0; flex: 1 1 auto; }
+.veil .opt.prem, .veil .row.prem { border: 2px solid #c9a24a !important; background: linear-gradient(135deg, #fff7dc, #f6e3a6) !important; color: #5a3d0c !important; box-shadow: 0 2px 0 #b8913f, 0 0 0 3px rgba(233, 196, 106, .25); position: relative; }
+.veil .opt.prem::after, .veil .row.prem::after { content: "★"; position: absolute; right: 10px; top: 6px; font-size: 12px; color: #b8913f; }
+.legacy { display: inline-block; margin-top: 5px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; color: #5a3d0c; background: linear-gradient(135deg, #fff1c4, #e9c46a); border: 1px solid #b8913f; }
+.ngrp { margin-top: 10px; } .nlab { font-size: 12px; color: var(--ink3); letter-spacing: .06em; margin-bottom: 2px; }
+.inp::placeholder { color: var(--ink3); font-size: 14px; }
+.row.anc .ic.gen { width: auto; min-width: 54px; font-size: 12px; font-weight: 800; color: var(--brown); font-family: var(--serif); }
+.row.anc.me { background: var(--yellow-soft); }
+.card.fam .megal { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+/* the cemetery: the whole screen goes grey and dark */
+.sheet.mourn { background: #1d1f22 !important; color: #d7d9dc; }
+.sheet.mourn .sh { background: #121315 !important; background-image: none !important; color: #e3e5e8 !important; border-bottom: 2px solid #3a3d42 !important; }
+.sheet.mourn .sh h3, .sheet.mourn .sh .back, .sheet.mourn .sh button { color: #e3e5e8 !important; text-shadow: none !important; }
+.sheet.mourn .sb { background: #1d1f22 !important; background-image: radial-gradient(120% 60% at 50% 0%, rgba(255, 255, 255, .05), transparent 70%) !important; }
+.sheet.mourn .hint, .sheet.mourn .empty { color: #8d9197; }
+.sheet.mourn .card { background: #26292d; border-color: #3a3d42; color: #cfd2d6; }
+.sheet.mourn .card h5 { color: #e3e5e8; }
+.tombs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tomb { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 14px 6px 10px; border-radius: 40px 40px 8px 8px; background: linear-gradient(#55595f, #3c4045); border: 1px solid #6a6e74; color: #e7e9ec; box-shadow: inset 0 2px 0 rgba(255, 255, 255, .08), 0 4px 8px rgba(0, 0, 0, .4); }
+.tomb .tav { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; filter: grayscale(1) contrast(.9); opacity: .9; }
+.tomb .tav svg { width: 100%; height: 100%; display: block; }
+.tomb b { font-family: var(--serif); font-size: 13.5px; text-align: center; line-height: 1.2; }
+.tomb span { font-size: 11px; color: #b5b9be; } .tomb small { font-size: 10.5px; color: #9a9ea4; }
+.stone { margin: 10px auto 14px; max-width: 280px; padding: 22px 16px 18px; border-radius: 120px 120px 10px 10px; background: linear-gradient(#5d6167, #3b3f44); border: 1px solid #72767c; text-align: center; color: #eceef0; box-shadow: inset 0 3px 0 rgba(255, 255, 255, .08), 0 10px 24px rgba(0, 0, 0, .5); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.stone .sav { width: 74px; height: 74px; border-radius: 50%; overflow: hidden; filter: grayscale(1); border: 2px solid #8a8e94; }
+.stone .sav svg { width: 100%; height: 100%; display: block; }
+.stone b { font-family: var(--serif); font-size: 22px; letter-spacing: .08em; }
+.stone .sy { font-size: 13px; color: #c3c6ca; } .stone .sr { font-size: 12.5px; color: #a7abb0; }
+.stone .sc { margin-top: 4px; font-size: 13.5px; color: #e0c9a0; } .stone .sf { font-size: 13px; }
+.gacts { display: flex; flex-direction: column; gap: 8px; }
+.gact { padding: 12px; border-radius: 12px; background: #2b2e33; border: 1px solid #44484e; color: #e3e5e8; font-size: 15px; text-align: left; }
+.gact:active { background: #34383d; }
