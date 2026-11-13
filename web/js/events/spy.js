@@ -238,7 +238,7 @@
       o: [{ t: '凭直觉做出判断|Trust your instincts', run: async function (c) {
         var r = await G.spyGame({ name: CASES[c.prm.k].t, fixed: [c.prm.k] }), sp = c.p.spy; if (!sp) return '';
         if (r.ok) { var g = G.ri(10, 20) + (r.great ? 10 : 0); merit(g); heat(-6); var m = pay(G.ri(10, 40) * 1000 * (G.spyMole() ? 1.6 : 1)); return G.L('你的判断是对的。功绩+{g}，奖金{m}。|Your instincts were right. Merit +{g}, bonus {m}.', { g: g, m: G.M(m) }); }
-        heat(G.ri(12, 22)); c.add('stress', 8); return G.L('你看错了。对方注意到了你。（暴露风险{h}%）|You read it wrong. They noticed you. (Exposure risk {h}%)', { h: Math.round(sp.heat) });
+        heat(G.ri(12, 22) * (sp.youth ? .5 : 1)); c.add('stress', 8); return G.L('你看错了。对方注意到了你。（暴露风险{h}%）|You read it wrong. They noticed you. (Exposure risk {h}%)', { h: Math.round(sp.heat) });
       } }] },
     { id: 'spy_arrest', sys: 1, title: '凌晨的敲门声|A Knock Before Dawn', icon: '🚨', bad: 1,
       prep: function (c) { if (!c.p.spy || c.p.jail) return false; c.prm.mole = G.spyMole() ? 1 : 0; c.prm.a = G.agencyName(c.p.spy.ag); },
@@ -323,7 +323,7 @@
     if (p.flags.swapTo && !p.jail) { var to = p.flags.swapTo; p.flags.swapTo = null; if (to !== p.country) { G.moveTo(to); p.cits = [to]; } G.major('在交换中获释|Freed in a prisoner exchange'); G.log('你在一座桥上被交换回来。{a}给了你一个新名字和一套房子。|You were traded on a bridge. {a} gave you a new name and a home.', { a: G.agencyName(to) }); pay(300000); }
     if (p.spy && !p.jail) {
       var sp = p.spy; sp.yrs++; sp.heat = sp.heat || 0;
-      if (sp.youth && p.age >= 18) { sp.youth = 0; sp.rank = Math.max(sp.rank, 1); G.major('正式成为{a}的特工|Became a full agent of {a}', { a: G.agencyName(sp.ag) }); }
+      if (sp.youth && p.age >= 18) { sp.youth = 0; sp.rank = Math.max(sp.rank, 1); sp.heat = Math.min(sp.heat, 20); G.major('正式成为{a}的特工|Became a full agent of {a}', { a: G.agencyName(sp.ag) }); }
       if (sp.youth) pay(3000);
       else pay(SPY_PAY[sp.rank] * (G.spyMole() ? 1.6 : 1));
       sp.merit += G.ri(2, 6);
@@ -332,7 +332,7 @@
       if (!sp.youth && (sp.heat >= 100 || G.ch(Math.max(0, sp.heat - 25) / 240 * (G.spyMole() ? 1.5 : 1)))) q('spy_arrest');
     } else if (!p.jail && !p.spy && !p.flags.exSpy) {
       var cn = p.country === 'cn';
-      if (!p.flags.spyYouth && p.age >= 11 && p.age <= 15 && p.st.smarts >= (cn ? 62 : 72) && G.ch(cn ? .16 : .07)) { p.flags.spyYouth = 1; q('spy_youth', null, { ag: pickAg(p.origin === 'spyfam' ? .9 : .55) }); }
+      if (!p.flags.spyYouth && p.age >= 11 && p.age <= 15 && p.st.smarts >= (cn ? 62 : 72) && G.ch(cn ? .08 : .04)) { p.flags.spyYouth = 1; q('spy_youth', null, { ag: pickAg(p.origin === 'spyfam' ? .9 : .55) }); }
       else if (!p.flags.spyAsked && p.age >= 20 && p.age <= 45 && p.money < G.$(800) && !p.pol && !p.mil && G.ch(.3)) { p.flags.spyAsked = 1; q('spy_recruit', null, { ag: pickAg(.6) }); }
       else if (!p.flags.spyHigh && high() && G.ch(.08)) { p.flags.spyHigh = 1; q('spy_high', null, { ag: pickAg(p.flags.spyReported ? .8 : .4) }); }
     }

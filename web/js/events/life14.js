@@ -169,7 +169,7 @@
       if (m[1] >= 8000) { var sh = N.make({ rel: 'friend', g: 'm', age: G.ri(28, 50), c: 'in', name: G.pick(['丹增|Tenzing', '明玛|Mingma', '普巴|Phurba', '尼玛|Nima', '帕桑|Pasang']), sur: '夏尔巴|Sherpa', job: '夏尔巴向导|Sherpa Guide', aff: 50 }); sh.pin = 1; G.log('你的夏尔巴向导是{n}。|Your Sherpa guide is {n}.', { n: sh.name }); }
       if (G.ch(risk)) { if (G.ch(.5)) { G.die(G.L('攀登{m}时遇难|Died climbing {m}', { m: m[0] })); return; } G.addStat('health', -25); return G.result(a.n, '暴风雪中你失去了两根脚趾，被直升机救了下来。|You lost two toes in a blizzard and were airlifted off the mountain.', null, [], a.i); }
       if (G.ch(m[1] > 8000 ? .35 : m[1] > 6000 ? .2 : .05)) { var t0 = hob('climber'); return G.result(a.n, G.L('离顶峰只剩三百米，天气变了。你转身下撤——活着最重要。|Three hundred metres from the summit the weather turned. You turned back — staying alive comes first.') + t0, null, [], a.i); }
-      var t = hob('climber', m[1] >= 8000 ? 4 : m[1] >= 5000 ? 2 : 1); G.dStart(); G.addStat('happy', 10 + Math.round(m[1] / 600)); if (m[1] >= 8000) { G.addStat('fame', 8); G.major('登顶{m}|Summited {m}', { m: m[0] }); } var dl = G.dEnd();
+      var t = hob('climber', m[1] >= 8000 ? 4 : m[1] >= 5000 ? 2 : 1); G.dStart(); G.addStat('happy', 10 + Math.round(m[1] / 600)); if (m[1] >= 8000) { p.flags.summit8k = 1; G.addStat('fame', 8); G.major('登顶{m}|Summited {m}', { m: m[0] }); } var dl = G.dEnd();
       return G.result(a.n, G.L('你站在了{m}的顶峰（{h}米）。世界在脚下。|You stood on the summit of {m} ({h} m). The world lay at your feet.', { m: m[0], h: m[1] }) + t, null, dl, a.i);
     } });
     var fs = fun.items.filter(function (x) { return x.id === 'fish'; })[0];
