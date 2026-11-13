@@ -22,11 +22,6 @@
     H(2022, 'all', '全球通胀飙升，物价让人头疼。|Global inflation surges. Prices are a headache.', { mk: -.18, tech: -.3 }),
     H(2023, 'all', '生成式人工智能爆发，聊天机器人火遍全球。|Generative AI explodes; chatbots go viral worldwide.', { tech: .4 }),
     // ---------- China ----------
-    H(1958, 'cn', '“大跃进”运动开始，到处都在炼钢。|The Great Leap Forward begins; backyard furnaces everywhere.'),
-    H(1959, 'cn', '三年困难时期开始，粮食短缺，人人挨饿。|The Three Years of Great Famine begin. Food is scarce.', { h: -12, hap: -10 }),
-    H(1960, 'cn', '饥荒仍在持续，一家人常常吃不饱。|The famine continues; the family often goes hungry.', { h: -10, hap: -8 }),
-    H(1966, 'cn', '“文化大革命”开始，学校停课，社会动荡。|The Cultural Revolution begins. Schools close; society is in upheaval.', { hap: -8 }),
-    H(1968, 'cn', '“上山下乡”运动开始，大批城市青年被送往农村。|The Down to the Countryside Movement sends city youth to rural areas.'),
     H(1976, 'cn', '唐山发生大地震，举国悲痛。|A massive earthquake strikes Tangshan. The nation mourns.', { hap: -4 }),
     H(1977, 'cn', '高考恢复了！无数人重新拿起课本。|The Gaokao is restored! Countless people pick up their textbooks again.', { hap: 5 }),
     H(1978, 'cn', '改革开放开始，国家迎来巨大变化。|Reform and Opening Up begins. The country starts to transform.', { hap: 4 }),

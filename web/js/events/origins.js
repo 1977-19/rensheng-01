@@ -330,7 +330,7 @@
       O('拼命跑|Run for your life', async function (c) { var r = await c.game('sprint', { name: '逃跑|Escape' }); if (r.win) return '你冲进了路边的便利店，保镖随后赶到。|You burst into a convenience store; your bodyguards arrived seconds later.'; H.fx(c, { happy: -15, health: -5 }); c.p.flags.trauma = 1; return '你被拖上了车。三天后，父亲付了巨额赎金，你才被放回来。|You were dragged into the van. Three days later, after your father paid a huge ransom, you were released.'; }),
       O('大喊救命|Scream for help', R('路人围了过来，面包车一溜烟开走了。|Passersby rushed over; the van sped away.', { happy: -6 }))
     ], { bad: 1 }),
-    OE('or_ty_paparazzi', ['tycoon', 'richest'], [16, 30], '富三代上热搜|Trending: The Heir', '📸', '你在夜店的照片被拍到了，标题是《XX集团继承人的奢靡生活》。|Paparazzi snapped you at a nightclub. Headline: "The Heir\'s Lavish Life."', [
+    OE('or_ty_paparazzi', ['tycoon', 'richest'], [16, 30], '富三代上热搜|Trending: The Heir', '📸', '你在私人派对上的照片被拍到了，标题是《XX集团继承人的奢靡生活》。|Paparazzi snapped you at a private party. Headline: "The Heir\'s Lavish Life."', [
       O('无视|Ignore it', R('热度过几天就散了。|It blew over in a few days.', { fame: 3 })),
       O('发声明道歉|Issue an apology', R('集团股价稳住了，父亲松了口气。|The company\'s stock held steady; your father relaxed.', { par: 4, rep: 2 })),
       O('借势营销自己|Use the attention to build your brand', R('你开了社交账号，一夜涨粉百万。|You launched a social account and gained a million followers overnight.', { fame: 10 }), { era: { g: 2008, cn: 2012 } })

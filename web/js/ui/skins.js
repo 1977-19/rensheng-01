@@ -56,7 +56,7 @@
     '<circle cx="300" cy="30" r="11" fill="#f6e7c1"/><circle cx="306" cy="26" r="10" fill="#2c3360"/>' +
     '<path d="M0 104 C60 92 120 96 180 100 C240 104 300 90 360 98 V120 H0 Z" fill="#141c38"/>' +
     '<g fill="#0f1630"><path d="M56 104 V78 H62 V74 H68 V78 H74 V74 H80 V78 H86 V74 H92 V78 H98 V104 Z"/><path d="M112 104 V54 H116 V50 H120 V54 H124 V50 H128 V54 H132 V50 H136 V54 H140 V104 Z"/><path d="M140 104 V70 H146 V66 H152 V70 H158 V66 H164 V70 H170 V66 H176 V70 H182 V66 H188 V70 H194 V104 Z"/><rect x="194" y="58" width="18" height="46"/><path d="M192 60 H214 V55 H210 V58 H206 V55 H200 V58 H196 V55 H192 Z"/><path d="M212 104 V80 H220 V76 H226 V80 H232 V76 H238 V80 H246 V104 Z"/><rect x="250" y="68" width="12" height="36"/><path d="M248 70 L256 58 L264 70 Z"/></g>' +
-    '<path d="M126 50 V30" stroke="#0f1630" stroke-width="1.6"/><path d="M126.8 31 H144 V42 H126.8 Z" fill="#24408e"/><path d="M126.8 31 L144 42 M144 31 L126.8 42" stroke="#fff" stroke-width="1.4"/><path d="M135.4 31 V42 M126.8 36.5 H144" stroke="#fff" stroke-width="2.6"/><path d="M135.4 31 V42 M126.8 36.5 H144" stroke="#c9302c" stroke-width="1.3"/>' +
+    '<path d="M126 50 V38" stroke="#0f1630" stroke-width="1.6"/><circle cx="126" cy="37" r="2.2" fill="#f2c76b"/>' +
     '<g fill="#f2c76b">' + [[118, 62], [130, 62], [118, 76], [130, 76], [148, 80], [160, 80], [172, 80], [184, 80], [200, 68], [200, 82], [66, 86], [80, 86], [222, 88], [234, 88], [254, 80]].map(function (q) { return '<rect x="' + q[0] + '" y="' + q[1] + '" width="4" height="6" rx="2"/>'; }).join('') + '</g>' +
     '<rect y="108" width="360" height="12" fill="#0b1128"/><path d="M0 108 C90 104 270 112 360 106" stroke="#d8b45a" stroke-width=".8" fill="none" opacity=".5"/>');
   SC.jp = scene(sky('jps', '#f3e6d6', '#f7d6bf') + '<circle cx="292" cy="34" r="15" fill="#c8372d"/>' +
@@ -69,7 +69,7 @@
     '<rect x="24" y="56" width="312" height="48" fill="#efe3c8" stroke="#b9a37a" stroke-width="1"/><rect x="24" y="92" width="312" height="12" fill="#d9c7a0"/><rect x="20" y="50" width="320" height="6" fill="#e2d2ad"/>' + rep(26, function (i) { return '<rect x="' + (28 + i * 12) + '" y="46" width="3" height="5" fill="#cdbb92"/>'; }) +
     '<rect x="20" y="44" width="40" height="60" fill="#e8dbbe" stroke="#b9a37a"/><rect x="300" y="44" width="40" height="60" fill="#e8dbbe" stroke="#b9a37a"/><path d="M150 50 L180 34 L210 50 Z" fill="#e8dbbe" stroke="#b9a37a"/><circle cx="180" cy="44" r="4" fill="#fff8e6" stroke="#b9a37a"/>' +
     '<g fill="#6b5a44">' + rep(13, function (i) { var x = 36 + i * 23; return '<path d="M' + x + ' 88 V76 a4 4 0 0 1 8 0 V88 Z"/><rect x="' + x + '" y="62" width="8" height="8"/>'; }) + '</g>' +
-    '<path d="M180 34 V20" stroke="#6b5a44" stroke-width="1.4"/><rect x="180.7" y="20" width="14" height="3" fill="#b8202e"/><rect x="180.7" y="23" width="14" height="4" fill="#f2c230"/><rect x="180.7" y="27" width="14" height="3" fill="#b8202e"/>' +
+    '<path d="M180 34 V26" stroke="#6b5a44" stroke-width="1.4"/><circle cx="180" cy="25" r="2.4" fill="#d8b45a"/>' +
     '<rect y="104" width="360" height="16" fill="#e2c99a"/><path d="M0 110 H360" stroke="#d1b480" stroke-dasharray="6 6"/><path d="M100 104 V86 M260 104 V86" stroke="#3a3328" stroke-width="2"/><circle cx="100" cy="85" r="3" fill="#f2c76b"/><circle cx="260" cy="85" r="3" fill="#f2c76b"/>');
   SC.th = scene(sky('ths', '#f2c76a', '#fbeccb') + '<circle cx="64" cy="30" r="13" fill="#fff3cf"/>' +
     '<g fill="#3e6b3e"><path d="M18 104 C18 80 20 70 22 60" stroke="#5a4a2e" stroke-width="2" fill="none"/><path d="M22 60 C12 58 6 62 2 66 M22 60 C30 54 38 56 42 60 M22 60 C18 50 12 48 8 48 M22 60 C26 50 34 48 38 50" stroke="#3e6b3e" stroke-width="3.2" fill="none" stroke-linecap="round"/></g>' +
@@ -119,7 +119,7 @@
     '<rect x="148" y="52" width="64" height="48" fill="#f1efe9" stroke="#b8b4aa"/><path d="M144 54 L180 40 L216 54 Z" fill="#e6e2d8" stroke="#b8b4aa"/><rect x="156" y="30" width="48" height="12" fill="#ebe8e0" stroke="#b8b4aa"/><path d="M152 32 C152 10 208 10 208 32 Z" fill="#f4f2ec" stroke="#b8b4aa"/><path d="M180 12 V2" stroke="#7d7a72" stroke-width="1.6"/><circle cx="180" cy="12" r="2.4" fill="#d8b45a"/>' +
     '<g fill="#e6e2d8" stroke="#b8b4aa" stroke-width=".7">' + rep(5, function (i) { return '<rect x="' + (154 + i * 11.5) + '" y="56" width="4" height="44"/>'; }) + '</g>' +
     '<path d="M120 100 H240 L250 112 H110 Z" fill="#dcd8ce"/><path d="M114 106 H246" stroke="#c4c0b6"/><rect y="112" width="360" height="8" fill="#8fb07a"/>' +
-    '<path d="M28 112 V44" stroke="#6a665e" stroke-width="1.5"/><path d="M28.7 45 H50 V58 H28.7 Z" fill="#1b2a4a"/><path d="M39 48 L40.2 51 L43.4 51.1 L40.9 53 L41.8 56 L39 54.2 L36.2 56 L37.1 53 L34.6 51.1 L37.8 51 Z" fill="#d8b45a"/>' +
+    '' +
     '<g fill="#5f8a52"><circle cx="16" cy="100" r="10"/><circle cx="342" cy="98" r="12"/></g>');
   SC.rural = scene(sky('rus', '#f8d6a2', '#fdf1d8') + '<circle cx="250" cy="40" r="15" fill="#f2a33a" opacity=".9"/><path d="M118 30 q4 -3 8 0 q4 -3 8 0 M142 42 q3 -2.4 6 0 q3 -2.4 6 0" fill="none" stroke="#6b4a26" stroke-width="1.3" stroke-linecap="round"/>' +
     '<path d="M0 74 C40 54 80 50 120 62 C160 74 190 52 230 50 C270 48 310 66 360 58 V120 H0 Z" fill="#b6c78a"/>' +

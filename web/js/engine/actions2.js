@@ -269,8 +269,7 @@
         var sp = N.spouse(), mlist = [
           { t: G.L('工作签证（需本科、有一技之长）|Skilled-worker visa (degree required)'), ch: p.edu.deg >= 4 ? .25 + p.st.smarts / 300 + (G.has('polyglot') ? .15 : 0) + (p.langs.indexOf(G.C[to].lang) >= 0 ? .15 : 0) : 0 },
           { t: G.L('投资移民（{m}）|Investor visa ({m})', { m: G.M(G.$(1000000)) }), ch: G.netWorth() >= G.$(1000000) ? .85 : 0, cost: G.$(1000000) },
-          { t: G.L('配偶移民|Spousal visa'), ch: sp && sp.c === to ? .9 : 0 },
-          { t: G.L('偷渡（违法）|Smuggled in (illegal)'), ch: .45, ill: 1, cost: G.$(15000) }
+          { t: G.L('配偶移民|Spousal visa'), ch: sp && sp.c === to ? .9 : 0 }
         ];
         var j = await G.UI.pick({ title: G.L('移民方式|Method'), items: mlist.map(function (m) { return { t: m.t, sub: m.ch ? G.L('成功率约{x}%|~{x}% chance', { x: Math.round(m.ch * 100) }) : G.L('不符合条件|Not eligible'), dis: !m.ch || (m.cost && p.money < m.cost), icon: '🛂' }; }) });
         if (j < 0) return 'cancel'; var m = mlist[j];

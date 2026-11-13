@@ -192,7 +192,7 @@
       t: function (c) { var f = c.p.fc, F = G.FAME[f.id]; return G.L('你的人气越来越高，现在你是{r}了！|Your popularity is soaring — you are now a {r}!', { r: F.r[f.rank + 1] }); },
       run: function (c) { var f = c.p.fc; f.rank++; f.yr = 0; c.add('fame', 5 + f.rank * 2); c.add('happy', 8); G.major('成为{r}|Became a {r}', { r: G.FAME[f.id].r[f.rank] }); G.inc('famerank'); } },
     { id: 'sys_scandal', sys: 1, title: '负面新闻|Scandal', icon: '📰', bad: 1,
-      t: function (c) { return G.pick(['狗仔队拍到了你深夜和陌生人进出酒店。|Paparazzi caught you entering a hotel late at night with a stranger.', '有人爆料你耍大牌、欺负工作人员。|Someone claims you threw tantrums and bullied staff.', '你多年前的一条不当言论被翻了出来。|An inappropriate post you made years ago resurfaced.', '网上传出你偷税漏税的消息。|Rumors spread online that you evaded taxes.']); },
+      t: function (c) { return G.pick(['有人爆料你耍大牌、欺负工作人员。|Someone claims you threw tantrums and bullied staff.', '你多年前的一条不当言论被翻了出来。|An inappropriate post you made years ago resurfaced.', '网上传出你偷税漏税的消息。|Rumors spread online that you evaded taxes.']); },
       o: [
         { t: '发长文道歉|Post a long apology', run: function (c) { var f = c.p.fc; f.fans = Math.round(f.fans * .85); c.add('fame', -3); c.add('happy', -5); return '你诚恳道歉，风波渐渐平息。|You apologized sincerely, and the storm slowly passed.'; } },
         { t: '花钱公关压热搜|Pay PR to bury it', run: function (c) { var cost = c.$(50000) * (c.p.fc.rank); if (c.pay(cost)) { c.add('fame', -1); return G.L('你花了{m}公关，事情被压了下去。|You spent {m} on PR and the story was buried.', { m: G.M(cost) }); } var f = c.p.fc; f.fans = Math.round(f.fans * .6); c.add('fame', -8); return '钱不够公关，事情越闹越大。|You couldn\'t afford PR, and it blew up.'; } },

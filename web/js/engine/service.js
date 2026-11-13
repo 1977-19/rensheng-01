@@ -211,7 +211,7 @@
       o: [
         { t: '入伍服役|Report for duty', run: function (c) { c.p.flags.consDone = 1; var cs = G.C[c.p.country].consc; if (cs.lottery && G.ch(1 - cs.lottery)) return '你抽到了黑签，不用当兵！|You drew a black card — exempt!'; ML.enlist('army', true); if (G.school.inSchool()) { c.p.edu.paused = c.p.edu.stage; } return '你剃了寸头，踏入了军营。|You got a buzz cut and walked into the barracks.'; } },
         { t: '申请缓役（继续读书）|Defer for school', if: function (c) { return G.school.isStudent(); }, run: function (c) { c.p.flags.consDefer = 1; return '你申请缓役，先完成学业。|You deferred service to finish your studies.'; } },
-        { t: '想办法逃避兵役|Dodge the draft', sub: '违法|Illegal', run: function (c) { c.p.flags.consDone = 1; if (G.ch(.4)) { c.add('karma', -10); return '你用了些手段躲过了兵役，但心里有些不安。|You found a way out, but it nags at you.'; } return G.crime.arrest(c, '逃避兵役|Draft evasion', 2); } }
+        { t: '想办法逃避兵役|Dodge the draft', sub: '违法|Illegal', if: function () { return false; }, run: function (c) { c.p.flags.consDone = 1; if (G.ch(.4)) { c.add('karma', -10); return '你用了些手段躲过了兵役，但心里有些不安。|You found a way out, but it nags at you.'; } return G.crime.arrest(c, '逃避兵役|Draft evasion', 2); } }
       ] },
     { id: 'sys_draft', sys: 1, title: '征兵通知|Draft Notice', icon: '✉️', y: [1965, 1972],
       t: '你收到了征兵通知，可能会被派往越南战场。|You received a draft notice. You may be sent to Vietnam.',

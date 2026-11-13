@@ -66,8 +66,6 @@
     if (dynasty()) {
       // powerful fathers (and now and then mothers) have children outside the marriage — and you know exactly who they are
       var dad = N.rel('father')[0], mom = N.rel('mother')[0];
-      if (dad && !dad.sep && G.ch(q.origin === 'royal' ? .3 : .42)) mkHalf(dad, q.birthYear - G.ri(1, 10));
-      if (mom && !mom.sep && G.ch(.1)) mkHalf(mom, q.birthYear - G.ri(1, 8));
       sibs().forEach(function (s) { parents().forEach(function (par) { favOf(s, par); }); });
     }
     var L = G.succ.line(); if (L[0] && L[0].npc && isRoyal()) L[0].npc.heir = 1; else if (L[0] && L[0].me && isRoyal()) q.flags.crownHeir = 1;

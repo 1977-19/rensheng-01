@@ -97,7 +97,7 @@
   G.POLICE = { r: R('警员|Police Officer,警长|Senior Officer,警司|Sergeant,督察|Inspector,高级督察|Chief Inspector,警司长|Superintendent,总警司|Chief Superintendent,副局长|Deputy Commissioner,警察局长|Police Commissioner'),
     pay: [46000, 54000, 64000, 78000, 94000, 115000, 140000, 175000, 225000] };
   G.CIVIL = {
-    cn: R('科员|Clerk,副科长|Deputy Section Chief,科长|Section Chief,副处长|Deputy Division Director,处长|Division Director,副局长|Deputy Bureau Director,局长|Bureau Director,副部长|Vice Minister,部长|Minister'),
+    cn: R('科员|Clerk,副科长|Deputy Section Chief,科长|Section Chief,副处长|Deputy Division Director,处长|Division Director,副局长|Deputy Bureau Director,局长|Bureau Director'),
     gen: R('办事员|Clerk,专员|Officer,高级专员|Senior Officer,科长|Section Manager,处长|Director,司长|Director-General,常务次长|Permanent Secretary'),
     pay: [48000, 56000, 66000, 80000, 96000, 118000, 140000, 170000, 200000]
   };

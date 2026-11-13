@@ -242,7 +242,7 @@
     var base = title6.apply(this, arguments), s = S(), c = s.cnt;
     var others = {}; N.rel('child').forEach(function (k) { var o = k.par2 || k.other; if (o) others[o] = 1; });
     var nOthers = Object.keys(others).length;
-    if ((c.lovers || 0) >= 6 && nOthers >= 3 && ['happy', 'hard', 'plain', 'alone', 'free', 'drifter', 'richsad', 'young', 'heartbreak'].indexOf(base.k) >= 0)
+    if (false && (c.lovers || 0) >= 6 && nOthers >= 3 && ['happy', 'hard', 'plain', 'alone', 'free', 'drifter', 'richsad', 'young', 'heartbreak'].indexOf(base.k) >= 0)
       return { k: 'romeo', t: '情种|A Born Romantic', d: G.L('你这一生爱过{l}个人，和{o}个不同的人有过孩子。|You loved {l} people in one lifetime and had children with {o} different partners.', { l: c.lovers, o: nOthers }) };
     return base;
   };

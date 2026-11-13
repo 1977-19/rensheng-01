@@ -29,6 +29,22 @@
     E('o_life_review', [70, 110], '一生的回放|Your Life in Review', '🎞️', '孙辈帮你把一生的照片做成了一部短片，在你生日那天播放。|Your grandchildren made a short film from photos of your whole life and played it on your birthday.', [
       O('看着看着就哭了|Cry as you watch', R('片尾写着：“谢谢你，让我们来到这个世界。”|The closing card read: "Thank you for bringing us into this world."', { happy: 10 })),
       O('让他们把错事也剪进去|Ask them to include the mistakes too', R('“人这一辈子，哪有不走错的路。”大家都笑了。|"Nobody gets through life without a wrong turn." Everyone laughed.', { happy: 6, eq: 3 }))
-    ], { if: function () { return N.rel('grandchild').some(function (g) { return g.alive && N.age(g) >= 10; }); } })
+    ], { if: function () { return N.rel('grandchild').some(function (g) { return g.alive && N.age(g) >= 10; }); } }),
+    E('t_lost_wallet', [10, 17], '捡到钱包|A Lost Wallet', '👛', '放学路上，你在公交站捡到一个鼓鼓的钱包，里面有一张老人的身份证。|On the way home you find a fat wallet at the bus stop, with an elderly man\'s ID inside.', [
+      O('交给警察叔叔|Hand it in to the police', R('第二天，那位爷爷带着一封感谢信来到了学校。全班都给你鼓掌。|The next day the old man came to school with a thank-you letter. The whole class applauded.', { karma: 6, happy: 5, fame: 1 })),
+      O('按身份证上的地址送回去|Return it to the address on the ID', R('爷爷说钱包里是他下个月的药钱，硬是留你吃了一碗饺子。|He said it held next month\'s medicine money and insisted you stay for dumplings.', { karma: 7, happy: 6, eq: 2 }))
+    ]),
+    E('a_blood_drive', [18, 55], '无偿献血|A Blood Drive', '🩸', '献血车停在了街口，广播里说血库告急。|A blood-donation bus is parked at the corner; the radio says supplies are running low.', [
+      O('撸起袖子|Roll up your sleeve', R('护士给了你一个小红本。几个月后，你收到一条短信：你的血已经用于救治病人。|The nurse handed you a little red booklet. Months later a text arrived: your blood had been used to save a patient.', { karma: 5, happy: 4, health: -1 })),
+      O('怕针，下次吧|Scared of needles — next time', R('你在献血车旁站了一会儿，给排队的人买了几瓶水。|You lingered by the bus and bought water for the people in line.', { karma: 1 }))
+    ], { if: function (S2, p) { return p.st.health >= 50; } }),
+    E('a_rural_teach', [20, 40], '山区支教|Teaching in the Mountains', '🏫', '一个公益组织在招募支教老师，去山区小学教一个学期。|A charity is recruiting volunteers to teach for a term at a mountain village school.', [
+      O('报名去|Sign up', R('孩子们第一次知道了地球是圆的。走的那天，他们追着车跑了很远。|For the first time the children learned the Earth is round. On your last day they chased the bus a long way.', { karma: 8, happy: 6, eq: 4, money: -2000 })),
+      O('捐一箱书|Donate a box of books', R('几周后，你收到一张照片：孩子们捧着你的书笑得很灿烂。|Weeks later a photo arrived: the children beaming over your books.', { karma: 3, happy: 3, money: -300 }))
+    ]),
+    E('a_parents_checkup', [28, 60], '带爸妈去体检|Taking Your Parents for a Checkup', '🩺', '你发现爸妈最近总说“没事”，可脸色越来越差。|Your parents keep saying "we\'re fine", but they look worse each time you visit.', [
+      O('请假带他们去全面体检|Take time off and get them a full checkup', function (c) { N.rel('father', 'mother').filter(function (n) { return n.alive; }).forEach(function (n) { N.addAff(n, 8); n.health = Math.min(100, (n.health || 60) + 10); }); H.fx(c, { happy: 4, money: -800 }); return '医生发现了一个早期的小问题，及时治好了。妈妈念叨了一路：“浪费钱。”嘴角却一直在笑。|The doctor caught a small problem early. Mom grumbled "waste of money" all the way home — smiling the whole time.'; }),
+      O('打电话叮嘱几句|Call and remind them to look after themselves', R('“知道了知道了，你忙你的。”电话那头的声音有点哑。|"Yes, yes, you get back to work." The voice on the line sounded a little hoarse.', { happy: -1 }))
+    ], { if: function () { return N.rel('father', 'mother').some(function (n) { return n.alive && N.age(n) >= 55; }); } })
   ]);
 })();

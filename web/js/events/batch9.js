@@ -94,7 +94,7 @@
   /* ================= children who break the law; visiting them ================= */
   var CRIMES = {
     tech: [['入侵银行系统|Hacking into a bank', 5], ['金融诈骗|Financial fraud', 6], ['倒卖用户数据|Selling user data', 4]],
-    rich: [['醉驾撞人|Drunk-driving crash', 3], ['聚众斗殴|Brawling', 2], ['持有毒品|Drug possession', 3]],
+    rich: [['醉驾撞人|Drunk-driving crash', 3], ['聚众斗殴|Brawling', 2], ['无证驾驶|Driving without a license', 1]],
     any: [['盗窃|Theft', 2], ['打架伤人|Assault', 2], ['诈骗|Fraud', 4]]
   };
   var ft9 = FA.tick;

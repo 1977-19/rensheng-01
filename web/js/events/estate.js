@@ -362,7 +362,7 @@
     var modes = [['平分给所有子女|Split evenly among the children', 'equal'], ['留给一个孩子（可以是全部）|To one child (up to everything)', 'one'], ['全部留给配偶|Everything to your spouse', 'spouse'], ['我来逐个分配|I\'ll set each share', 'custom']];
     if (!(sp && sp.alive)) modes = modes.filter(function (m) { return m[1] !== 'spouse'; });
     if (!K.length) modes = modes.filter(function (m) { return m[1] === 'spouse'; });
-    var mi = await G.UI.pick({ title: G.L('立遗嘱|Write a Will'), text: G.L('不立遗嘱的话，法律会按配偶一半、婚生子女平分来分配，私生子女可能会起诉。|Without a will, the law gives your spouse half and splits the rest among children born in wedlock — secret children may sue.'), items: modes.map(function (m) { return { t: m[0] }; }) });
+    var mi = await G.UI.pick({ title: G.L('立遗嘱|Write a Will'), text: G.L('不立遗嘱的话，法律会按配偶一半、子女平分来分配。|Without a will, the law gives your spouse half and splits the rest among your children.'), items: modes.map(function (m) { return { t: m[0] }; }) });
     if (mi < 0) return 'cancel';
     var w = { mode: modes[mi][1], y: y, cut: (p.will && p.will.cut) || {}, houses: {}, incl: false, notary: 0, charity: 0 };
     if (K.some(function (k) { return k.illegit && !k.ack; })) w.incl = (await G.UI.pick({ title: G.L('私生子女|Secret children'), items: [{ t: G.L('也给他们一份|Include them too') }, { t: G.L('不给|Leave them out') }], noCancel: 1 })) === 0;
