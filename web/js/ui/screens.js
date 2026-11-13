@@ -314,12 +314,12 @@
     if (d.timeline.length) b.appendChild(h('div', { class: 'card' }, h('h5', null, T('大事年表|Timeline')), h('ul', { class: 'tl' }, d.timeline.slice(-40).map(function (x) { return h('li', null, h('b', null, T('{a}岁|{a}', { a: x.a })), h('span', null, T(x.t))); }))));
     var btns = h('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px' } });
     if (d.heirs.length) btns.appendChild(h('button', { class: 'big solid', onclick: tap(async function () {
-      var i = d.heirs.length === 1 ? 0 : await UI.pick({ title: '选择继承人|Choose an Heir', items: d.heirs.map(function (k) { return { t: k.name, sub: T('{a}岁|age {a}', { a: k.age }), npc: G.S.npcs[k.id] }; }) });
+      var i = d.heirs.length === 1 ? 0 : await UI.pick({ title: '选择继承人|Choose an Heir', items: d.heirs.map(function (k) { return { t: k.name, sub: T('{a}岁|age {a}', { a: k.age }) + (k.grand ? T(' · 孙辈| · grandchild') : ''), npc: G.S.npcs[k.id] }; }) });
       if (i < 0) return;
       var kid = G.S.npcs[d.heirs[i].id]; if (!kid) return;
       if (UI.chooseContinue) { if (!(await UI.chooseContinue(kid))) return; } else G.life.continueAs(kid);
       G.snap = null; G.save('auto'); UI.main();
-    }) }, T('以子女身份继续人生|Continue as Your Child')));
+    }) }, T(d.heirs.some(function (k) { return k.grand; }) ? '以子女或孙辈身份继续|Continue as a Child or Grandchild' : '以子女身份继续人生|Continue as Your Child')));
     if (G.canRewind()) btns.appendChild(h('button', { class: 'big', onclick: tap(function () { if (G.rewind()) { UI.toast('时光倒流！|Time rewinds!'); UI.main(); } }) }, T('⏳ 时光倒流（VIP）|⏳ Rewind Time (VIP)')));
     btns.appendChild(h('button', { class: 'big', onclick: tap(function () { UI.wizard(); }) }, T('开始新的人生|Start a New Life')));
     btns.appendChild(h('button', { class: 'big', onclick: tap(function () { UI.start(); }) }, T('回到首页|Home')));

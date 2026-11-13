@@ -61,7 +61,7 @@
     }
     p.flags.tryBaby = 0;
     // affairs found out
-    N.rel('affair').forEach(function (a) { if (N.spouse() && G.ch(.25)) Q.push({ id: 'sys_affair_caught', nid: a.id }); });
+    N.rel('affair').forEach(function (a) { if (N.spouse() && G.ch(.08)) Q.push({ id: 'sys_affair_caught', nid: a.id }); });
   };
   LO.canConceive = function (pt) {
     var p = G.S.p; if (!pt || pt.g === p.g) return false;

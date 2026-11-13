@@ -105,7 +105,7 @@
       if (k.jail) { if (s.year >= k.jail.y + k.jail.yrs) { var was = k.jail; k.jail = null; k.job = '刑满释放|Released'; k.unemp = 1; Q.push({ id: 'k_release', nid: k.id }); if (G.npcStory) G.npcStory(k, '{n}服刑期满，出狱了。|{n} served the sentence and was released.', { n: k.name }); } else { k.job = '服刑中|In prison'; k.inc = 0; } return; }
       if (a < 16 || a > 60 || k.crowned) return;
       var pot = G.kidScore ? G.kidScore(k).v : 50, risk = .004 + (pot < 45 ? .008 : 0) + (k.aff < 20 ? .01 : 0) + (['rebel', 'lazy'].indexOf(k.pers) >= 0 ? .006 : 0) + (pot >= 85 ? .004 : 0) + ((k.wealth || 0) > G.$(5e5) && a < 30 ? .004 : 0);
-      if (G.ch(risk)) Q.push({ id: 'k_crime', nid: k.id });
+      if (G.ch(risk * .45)) Q.push({ id: 'k_crime', nid: k.id });
     });
     // the family's great works pay every year
     var L = s.legacy; if (L && L.mega) { var tot = 0; Object.keys(L.mega).forEach(function (id) { var m = MEGA_BY[id]; if (m) tot += Math.round(G.$(m.cost) * m.ret); }); if (tot) { p.money += tot; if (G.fin) G.fin.add('in', '百亿项目回报|Mega-project returns', tot); } }

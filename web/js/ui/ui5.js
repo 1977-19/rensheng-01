@@ -45,9 +45,10 @@
 
   /* ---------------- activities, grouped by area of life ---------------- */
   var AREAS = [
-    ['工作与事业|Work & Career', ['hustle', 'service', 'mega', 'honor', 'reign']],
+    ['工作与事业|Work & Career', ['hustle', 'service', 'spy', 'mega', 'honor', 'reign']],
     ['家庭与感情|Family & Love', ['family', 'social', 'elite']],
-    ['生活|Everyday Life', ['health', 'fun', 'learn', 'travel']],
+    ['生活|Everyday Life', ['life', 'health', 'fun', 'learn', 'travel']],
+    ['灰色地带|The Gray Zone', ['gray', 'crime', 'gamble']],
     ['钱与家|Money & Home', ['money', 'shop', 'move']]
   ];
   function visibleItem(a) { var p = S().p; if (a.a && (p.age < a.a[0] || p.age > a.a[1])) return false; if (a.era && G.eraOk && !G.eraOk(a.era)) return false; if (G.statusBlocks && G.statusBlocks(a)) return false; if (a.if && !a.if()) return false; return true; }
@@ -107,6 +108,31 @@
     });
   };
 
+  /* ---------------- tablets: fill the screen, scaled ---------------- */
+  var base = null;
+  function fit() {
+    var m = document.querySelector('meta[name=viewport]'), b = document.body; if (!m || !b) return;
+    if (!base) base = { w: window.innerWidth, h: window.innerHeight };
+    var portrait = window.matchMedia ? window.matchMedia('(orientation: portrait)').matches : base.h >= base.w;
+    var w = Math.min(screen.width, screen.height), hgt = Math.max(screen.width, screen.height);
+    var vw = portrait ? w : hgt, vh = portrait ? hgt : w, W = null;
+    if (vw >= 700) W = Math.round(Math.max(560, vw * 820 / vh));
+    else if (vw <= 340) W = 360;
+    m.setAttribute('content', W ? 'width=' + W + ', user-scalable=no, viewport-fit=cover' : 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
+    b.classList.toggle('tablet', !!W && vw >= 700);
+  }
+  fit(); window.addEventListener('orientationchange', function () { setTimeout(fit, 200); });
+
+  /* ---------------- continuing as a grandchild ---------------- */
+  var cc5 = UI.chooseContinue;
+  UI.chooseContinue = async function (kid) {
+    if (kid.rel !== 'grandchild') return cc5.apply(this, arguments);
+    var i = await UI.pick({ title: G.L('以孙辈{n}的身份继续|Continue as your grandchild {n}', { n: kid.name }), items: [
+      { t: G.L('从现在继续|Pick up from now'), sub: G.L('{n}现在{a}岁。你的孩子成了{n}的父母，全部遗产归{n}。|{n} is {a}. Your child becomes the parent; everything goes to {n}.', { n: kid.name, a: N.age(kid) }), icon: '⏩' }] });
+    if (i < 0) return false;
+    G.life.continueAsGrand(kid); return true;
+  };
+
   /* ---------------- hall of fame: once per life ---------------- */
   var rc5 = UI.records;
   UI.records = function () { if (G.loadMeta) G.loadMeta(); return rc5.apply(this, arguments); };
@@ -116,7 +142,6 @@
   if (ni5) G.npcInfo = function (n) {
     var r = (ni5.apply(this, arguments) || []).filter(function (x) { return x && x[0] !== '人生经历|Their life lately'; });
     if (n.richPers) r.push(['性格（家境）|Character (upbringing)', n.richPers]);
-    if (n.rel === 'child' && G.filial) r.push(['孝顺程度|Devotion to you', String(G.filial(n))]);
     if (n.story && n.story.length) r.push(['经历|What happened', n.story.slice(-8).reverse().map(function (x) { return x[0] + ' ' + G.T(x[1]); }).join('\n')]);
     return r;
   };

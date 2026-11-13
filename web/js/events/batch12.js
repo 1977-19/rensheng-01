@@ -97,9 +97,9 @@
 
   /* the will: name one heir */
   G.writeWillSimple = async function () {
-    var ks = N.rel('child').filter(function (k) { return k.alive; }).sort(function (a, b) { return a.by - b.by; });
+    var ks = N.rel('child').filter(function (k) { return k.alive; }).sort(function (a, b) { return a.by - b.by; }).concat(N.rel('grandchild').filter(function (k) { return k.alive; }).sort(function (a, b) { return a.by - b.by; }));
     if (!ks.length) { G.UI.toast(G.L('你还没有孩子可以继承。|You have no children to inherit yet.')); return false; }
-    var i = await G.UI.pick({ title: G.L('立遗嘱：指定继承人|Your Will: Name Your Heir'), text: G.L('全部遗产（钱、房子、公司）都留给这一个人。你去世后，也会以这个孩子的身份继续人生。|Everything — money, homes, company — goes to this one person. After you die, you\'ll continue life as this child.'),
+    var i = await G.UI.pick({ title: G.L('立遗嘱：指定继承人|Your Will: Name Your Heir'), text: G.L('全部遗产（钱、房子、公司）都留给这一个人（可以是孙辈）。你去世后，也会以这个人的身份继续人生。|Everything — money, homes, company — goes to this one person (a grandchild is fine). After you die, you\'ll continue life as them.'),
       items: ks.map(function (k) { return { t: G.L(k.name), sub: G.L('{r} · {a}岁 · {j}|{r} · age {a} · {j}', { r: N.relName(k), a: N.age(k), j: k.job || '—' }), npc: k }; }) });
     if (i < 0) return false;
     var k = ks[i]; P().will = { mode: 'one', main: k.id, mainPct: 1, y: S().year, cut: {}, houses: {}, notary: 1 };

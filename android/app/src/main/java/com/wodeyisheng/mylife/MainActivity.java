@@ -24,6 +24,8 @@ public class MainActivity extends Activity {
         s.setAllowFileAccess(true);
         s.setMediaPlaybackRequiresUserGesture(false);
         s.setTextZoom(100);                    // the layout is designed for 100%
+        s.setUseWideViewPort(true);            // honour the page's viewport width, so tablets scale to fill
+        s.setLoadWithOverviewMode(true);
         web.setOverScrollMode(View.OVER_SCROLL_NEVER);
         web.setWebChromeClient(new WebChromeClient());
         web.setWebViewClient(new WebViewClient() {

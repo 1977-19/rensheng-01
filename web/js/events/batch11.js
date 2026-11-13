@@ -354,6 +354,4 @@
   };
 
   /* ================= small fixes ================= */
-  if (G.TALENTS) { G.TALENTS = G.TALENTS.filter(function (t) { return t.id !== 'gambler'; }); if (G.TALENT) delete G.TALENT.gambler; }
-  if (G.ACT_JAIL) G.ACT_JAIL = G.ACT_JAIL.filter(function (a) { return a.id !== 'jsmuggle'; });
 })();
