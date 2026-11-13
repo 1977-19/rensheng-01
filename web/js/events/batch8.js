@@ -59,7 +59,7 @@
       t: '{c}王室传来消息：王位后继无人。你的孩子身上流着王室的血，王室请你从中推举一位继承人——只能是一个。|Word from the royal house of {c}: there is no heir. Your children carry royal blood, and the palace asks you to put forward one successor — only one.',
       o: [
         { t: '亲自挑选最合适的继承人|Choose the heir yourself', run: async function (c) {
-          var i = await G.UI.pick({ title: G.L('谁来继承王位？|Who will take the throne?'), items: c.cands.map(function (k) { var sc = G.kidScore(k); return { t: k.name, sub: G.L('潜力{g} · {a}岁 · {j}|Potential {g} · age {a} · {j}', { g: sc.g, a: N.age(k), j: k.job || '—' }), npc: k }; }) });
+          var i = await G.UI.pick({ title: G.L('谁来继承王位？|Who will take the throne?'), items: c.cands.map(function (k) { var sc = G.kidScore(k); return { t: k.name, sub: G.L('{a}岁 · {j}|age {a} · {j}', { a: N.age(k), j: k.job || '—' }), npc: k }; }) });
           if (i < 0) i = 0;
           var k = c.cands[i]; c.p.flags.throneLine[c.line] = k.id; crown(k, c.line);
           c.cands.forEach(function (o) { if (o !== k) { o.royalLine = null; N.addAff(o, o.pers === 'proud' ? -12 : -4); } });
@@ -97,7 +97,7 @@
   G.npcInfo = function (n) {
     var r = info8.apply(this, arguments) || [];
     r = r.filter(function (x) { return x[0] !== '综合潜力|Potential'; });
-    if (n.rel === 'child' && n.alive) { var sc = G.kidScore(n); r.push(['天生潜力|Born potential', sc.g + ' · ' + sc.v + G.T('（出生就定下，影响升学和收入）| (set at birth; shapes schooling and pay)')]); }
+    if (false && n.rel === 'child' && n.alive) { var sc = G.kidScore(n); r.push(['天生潜力|Born potential', sc.g + ' · ' + sc.v + G.T('（出生就定下，影响升学和收入）| (set at birth; shapes schooling and pay)')]); }
     if (n.rel === 'child' && n.unemp && n.laidY) r.push(['工作状态|Work status', G.L('{y}年从“{j}”被裁员，正在找工作|Laid off from "{j}" in {y}; looking for work', { y: n.laidY, j: G.T(n.lastJob || '—') })]);
     if (n.rel === 'child' && n.adopted) r.push(['身世|Origins', '领养|Adopted']);
     return r;

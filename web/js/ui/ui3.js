@@ -45,7 +45,7 @@
       b.appendChild(h('div', { class: 'card' }, h('h5', null, T('身份|Identity')), kv([
         ['出身|Born into', G.ORIGIN[p.origin] ? G.ORIGIN[p.origin].n : '—'],
         ['祖籍|Ancestral home', G.ancName ? G.ancName(p) : '—'],
-        ['国籍|Citizenship', cits],
+        ['国籍|Citizenship', G.natText ? G.natText(p) : cits], ['出生地|Born in', G.bornText ? G.bornText(p) : ''],
         ['居住地|Lives in', G.residence && G.residence() !== p.country ? G.C[G.residence()].flag + ' ' + G.T(G.C[G.residence()].n) + G.T('（留学·学生签证）| (studying · student visa)') : G.T(G.C[p.country].n) + ' · ' + G.T(p.city)],
         ['性取向|Orientation', { het: '异性恋|Straight', gay: '同性恋|Gay', bi: '双性恋|Bisexual' }[p.orient] || '—'],
         S.assets.trust && S.assets.trust.amt ? ['家族信托|Family trust', G.fm(S.assets.trust.amt)] : null,

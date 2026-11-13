@@ -100,7 +100,7 @@
     if (p.age >= ret && !p.flags.noRetire) { Q.push({ id: 'sys_retire' }); return; }
     // layoff
     var wj = S.world.jobShock || 0;
-    var lay = .022 + (j.perf < 40 ? .2 : 0) + wj;
+    var lay = .01 + (j.perf < 35 ? .1 : 0) + wj * .6;
     if (G.ch(lay)) { Q.push({ id: 'sys_fired' }); return; }
     // promotion
     if (j.rank < J.r.length - 1 && j.yr >= 2 && j.perf >= 55 + j.rank * 6) {

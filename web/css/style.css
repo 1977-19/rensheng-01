@@ -771,3 +771,6 @@ html, body { background: var(--desk2); }
 .gacts { display: flex; flex-direction: column; gap: 8px; }
 .gact { padding: 12px; border-radius: 12px; background: #2b2e33; border: 1px solid #44484e; color: #e3e5e8; font-size: 15px; text-align: left; }
 .gact:active { background: #34383d; }
+
+/* portrait avatars fill their frames */
+.av svg, .avs svg, .hav svg, .gav svg, .tav svg, .sav svg, .wpv-av svg, .lk svg { width: 100%; height: 100%; display: block; }

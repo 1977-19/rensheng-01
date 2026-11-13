@@ -46,7 +46,7 @@
     if (p.retired) out.push(h('div', { class: 'card' }, h('h5', null, '🌅 ' + T('退休|Retired')), kv([['养老金|Pension', G.fm(p.pension) + T('/年|/yr')]])));
     out.push(h('div', { class: 'card' }, kv([
       ['学历|Education', G.DEG[p.edu.deg]], p.edu.tier && p.edu.deg >= 4 && !G.school.inSchool() ? ['母校|Alma mater', T(p.edu.school || '') + ' ' + '★★★★★'.slice(0, p.edu.tier)] : null, ['语言|Languages', p.langs.map(function (l) { return T(G.LANGS[l]); }).join('、')],
-      ['国籍|Country', T(G.C[p.country].n) + ' ' + G.C[p.country].flag], ['城市|City', p.city],
+      ['国籍|Citizenship', G.natText ? G.natText(p) : T(G.C[p.country].n)], ['出生地|Born in', G.bornText ? G.bornText(p) : ''], ['居住地|Lives in', G.liveText ? G.liveText(p) : p.city],
       p.crime.rec ? ['犯罪记录|Criminal record', T('{n}次|{n}', { n: p.crime.rec })] : null,
       p.h.heat > 5 && !p.gang ? ['警方关注|Police heat', String(Math.round(p.h.heat))] : null,
       p.flags.fugitive ? ['身份|Status', '逃犯|Fugitive'] : null,
@@ -167,7 +167,7 @@
     var cits = n.rel === 'child' || n.rel === 'grandchild' || (n.c && G.S && n.c !== G.S.p.country) ? (n.cits && n.cits.length ? n.cits : [n.c || G.S.p.country]) : null;
     return h('button', { class: 'row', onclick: tap(onTap) }, h('div', { class: 'avwrap' }, h('div', { class: 'avs', html: G.avatarOf(n) }), cits ? h('span', { class: 'natf' }, cits.slice(0, 3).map(function (c) { return G.C[c] ? G.C[c].flag : ''; }).join('')) : null),
       h('div', { class: 'tx' }, h('div', { class: 't' }, T(n.name), n.tags.length ? h('span', { class: 'chip tag' }, T({ rich: '富豪|Rich', celeb: '明星|Star', red: '权贵|Elite', royal: '王室|Royal' }[n.tags[0]])) : null),
-        h('div', { class: 's' }, T(N.relName(n)) + ' · ' + (n.alive ? T('{a}岁|{a}', { a: N.age(n) }) : T('已故|Deceased')) + ' · ' + T(n.job || '') + (n.rel === 'child' && n.alive && G.kidScore ? ' · ' + T('潜力{s}|Potential {s}', { s: G.kidScore(n).g }) : ''))),
+        h('div', { class: 's' }, T(N.relName(n)) + ' · ' + (n.alive ? T('{a}岁|{a}', { a: N.age(n) }) : T('已故|Deceased')) + ' · ' + T(n.job || '') + '')),
       h('div', { class: 'rt' }, h('span', null, rom ? '❤️' : '🙂'), h('div', { class: 'mini' }, h('i', { class: v < 0 ? 'neg' : '', style: { width: Math.abs(v) + '%' } }))));
   }
   UI.tabRelations = function () {
