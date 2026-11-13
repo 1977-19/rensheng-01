@@ -67,7 +67,7 @@
       h('button', { class: 'pill', 'aria-label': T('菜单|Menu'), onclick: tap(menu) }, h('i', { class: 'pi', html: ICON.menu }))));
     // stats
     var sb = M.el.stats; sb.innerHTML = '';
-    G.STAT_KEYS.forEach(function (k) { var d = G.STATS[k], val = Math.round(p.st[k]); sb.appendChild(h('div', { class: 'st' }, h('span', { class: 'l' }, T(d.n)), h('div', { class: 'bar' }, h('i', { class: 'c-' + d.c, style: { width: Math.max(val, 0) + '%' } })), h('b', { class: 'v num' }, String(val)))); });
+    G.STAT_KEYS.forEach(function (k) { var d = G.STATS[k], val = Math.round(p.st[k]); sb.appendChild(h('div', { class: 'st' }, h('span', { class: 'l' }, T(d.n)), h('div', { class: 'bar' }, h('i', { class: 'c-' + d.c, style: { width: Math.max(val, 0) + '%' } })), h('b', { class: 'v num', style: { marginRight: '8px', whiteSpace: 'nowrap' } }, (Math.round(p.st[k] * 10) / 10) + '%'))); });
     // prison: bars over the whole page
     var desk = document.querySelector('.desk'), j = p.jail;
     if (desk) desk.classList.toggle('jailed', !!j);

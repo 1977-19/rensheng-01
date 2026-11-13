@@ -115,8 +115,7 @@
     S.ending = d;
     G.loadMeta();
     G.meta.lives.push({ name: d.name, c: d.country, by: d.by, dy: d.dy, age: d.age, title: d.title, score: d.score, grade: d.grade, at: Date.now(), gen: S.gen, g: d.g, td: d.td, ep: d.epitaph, cause: d.cause, nw: d.nw, cur: G.C[d.country] ? G.C[d.country].cur.sym : '', org: S.p.origin, tl: (d.timeline || []).slice(-60).map(function (x) { return [x.a, x.y, x.t]; }) });
-    G.meta.lives.sort(function (a, b) { return b.score - a.score; });
-    G.meta.lives = G.meta.lives.slice(0, 60);
+    if (G.meta.lives.length > 60) { var keep = G.meta.lives.slice().sort(function (a, b) { return b.score - a.score; }).slice(0, 60); G.meta.lives = G.meta.lives.filter(function (x) { return keep.indexOf(x) >= 0; }); }
     G.meta.stats.lives = (G.meta.stats.lives || 0) + 1;
     G.saveMeta();
     G.save('auto');

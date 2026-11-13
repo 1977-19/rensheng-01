@@ -32,7 +32,8 @@
   CI.inlaws = function (pt) { return pt ? alive(N.all(function (n) { return n.rel === 'inlaw' && n.of === pt.id; })) : []; };
   CI.ensureInlaws = function (pt) {
     var S = G.S, p = S.p;
-    if (!pt || pt.inl || N.age(pt) < 18 || p.age < 18) return [];
+    if (!pt || N.age(pt) < 18 || p.age < 18) return [];
+    if (pt.inl) return CI.inlaws(pt);
     pt.inl = 1;
     var pa = N.age(pt); if (pa > 62) return [];
     var rich = pt.tags && pt.tags.length, out = [];

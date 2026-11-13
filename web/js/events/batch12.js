@@ -420,7 +420,7 @@
 
   /* ================= small fixes ================= */
   // the hall of fame lists each life once
-  function dedupeLives() { var M = G.meta; if (!M || !M.lives) return; var seen = {}; M.lives = M.lives.sort(function (a, b) { return b.score - a.score; }).filter(function (x) { var k = x.name + '|' + x.by + '|' + x.dy + '|' + x.g; if (seen[k]) return false; seen[k] = 1; return true; }); }
+  function dedupeLives() { var M = G.meta; if (!M || !M.lives) return; var seen = {}; M.lives = M.lives.filter(function (x) { var k = x.name + '|' + x.by + '|' + x.dy + '|' + x.g; if (seen[k]) return false; seen[k] = 1; return true; }); }
   var lm12 = G.loadMeta; if (lm12) G.loadMeta = function () { var r = lm12.apply(this, arguments); dedupeLives(); return r; };
   var sm12 = G.saveMeta; if (sm12) G.saveMeta = function () { dedupeLives(); return sm12.apply(this, arguments); };
 })();

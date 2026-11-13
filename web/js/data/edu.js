@@ -58,7 +58,25 @@
       mil: '朱拉宗告皇家军事学院|Chulachomklao Royal Military Academy', pol: '皇家警察学院|Royal Police Cadet Academy', art: '班迪帕塔纳西帕艺术学院|Bunditpatanasilpa Institute', mus: '玛希隆音乐学院|Mahidol College of Music', spo: '国家体育大学|Thailand National Sports University' },
     za: { hs: null, ue: '高中毕业会考|Matric Exams', retake: '复读|Repeat Year',
       u: U('5:开普敦大学|University of Cape Town;5:金山大学|Wits University;4:斯泰伦博斯大学|Stellenbosch University;4:比勒陀利亚大学|University of Pretoria;3:夸祖鲁-纳塔尔大学|UKZN;3:罗德斯大学|Rhodes University;3:约翰内斯堡大学|University of Johannesburg;2:纳尔逊·曼德拉大学|Nelson Mandela University;2:自由州大学|University of the Free State;1:职业技术学院|TVET College'),
-      mil: '南非军事学院|South African Military Academy', pol: '南非警察学院|SAPS Academy', art: '电影戏剧学院|AFDA', mus: '开普敦音乐学院|South African College of Music', spo: '体育学院|High Performance Sport Institute' }
+      mil: '南非军事学院|South African Military Academy', pol: '南非警察学院|SAPS Academy', art: '电影戏剧学院|AFDA', mus: '开普敦音乐学院|South African College of Music', spo: '体育学院|High Performance Sport Institute' },
+    nz: { hs: null, ue: '国家教育成绩证书|NCEA Level 3', retake: '间隔年|Gap Year',
+      u: U('5:奥克兰大学|University of Auckland;4:奥塔哥大学|University of Otago;4:惠灵顿维多利亚大学|Victoria University of Wellington;3:坎特伯雷大学|University of Canterbury;3:梅西大学|Massey University;2:怀卡托大学|University of Waikato;2:林肯大学|Lincoln University;2:奥克兰理工大学|AUT;1:地方理工学院|Local Polytechnic'),
+      mil: '新西兰国防学院|New Zealand Defence College', pol: '皇家新西兰警察学院|Royal New Zealand Police College', art: '托伊法卡阿里新西兰戏剧学院|Toi Whakaari Drama School', mus: '新西兰音乐学院|New Zealand School of Music', spo: '新西兰高性能运动中心|High Performance Sport NZ' },
+    ie: { hs: '初中证书|Junior Cycle', ue: '毕业证书考试|Leaving Certificate', retake: '复读|Repeat Year',
+      u: U('5:都柏林圣三一学院|Trinity College Dublin;5:都柏林大学学院|University College Dublin;4:爱尔兰国立大学戈尔韦|University of Galway;4:科克大学学院|University College Cork;3:都柏林城市大学|Dublin City University;3:梅努斯大学|Maynooth University;3:利默里克大学|University of Limerick;2:都柏林理工大学|TU Dublin;1:地方学院|Local College'),
+      mil: '爱尔兰国防军军官学院|The Military College, Curragh', pol: '爱尔兰警察学院|Garda College, Templemore', art: '盖蒂戏剧学院|The Gaiety School of Acting', mus: '爱尔兰皇家音乐学院|Royal Irish Academy of Music', spo: '爱尔兰国家运动校园|Sport Ireland Campus' },
+    ch: { hs: null, ue: '瑞士高中毕业会考|Swiss Matura', retake: '复读|Repeat Year',
+      u: U('5:苏黎世联邦理工学院|ETH Zurich;5:洛桑联邦理工学院|EPFL;4:苏黎世大学|University of Zurich;4:日内瓦大学|University of Geneva;4:巴塞尔大学|University of Basel;4:圣加仑大学|University of St. Gallen;3:伯尔尼大学|University of Bern;3:洛桑大学|University of Lausanne;2:卢塞恩大学|University of Lucerne;2:弗里堡大学|University of Fribourg;1:应用科技大学|University of Applied Sciences'),
+      mil: '苏黎世联邦理工军事学院|Military Academy at ETH Zurich', pol: '瑞士警察学院|Swiss Police Institute', art: '苏黎世艺术大学|Zurich University of the Arts', mus: '洛桑音乐学院|Lausanne Conservatory', spo: '瑞士联邦体育学院|Swiss Federal Institute of Sport Magglingen' },
+    at: { hs: null, ue: '高中毕业考试|Matura', retake: '复读|Repeat Year',
+      u: U('5:维也纳大学|University of Vienna;5:维也纳工业大学|TU Wien;4:维也纳经济大学|WU Vienna;4:因斯布鲁克大学|University of Innsbruck;4:格拉茨大学|University of Graz;4:格拉茨工业大学|Graz University of Technology;3:林茨大学|Johannes Kepler University Linz;3:萨尔茨堡大学|University of Salzburg;2:克拉根福大学|University of Klagenfurt;1:应用科学大学|University of Applied Sciences'),
+      mil: '特蕾西亚军事学院|Theresian Military Academy', pol: '奥地利安全学院|Security Academy (SIAK)', art: '马克斯·莱因哈特戏剧学院|Max Reinhardt Seminar', mus: '维也纳音乐与表演艺术大学|University of Music and Performing Arts Vienna', spo: '奥地利联邦体育学院|Austrian Federal Sports Academy' },
+    pt: { hs: null, ue: '全国统一考试|Exames Nacionais', retake: '复读|Repeat Year',
+      u: U('5:里斯本大学|University of Lisbon;5:波尔图大学|University of Porto;4:科英布拉大学|University of Coimbra;4:里斯本新大学|NOVA University Lisbon;3:米尼奥大学|University of Minho;3:阿威罗大学|University of Aveiro;2:里斯本天主教大学|Católica Lisbon;1:地方理工学院|Local Polytechnic'),
+      mil: '陆军学院|Military Academy (Academia Militar)', pol: '警察科学与内部安全高等学院|ISCPSI Police Academy', art: '里斯本戏剧与电影学院|Lisbon Theatre and Film School', mus: '里斯本高等音乐学院|Lisbon Superior School of Music', spo: '人体运动学院|Faculty of Human Kinetics' },
+    ar: { hs: null, ue: '大学基础课程考试|CBC Entrance Cycle', retake: '复读|Repeat Year',
+      u: U('5:布宜诺斯艾利斯大学|University of Buenos Aires;4:拉普拉塔国立大学|National University of La Plata;4:科尔多瓦国立大学|National University of Córdoba;4:布宜诺斯艾利斯理工学院|ITBA;4:迪特利亚大学|Torcuato Di Tella University;3:圣安德烈斯大学|University of San Andrés;3:奥斯特拉尔大学|Austral University;2:罗萨里奥国立大学|National University of Rosario;1:地方大学|Local University'),
+      mil: '国家军事学院|Colegio Militar de la Nación', pol: '联邦警察学院|Federal Police Academy', art: '国立艺术大学|National University of the Arts', mus: '国立音乐学院|National Conservatory of Music', spo: '国家高性能体育中心|CeNARD' },
   };
 
   G.STAGES = {

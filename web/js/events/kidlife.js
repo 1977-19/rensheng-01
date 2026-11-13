@@ -34,9 +34,10 @@
       ['你冲着大人咯咯笑，大家的心都化了。|You giggle at the grown-ups, and everyone melts.', { happy: 3, par: 3, smarts: -1 }],
       ['你卖萌换来了一块糖，结果吃坏了肚子。|Your charm wins you a candy — and a tummy ache.', { happy: 2, health: -2 }]]); } },
     { id: 'grab', n: '抓东西往嘴里塞|Put Things in Your Mouth', i: '🧦', e: 5, run: function (a) { return mix(a, [
-      ['你尝遍了家里的每一样东西，对世界充满了好奇。|You taste everything in the house — the world is fascinating.', { smarts: 2, health: -2 }],
-      ['你啃了一只袜子，被妈妈一把抢了下来。|You chew a sock until Mom snatches it away.', { happy: -2, smarts: 1 }],
-      ['你把一颗纽扣塞进嘴里，差点噎着！|You stuff a button in your mouth and nearly choke!', { health: -6, smarts: 1 }, .4]]); } },
+      ['你尝遍了家里的每一样东西，对世界充满了好奇。|You taste everything in the house — the world is fascinating.', { smarts: 2, happy: 2 }, 3],
+      ['你啃了一只袜子，被妈妈一把抢了下来，咯咯直笑。|You chew a sock until Mom snatches it away — and giggle.', { smarts: 1, happy: 1 }, 2],
+      ['你啃着磨牙棒，口水流了一下巴。|You gnaw a teething ring, drooling happily.', { health: 1, happy: 2 }, 2],
+      ['你把一颗纽扣塞进嘴里，妈妈眼疾手快抠了出来。|You put a button in your mouth — Mom fishes it out in a flash.', { health: -1, smarts: 1 }, .25]]); } },
     { id: 'sleep', n: '睡大觉|Sleep a Lot', i: '😴', e: 5, run: function (a) { return mix(a, [
       ['你睡得香甜，长得白白胖胖。|You sleep like an angel and grow round and rosy.', { health: 3, smarts: -1 }],
       ['你白天睡太多，晚上精神抖擞地闹了一夜。|Too much napping — you party all night instead.', { health: 1, happy: 1, par: -2 }]]); } }

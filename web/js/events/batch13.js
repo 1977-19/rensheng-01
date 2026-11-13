@@ -11,6 +11,7 @@
   /* ================= police ranks ================= */
   var POL_CN = R2('二级警员|Constable 2nd Class,一级警员|Constable 1st Class,三级警司|Sergeant 3rd Class,二级警司|Sergeant 2nd Class,一级警司|Sergeant 1st Class,三级警督|Inspector 3rd Class,二级警督|Inspector 2nd Class,一级警督|Inspector 1st Class,三级警监|Superintendent 3rd Class,二级警监|Superintendent 2nd Class,一级警监|Superintendent 1st Class,副总警监|Deputy Commissioner General,总警监|Commissioner General');
   var PAY_CN = [42000, 46000, 52000, 58000, 65000, 74000, 84000, 96000, 112000, 130000, 152000, 180000, 220000];
+  G.POL_CN = POL_CN; G.PAY_CN = PAY_CN;
   var POL_GEN = G.POLICE.r.concat(['全国警察总监|National Police Commissioner']);
   var PAY_GEN = G.POLICE.pay.concat([280000]);
   function cnPol() { var s = S(); return !!(s && s.p && s.p.country === 'cn'); }
@@ -43,39 +44,7 @@
     };
   });
 
-  /* ================= the intelligence service ================= */
-  var SPY = R2('外围线人|Informant,见习特工|Trainee Agent,特工|Field Agent,高级特工|Senior Agent,行动组长|Operations Lead,情报站站长|Station Chief,情报局副局长|Deputy Director of Intelligence,情报局局长|Director of Intelligence');
-  var SPY_PAY = [12000, 30000, 48000, 70000, 95000, 130000, 180000, 250000];
-  G.SPY = SPY;
-  function spyPromote() { var s = P().spy; if (s.rank >= SPY.length - 1) return; s.rank++; s.merit = Math.round(s.merit * .35); G.major('晋升为{r}|Promoted to {r}', { r: SPY[s.rank] }); G.inc('promos'); }
-  G.evs([
-    { id: 'spy_recruit', sys: 1, title: '一个陌生人|A Stranger', icon: '🕵️',
-      t: '你走投无路的时候，一个穿风衣的人在面馆坐到你对面：“我们观察你很久了。有一份工作，薪水不错，只是不能告诉任何人。”|At your lowest point, a man in a trench coat sits across from you in a noodle shop: "We\'ve been watching you. There\'s a job. The pay is good — but you can tell no one."',
-      o: [{ t: '接受|Accept', run: function (c) { var p = c.p; p.spy = { rank: 0, merit: 0, yrs: 0, y: S().year }; G.addMoney(G.$(3000)); G.major('被情报组织招募|Recruited by an intelligence service'); return '他推过来一个信封，里面是一部手机和一叠现金。“等电话。”|He slid over an envelope: a phone and a stack of cash. "Wait for the call."'; } },
-        { t: '拒绝|Decline', run: function () { return '他留下一张只有电话号码的名片，起身走了。|He left a card with only a phone number on it, and walked away.'; } }] },
-    { id: 'spy_burned', sys: 1, title: '身份暴露|Cover Blown', icon: '🚨', bad: 1,
-      t: '你的身份暴露了，对方的人已经在找你。|Your cover is blown, and the other side is looking for you.',
-      o: [{ t: '连夜撤离|Get out tonight', run: function (c) { c.p.spy.merit = Math.max(0, c.p.spy.merit - 20); c.add('stress', 20); return '你换了三次车，终于回到了安全屋。|You changed cars three times and made it to the safe house.'; } },
-        { t: '将计就计|Turn it to your advantage', run: function (c) { if (G.ch(.45 + c.p.st.smarts / 300)) { c.p.spy.merit += 40; return '你给对方喂了假情报，反而立了大功。|You fed them false intelligence and earned great credit.'; } G.crime.jail(G.ri(3, 8), '间谍罪|Espionage'); return '你被捕了。|You were arrested.'; } }] }
-  ]);
-  G.ACT_CATS.push({ id: 'spy', n: '情报工作|Intelligence Work', i: '🕵️', items: [
-    { id: 'spy_intel', n: '收集情报|Gather Intelligence', i: '📂', e: 10, a: [18, 80], if: function () { return !!P().spy; },
-      run: async function (a) { var s = P().spy, g = G.ri(6, 12); s.merit += g; return G.quick(a, G.L('你在咖啡馆坐了一下午，记下了每一个进出的人。功绩+{g}。|You spent an afternoon in a café, noting everyone who came and went. Merit +{g}.', { g: g }), { smarts: 1 }); } },
-    { id: 'spy_turn', n: '策反目标|Recruit an Asset', i: '🤝', e: 20, a: [20, 80], if: function () { return !!P().spy && P().spy.rank >= 1; },
-      run: async function (a) { var s = P().spy, p = P(); if (G.ch(.35 + p.st.eq / 200)) { var g = G.ri(25, 40); s.merit += g; return G.quick(a, G.L('对方终于点头了。你多了一条线人。功绩+{g}。|They finally agreed. You have a new source. Merit +{g}.', { g: g }), { eq: 2 }); } return G.quick(a, G.L('对方起了疑心，你只好断了联系。|They grew suspicious; you cut contact.'), { stress: 6 }); } },
-    { id: 'spy_op', n: '执行潜伏任务|Deep-Cover Mission', i: '🎭', e: 30, a: [20, 70], if: function () { return !!P().spy && P().spy.rank >= 2; },
-      run: async function (a) {
-        var r = await G.UI.game('fight', { name: a.n }), s = P().spy;
-        if (G.ch(.04)) { G.die('潜伏任务中牺牲|Killed on a deep-cover mission'); return; }
-        if (G.ch(.07 * (1.3 - r.score))) { S().pendQ = S().pendQ || []; S().pendQ.push({ id: 'spy_burned' }); return G.quick(a, G.L('任务出了岔子……|Something went wrong on the mission…'), { stress: 10 }); }
-        var g = G.ri(50, 80); s.merit += g; G.addMoney(G.$(G.ri(10, 40) * 1000));
-        return G.quick(a, G.L('你在敌后潜伏了半年，带回了一份改变局势的情报。功绩+{g}。|You spent six months behind the lines and brought back intelligence that changed everything. Merit +{g}.', { g: g }), { fame: 0, smarts: 2 });
-      } },
-    { id: 'spy_quit', n: '退出情报组织|Leave the Service', i: '🚪', e: 0, a: [18, 120], if: function () { return !!P().spy; },
-      run: async function (a) { if (!(await G.UI.confirm(G.L(a.n), G.L('退出后不能再回来。确定吗？|There\'s no coming back. Sure?')))) return 'cancel'; var r = SPY[P().spy.rank]; P().spy = null; P().flags.exSpy = 1; return G.quick(a, G.L('你交回了证件。从此，你只是一个普通人。（最后职务：{r}）|You handed back your credentials. From now on, you\'re just an ordinary person. (Last post: {r})', { r: r }), { stress: -10 }); } }
-  ] });
-  var title13 = G.title;
-  G.title = function () { var p = P(); if (p.spy && !S().dead && !p.jail) return SPY[p.spy.rank]; return title13.apply(this, arguments); };
+  /* the intelligence service lives in spy.js */
 
   /* ================= three new dynasties ================= */
   [
@@ -95,7 +64,6 @@
     var p = P(), why = [];
     if (p.pol && p.pol.rank >= (cnPol() ? 7 : 5)) why.push(G.T(G.POLICE.r[p.pol.rank]));
     if (p.mil && p.mil.off && p.mil.rank >= 5) why.push(G.T(G.MIL.off[p.mil.rank]));
-    if (p.spy && p.spy.rank >= 4) why.push(G.T(SPY[p.spy.rank]));
     if (p.origin === 'red' || p.origin === 'mafia') why.push(G.T(G.ORIGIN[p.origin].n));
     if (p.st.fame >= 70) why.push(G.T('名声{f}|Fame {f}', { f: p.st.fame }));
     if (G.netWorth() >= G.$(2e7)) why.push(G.T('身家过亿|Great wealth'));
@@ -218,19 +186,4 @@
       O('马上回一封|Write back at once', R('你写了五页，比孩子写得还长。|You wrote five pages — longer than theirs.', { happy: 6, eq: 2 }))
     ], { if: function () { return N.rel('child').some(function (k) { return N.age(k) >= 22; }); } })
   ]);
-  // when you are broke, someone notices
-  var mt13 = G.money.tick;
-  G.money.tick = function () {
-    var r = mt13.apply(this, arguments), s = S(), p = s.p;
-    if (s.dead) return r;
-    if (p.spy) {
-      var sp = p.spy; sp.yrs++; sp.merit += G.ri(2, 8);
-      if (G.fin) G.fin.tag = G.L('情报工作津贴|Intelligence stipend'); G.addMoney(G.$(SPY_PAY[sp.rank])); if (G.fin) G.fin.tag = null;
-      if (sp.merit >= 20 + sp.rank * 15 && sp.rank < SPY.length - 1) spyPromote();
-      if (G.ch(.03)) (s.pendQ = s.pendQ || []).push({ id: 'spy_burned' });
-    } else if (!p.flags.spyAsked && !p.flags.exSpy && p.age >= 20 && p.age <= 45 && p.money < G.$(800) && !p.pol && !p.mil && !p.jail && G.ch(.35)) {
-      p.flags.spyAsked = 1; (s.pendQ = s.pendQ || []).push({ id: 'spy_recruit' });
-    }
-    return r;
-  };
 })();

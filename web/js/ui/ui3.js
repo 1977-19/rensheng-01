@@ -126,7 +126,7 @@
   };
   UI.records = function () {
     UI.sheet('名人堂|Hall of Fame', function (b) {
-      var L = G.meta.lives || [];
+      var L = (G.meta.lives || []).slice().sort(function (a, b) { return b.score - a.score; });
       if (!L.length) { b.appendChild(h('div', { class: 'empty' }, T('还没有完成的人生。去活一次吧。|No finished lives yet. Go live one.'))); return; }
       b.appendChild(h('p', { class: 'hint' }, T('点一段人生，看看那一生的经历。|Tap a life to read its story.')));
       L.forEach(function (r, i) {

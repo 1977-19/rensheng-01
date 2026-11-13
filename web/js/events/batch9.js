@@ -27,12 +27,13 @@
     return r;
   };
 
+  G.lastLifeOf = function (p) { var L = (G.meta && G.meta.lives) || []; var m = L.filter(function (x) { return x.name === p.name && x.by === p.birthYear; }); return m.length ? m[m.length - 1] : L[L.length - 1]; };
   /* ================= inheriting as the child you chose ================= */
   var cont9 = G.life.continueAs;
   G.life.continueAs = function (kid) {
     var s = S(), old = s.p, info = { crowned: kid.crowned, c: kid.c, cits: kid.cits, illegit: kid.illegit, crownY: kid.crownY, oldMon: !!old.flags.monarch, mega: old.mega };
     // the lineage remembers the one who just died, with the whole story
-    var last = (G.meta.lives || [])[G.meta.lives.length - 1];
+    var last = G.lastLifeOf(old);
     var r = cont9.apply(this, arguments);
     var s2 = S(), p = s2.p;
     if (last && s2.lineage && s2.lineage.length) Object.assign(s2.lineage[s2.lineage.length - 1], { td: last.td, ep: last.ep, cause: last.cause, nw: last.nw, cur: last.cur, tl: last.tl, gen: (s2.gen || 2) - 1, org: last.org, c: last.c, g: last.g, age: last.age, grade: last.grade });
@@ -47,7 +48,7 @@
   };
   var reb9 = G.life.rebirthAs;
   if (reb9) G.life.rebirthAs = function (kid) {
-    var s0 = S(), lin = (s0.lineage || []).slice(), leg = s0.legacy, last = (G.meta.lives || [])[G.meta.lives.length - 1], old = s0.p;
+    var s0 = S(), lin = (s0.lineage || []).slice(), leg = s0.legacy, old = s0.p, last = G.lastLifeOf(old);
     var fate = kid.crowned ? { c: kid.c, y: kid.crownY || (kid.by + 35) } : null;
     if (last) lin.push({ name: old.name, by: old.birthYear, dy: s0.year, title: last.title, score: last.score, td: last.td, ep: last.ep, cause: last.cause, nw: last.nw, cur: last.cur, tl: last.tl, gen: s0.gen || 1, org: last.org, c: last.c, g: last.g, age: last.age, grade: last.grade });
     var s = reb9.apply(this, arguments);

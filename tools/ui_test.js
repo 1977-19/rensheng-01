@@ -25,7 +25,13 @@ fs.mkdirSync(OUT, { recursive: true });
     for (let k = 0; k < max; k++) {
       await page.waitForTimeout(120);
       const ghost = await page.$('.ghost');
-      if (ghost) { const b = await page.$$('.ghost .intro .big'); if (b[1]) { try { await b[1].click({ timeout: 2000 }); } catch (e) { } } continue; }
+      if (ghost) {
+        const b = await page.$$('.ghost .intro .big'); if (b[1]) { try { await b[1].click({ timeout: 2000 }); } catch (e) { } continue; }
+        // the instinct test: pick an answer, then move on
+        const nx = await page.$('.ghost .gb > .big.solid'); if (nx) { try { await nx.click({ timeout: 2000 }); } catch (e) { } continue; }
+        const op = await page.$$('.ghost .gb .opt'); if (op.length) { try { await op[Math.floor(Math.random() * op.length)].click({ timeout: 2000 }); } catch (e) { } await page.waitForTimeout(150); }
+        continue;
+      }
       const veil = await page.$$('.veil.on');
       if (!veil.length) { await page.waitForTimeout(500); if (!(await page.$$('.veil.on')).length && !(await page.evaluate(() => G.busy))) return; continue; }
       const top = veil[veil.length - 1];

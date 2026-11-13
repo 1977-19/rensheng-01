@@ -69,7 +69,8 @@
       if (d.k === 'note') return h('span', { class: 'dl note' }, T(d.x));
       var nm = G.STATS[d.k] ? G.STATS[d.k].n : names[d.k] || d.k;
       var good = d.n > 0; if (d.k === 'stress' || d.k === 'heat') good = !good;
-      var v = d.k === 'money' ? G.fm(Math.abs(d.n)) : d.k === 'fans' ? Math.abs(Math.round(d.n)).toLocaleString() : Math.abs(Math.round(d.n));
+      var v = d.k === 'money' ? G.fm(Math.abs(d.n)) : d.k === 'fans' ? Math.abs(Math.round(d.n)).toLocaleString() : G.STATS[d.k] ? (Math.round(Math.abs(d.n) * 10) / 10 || 0) : Math.abs(Math.round(d.n));
+      if (G.STATS[d.k] && v) v = v + '%';
       if (v === 0 || v === '0') return null;
       return h('span', { class: 'dl ' + (good ? 'up' : 'dn') }, T(nm) + ' ' + (d.n > 0 ? '+' : '−') + v);
     }));

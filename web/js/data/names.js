@@ -96,8 +96,14 @@
     var c = N[cul] || N.us;
     if (c.ruF && g === 'f' && sur) { sur = zh(sur).replace(/夫$/, '娃') + '|' + en(sur) + 'a'; }
     if (!sur) return giv;
-    if (c.east) return zh(sur) + zh(giv) + '|' + en(sur) + ' ' + en(giv);
-    return zh(giv) + '·' + zh(sur) + '|' + en(giv) + ' ' + en(sur);
+    // a given name must never carry a surname inside it (no "William Ye Ye")
+    var gz = zh(giv), ge = en(giv), sz = zh(sur), se = en(sur);
+    if (gz.indexOf('·') >= 0) gz = gz.split('·')[0];
+    if (gz.length > sz.length && gz.indexOf(sz) === 0) gz = gz.slice(sz.length);
+    if (gz.length > sz.length && gz.slice(-sz.length) === sz) gz = gz.slice(0, -sz.length);
+    ge = ge.replace(new RegExp('^' + se.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' '), '').replace(new RegExp(' ' + se.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$'), '');
+    if (c.east) return sz + gz + '|' + se + ' ' + ge;
+    return gz + '·' + sz + '|' + ge + ' ' + se;
   };
   G.genSur = function (cul) { return G.pick((N[cul] || N.us).s); };
   G.genGiven = function (cul, g, by) {

@@ -15,7 +15,7 @@ window.DiceBear = req('index.js')('./lite.js');
 })();\n`;
 fs.writeFileSync(path.join(__dirname, '../web/js/lib/dicebear.js'), out);
 const keep = {};
-for (const s of ['avataaars', 'adventurer']) keep[s] = JSON.parse(fs.readFileSync(path.join(sty, s + '.json'), 'utf8'));
+for (const s of ['avataaars', 'adventurer', 'lorelei']) keep[s] = JSON.parse(fs.readFileSync(path.join(sty, s + '.json'), 'utf8'));
 fs.writeFileSync(path.join(__dirname, '../web/js/lib/avstyles.js'),
   '/* Avatar style definitions from DiceBear styles. avataaars: "Avataaars" by Pablo Stanley (free for personal and commercial use);\n   adventurer: "Adventurer" by Lisa Wischofsky, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). */\nwindow.AV_STYLES = ' + JSON.stringify(keep) + ';\n');
 console.log('ok', files.length, 'modules');

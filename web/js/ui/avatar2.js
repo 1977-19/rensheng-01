@@ -1,4 +1,4 @@
-/* Portrait avatars drawn with DiceBear styles: "写实" (Avataaars) and "动漫" (Adventurer).
+/* Portrait avatars drawn with DiceBear styles: "插画" (Lorelei, the default), "写实" (Avataaars) and "动漫" (Adventurer).
    The old sticker faces stay available as "经典". Same inputs as before: seed, age, gender, skin tone, culture, mood. */
 (function () {
   'use strict';
@@ -67,7 +67,34 @@
     };
     return svg('adventurer', opts);
   }
-  G.avatarStyle = function () { var s = G.settings && G.settings.avStyle; return s === 'anime' || s === 'classic' ? s : 'real'; };
+  function illustrated(o) {
+
+    function v(n) { return 'variant' + (n < 10 ? '0' : '') + n; }
+    var SK = ['ffe3c9', 'f6cfa6', 'e9b48a', 'c98b5e', 'a0603a', '6b4630'];
+    var BG = ['fbf3e3', 'fdeee6', 'eef4ea', 'efedf7', 'ecf3f6', 'fbefef', 'f6f1e1'];
+    var DARK = ['2c1b18', '3b2a21', '24191a', '4a312c'], LIGHT = ['b58143', 'd6b370', 'a55728', '724133', 'c26a3d', 'cfa361'];
+    var age = o.age || 0, f = o.g === 'f', si = o.skin == null ? 1 : Math.max(0, Math.min(5, Math.round(o.skin)));
+    var r = rng((o.seed || 7) * 13 + (f ? 5 : 2)), mood = o.happy == null ? 60 : o.happy;
+    var east = ['cn', 'jp', 'kr', 'sg', 'th', 'in'].indexOf(o.cul) >= 0;
+    var hc = age >= 75 ? 'e8e6e1' : age >= 62 ? 'b9b5b0' : (age >= 52 && r() < .45) ? '8d877f' : (east || si >= 3 ? pick(r, DARK) : pick(r, DARK.concat(LIGHT, LIGHT)));
+    var M = [1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 20, 22, 39, 43, 44, 47], F = [13, 14, 15, 16, 17, 19, 21, 23, 24, 29, 31, 32, 33, 35, 37, 38, 40, 41, 42, 45, 46, 48, 10, 18, 30, 36];
+    var hair;
+    if (age < 3) hair = 34; else if (age < 10 && f) hair = pick(r, [26, 14, 21, 23, 36, 48]); else if (f) hair = pick(r, F); else if (age >= 55 && r() < .35) hair = pick(r, [25, 28]); else hair = pick(r, M);
+    var happy = mood >= 50, sad = mood < 28;
+    var mouth = o.dead ? 'sad03' : sad ? pick(r, ['sad01', 'sad03', 'sad04', 'sad05', 'sad09']) : happy ? pick(r, ['happy01', 'happy02', 'happy03', 'happy05', 'happy06', 'happy08', 'happy09', 'happy13', 'happy17']) : pick(r, ['happy01', 'happy04', 'happy14', 'sad03', 'happy02']);
+    var opts = {
+      seed: 'l' + (o.seed || 7), idRandomization: true, skinColor: [SK[si]], hairColor: [hc], eyebrowsColor: [hc === 'e8e6e1' ? 'a9a49c' : hc],
+      hairVariant: [v(hair)], headVariant: [v(1 + Math.floor(r() * 4))], eyesVariant: [v(pick(r, [2, 4, 6, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21, 24, 2, 4, 12, 16]))], eyebrowsVariant: [v(1 + Math.floor(r() * 13))],
+      mouthVariant: [mouth], noseVariant: [v(1 + Math.floor(r() * 6))],
+      beardProbability: !f && age >= 22 && r() < (age >= 55 ? .35 : .2) ? 100 : 0, beardVariant: [v(1 + Math.floor(r() * 2))],
+      glassesProbability: (o.glasses || (age >= 8 && r() < .12) || (age >= 60 && r() < .4)) ? 100 : 0, glassesVariant: [v(1 + Math.floor(r() * 5))],
+      earringsProbability: f && age >= 14 && r() < .4 ? 100 : 0, earringsVariant: [v(1 + Math.floor(r() * 3))],
+      frecklesProbability: r() < (age < 14 ? .3 : .1) ? 100 : 0, hairAccessoriesProbability: f && age < 30 && r() < .12 ? 100 : 0,
+      backgroundColor: [pick(r, BG)]
+    };
+    return svg('lorelei', opts);
+  }
+  G.avatarStyle = function () { var s = G.settings && G.settings.avStyle; return s === 'anime' || s === 'classic' || s === 'real' ? s : 'art'; };
   G.avatar = function (o) {
     o = o || {};
     var st = o.style || G.avatarStyle();
@@ -75,7 +102,7 @@
     var age = o.age || 0, g = o.g || 'm', si = o.skin != null ? Math.max(0, Math.min(5, Math.round(o.skin))) : 1;
     var r = rng((o.seed || 7) * 7 + (g === 'f' ? 3 : 1)), mood = o.happy == null ? 60 : o.happy;
     var out;
-    try { out = (st === 'anime' || age < 4) ? anime(o, r, age, g, si, mood) : realistic(o, r, age, g, si, mood); }
+    try { out = st === 'art' && ST.lorelei ? illustrated(o) : (st === 'anime' || age < 4) ? anime(o, r, age, g, si, mood) : realistic(o, r, age, g, si, mood); }
     catch (e) { return classic.apply(this, arguments); }
     if (o.dead) out = out.replace('<svg ', '<svg style="filter:grayscale(1);opacity:.75" ');
     return out;
