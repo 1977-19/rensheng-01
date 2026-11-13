@@ -4,13 +4,18 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      runner:
+        description: macOS runner label (use macos-15-intel or macos-13 when arm64 Macs are at capacity)
+        required: false
+        default: macos-latest
 
 permissions:
   contents: write
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ${{ inputs.runner || 'macos-latest' }}
     timeout-minutes: 60
     steps:
       - name: Checkout
