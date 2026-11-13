@@ -21,14 +21,15 @@ fs.mkdirSync(OUT, { recursive: true });
   for (let i = 0; i < 6; i++) { await page.waitForTimeout(150); if (i === 1) await shot('02_wiz_country'); if (i === 3) await shot('03_wiz_origin'); if (i === 4) await shot('04_wiz_talent'); if (i === 5) await shot('05_wiz_name'); await page.click('.wf .big'); }
   await page.waitForTimeout(400);
   await shot('06_main');
-  async function drain(max = 40) {
+  async function drain(max = 150) {
     for (let k = 0; k < max; k++) {
       await page.waitForTimeout(120);
       const ghost = await page.$('.ghost');
       if (ghost) { const b = await page.$$('.ghost .intro .big'); if (b[1]) { try { await b[1].click({ timeout: 2000 }); } catch (e) { } } continue; }
       const veil = await page.$$('.veil.on');
-      if (!veil.length) return;
+      if (!veil.length) { await page.waitForTimeout(500); if (!(await page.$$('.veil.on')).length && !(await page.evaluate(() => G.busy))) return; continue; }
       const top = veil[veil.length - 1];
+      const sug = await top.$('.sug'); if (sug) { try { await sug.click({ timeout: 2000 }); } catch (e) { } }
       const btn = await top.$('.opt:not([disabled])') || await top.$('.row:not([disabled])') || await top.$('.x');
       if (btn) { try { await btn.click({ timeout: 2000 }); } catch (e) { } } else return;
     }

@@ -85,6 +85,26 @@
   };
   if (adm && adm.o && adm.o[0]) { var yes = adm.o[0].run; adm.o[0].run = function (c) { if (taken(c.npc)) { c.npc.rel = 'friend'; return '你笑着告诉{him}，自己已经有伴了。|You smiled and told {him} you were already taken.'; } return yes.apply(this, arguments); }; }
 
+  /* ---------- no civil-service promotion or political careers ---------- */
+  ['sys_policy', 'sys_reelect', 'j_gov_audit', 'st_summit', 'st_statedinner', 'st_leak', 'cn_kid_passport'].forEach(function (id) { delete G.EV[id]; });
+  G.EVL = G.EVL.filter(function (d) { return G.EV[d.id] === d; });
+  G.ACT_CATS.forEach(function (c) {
+    if (c.id === 'service') { c.items = c.items.filter(function (a) { return a.id !== 'civil' && a.id !== 'run'; }); c.n = '参军·从警|Military & Police'; }
+  });
+  G.ACT_GOV = [];
+  G.ORIGINS = G.ORIGINS.filter(function (o) { return o.id !== 'civil'; });
+  var jobOk0 = G.jobOk;
+  G.jobOk = function (j) { if (j && (j.id === 'judge' || j.id === 'diplomat' || j.cat === 'gov')) return false; return jobOk0.apply(this, arguments); };
+  [['a_jobless', '考公/考研|Study for exams', '考研|Study for graduate school'], ['or_m_path', null, null]].forEach(function (x) {
+    var d = G.EV[x[0]]; if (!d || !d.o) return;
+    if (x[1]) d.o.forEach(function (o) { if (o.t === x[1]) o.t = x[2]; });
+    else d.o = d.o.filter(function (o) { return typeof o.t !== 'string' || o.t.indexOf('考公') < 0; });
+  });
+  if (G.EV.or_m_path) G.EV.or_m_path.title = '考研还是出国|Grad School or Abroad?';
+  // an older save with a government post becomes an ordinary office job
+  var mt0 = G.money && G.money.tick;
+  if (mt0) G.money.tick = function () { var p = G.S && G.S.p; if (p && p.gov) { p.gov = null; var j = G.JOB.office || G.JOBS.filter(function (x) { return !x.pt && x.deg <= 4; })[0]; if (j && !p.job) G.career.hire(j); } return mt0.apply(this, arguments); };
+
   /* ---------- no national flags anywhere: each country gets a landmark instead ---------- */
   var MARK = { cn: '🏮', us: '🗽', jp: '🗻', kr: '🥢', gb: '💂', fr: '🗼', de: '🥨', ru: '🪆', in: '🐘', br: '⚽', au: '🦘', ca: '🍁', sg: '🦁', it: '🍕',
     es: '💃', mx: '🌮', th: '🛺', za: '🦓', nz: '🥝', ie: '☘️', ch: '🧀', at: '🎻', pt: '🐓', ar: '🥩' };

@@ -139,7 +139,7 @@
       O('紧张得说不出话|Freeze up', R('你的窘态成了网络表情包。|Your awkward face became a meme.', { fame: 3, happy: -4 }))
     ], { w: .5 }),
     E('a_whistle', [24, 60], '公司黑幕|Company Wrongdoing', '🕵️', '你发现公司在偷偷排放污水/做假账。|You discover your company is secretly dumping waste / cooking the books.', [
-      O('匿名举报|Report it anonymously', RC(.7, '公司被查处，你深藏功与名。|The company was penalized, and no one knew it was you.', { karma: 12 }, '你的身份暴露了，被公司开除。|You were exposed and fired.', { karma: 12, happy: -10 })),
+      O('匿名举报|Report it anonymously', RC(.7, '公司被查处，你深藏功与名。|The company was penalized, and no one knew it was you.', { karma: 12 }, '你的身份暴露了，被公司开除。|You were exposed and fired.', { karma: 12, happy: -10, fire: 1 })),
       O('拿封口费|Take hush money', R('老板塞给你一个红包，你闭嘴了。|Your boss slipped you an envelope, and you kept quiet.', { money: 5000, karma: -10 })),
       O('当没看见|Pretend you didn\'t see', R('你选择沉默。|You chose silence.', { karma: -3 }))
     ], { if: H.employed }),

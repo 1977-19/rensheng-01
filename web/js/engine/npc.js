@@ -208,9 +208,9 @@
       n.wealth = Math.max(0, Math.round(n.wealth * g + (n.inc || 0) * G.rf(.05, .25)));
       // affection decay
       if (n.lt < S.year) {
-        if (n.aff > 0) n.aff -= N.family[n.rel] ? 1 : (n.rel === 'spouse' || n.rel === 'lover') ? 2 : 3;
+        if (n.aff > 0) n.aff -= N.family[n.rel] ? (G.ch(.4) ? 1 : 0) : (n.rel === 'spouse' || n.rel === 'lover') ? 1 : (G.ch(.5) ? 1 : 2);
         else if (n.aff < 0) n.aff += 1;
-        if ((n.rel === 'spouse' || n.rel === 'lover') && n.love > 0) n.love -= G.ri(1, 4);
+        if ((n.rel === 'spouse' || n.rel === 'lover') && n.love > 0) n.love -= G.ri(0, 2);
       }
       n.chatN = 0;
     });

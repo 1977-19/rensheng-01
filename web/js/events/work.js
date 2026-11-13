@@ -36,7 +36,7 @@
     ], { if: job }),
     E('w_mistake', [20, 64], '工作失误|A Costly Mistake', '😱', '你在工作中犯了一个大错，给公司造成了损失。|You made a serious mistake at work that cost the company money.', [
       O('主动承认并补救|Own it and fix it', R('你加班加点补救，领导反而欣赏你的担当。|You worked overtime to fix it, and leadership respected your accountability.', { perf: 2, stress: 10 })),
-      O('掩盖过去|Cover it up', RC(.5, '没人发现。|Nobody noticed.', { karma: -4 }, '东窗事发，你被开除了。|It came out, and you were fired.', { happy: -12 }))
+      O('掩盖过去|Cover it up', RC(.5, '没人发现。|Nobody noticed.', { karma: -4 }, '东窗事发，你被开除了。|It came out, and you were fired.', { happy: -12, fire: 1 }))
     ], { bad: 1, if: job }),
     E('w_office_romance', [20, 50], '办公室恋情|Office Romance', '💘', '同事{n}最近总是找借口和你一起吃午饭。|Your coworker {n} keeps finding excuses to have lunch with you.', [
       O('试着交往|Give it a shot', function (c) { if (N.attract(c.npc) > .35 || G.ch(.4)) { G.love.becomeLovers(c.npc); return '你们开始了秘密的办公室恋情。|You began a secret office romance.'; } N.addAff(c.npc, 5); return '你们聊得很愉快，但没擦出火花。|You got along, but no sparks.'; }),

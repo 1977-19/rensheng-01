@@ -174,7 +174,7 @@
       O('去问老管家|Ask the old butler', function (c) { var b = staff('管家|Butler'); if (b) { G.dPush('aff', N.addAff(b, 6)); } H.fx(c, { smarts: 1, eq: 2 }); return '老管家摸摸你的头：“大人的事，大人会处理好的。”他悄悄给你拿了一块点心。|The old butler patted your head: "Grown-ups will sort out grown-up things." He slipped you a pastry.'; }),
       O('假装什么都没发生|Pretend nothing is happening', R('你把自己关在房间里画画。|You shut yourself in your room and drew.', { happy: -4, smarts: 1 }))
     ], { bad: 1, cd: 99, if: function () { return par().length === 2; } }),
-    IE('ry_school', ['royal', 'noble'], [12, 17], '贵族寄宿学校|The Old Boarding School', '🏫', '你被送进了一所有五百年历史的寄宿学校。这里的同学，父亲不是公爵就是部长。|You\'re sent to a five-hundred-year-old boarding school. Every classmate\'s father is a duke or a minister.', [
+    IE('ry_school', ['royal', 'noble'], [12, 17], '贵族寄宿学校|The Old Boarding School', '🏫', '你被送进了一所有五百年历史的寄宿学校。这里的同学，父亲不是公爵就是大企业家。|You\'re sent to a five-hundred-year-old boarding school. Every classmate\'s father is a duke or a tycoon.', [
       O('放下身份，和大家打成一片|Drop the title and fit in', function (c) { var n = N.make({ rel: 'friend', age: c.p.age, aff: 50, tags: ['rich'], pers: G.pick(['loyal', 'funny', 'honest']) }); c.prm.f = n.name; H.fx(c, { eq: 4, happy: 3, smarts: -1 }); return '你和{f}成了一辈子的朋友。|You and {f} became friends for life.'; }),
       O('把精力都放在学习上|Throw yourself into your studies', R('你拿下了年级第一，但宿舍熄灯后常常觉得孤单。|You topped your year — and felt lonely after lights-out.', { smarts: 4, happy: -3 })),
       O('利用身份当上学生会主席|Use your name to win head of school', R('你赢了选举，也听到了背后的议论。|You won — and heard the whispers behind your back.', { eq: 2, fame: 2, karma: -2 }))

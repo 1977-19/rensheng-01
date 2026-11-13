@@ -230,8 +230,8 @@
   var NEW_ORIGINS = [
     { id: 'mixed', n: '混血家庭|Mixed-Heritage Family', d: '爸爸妈妈来自两个国家，你从小就说两种语言，长得也和别人有点不一样。|Your parents come from two countries. You grow up with two languages and a face people remember.', vip: 0,
       w: [60000, 400000], inc: [40000, 120000], job: ['外企职员|Multinational Employee', '翻译|Translator', '工程师|Engineer', '大学讲师|Lecturer'], st: { looks: 8, eq: 4 }, sib: [0, 2] },
-    { id: 'diplomat', n: '外交官家庭|Diplomat Family', d: '父母常驻海外使馆，你每隔几年就跟着搬去一个新国家。|Your parents serve at embassies abroad; every few years you move to a new country.', vip: 0,
-      w: [150000, 600000], inc: [70000, 160000], job: ['外交官|Diplomat', '大使馆参赞|Embassy Counselor'], st: { eq: 8, smarts: 4 }, sib: [0, 1] },
+    { id: 'diplomat', n: '驻外家庭|Expat Family', d: '父母被跨国公司派驻海外，你每隔几年就跟着搬去一个新国家。|Your parents are posted abroad by a multinational; every few years you move to a new country.', vip: 0,
+      w: [150000, 600000], inc: [70000, 160000], job: ['跨国公司驻外高管|Expat Executive', '国际组织职员|International Organisation Staff'], st: { eq: 8, smarts: 4 }, sib: [0, 1] },
     { id: 'oldbrand', n: '百年老字号|Century-Old Family Shop', d: '祖上传下来一家百年老店，招牌比爷爷的年纪还大。|Your family runs a shop founded a century ago — its signboard is older than your grandfather.', vip: 0,
       w: [300000, 1500000], inc: [60000, 200000], job: ['老字号掌柜|Owner of a Heritage Shop', '老字号传承人|Heir to a Heritage Shop'], st: { eq: 5, health: 2 }, sib: [0, 2] },
     { id: 'space', n: '航天世家|Spaceflight Family', d: '爸爸是航天工程师，家里的书架上摆满了火箭模型。|Your father builds spacecraft; the shelves at home are full of rocket models.', vip: 0,
@@ -279,15 +279,15 @@
       O('两个都留着（能留就留）|Keep both, where the law allows', R('律师帮你办好了手续。|A lawyer sorted out the paperwork.', { money: -2000, happy: 2 }))
     ], { if: function (S2, p) { return p.cits && p.cits.length > 1; } }),
     // diplomats' children
-    OE('or_dp_move', 'diplomat', [6, 15], '又要搬家了|Moving Again', '🧳', '爸爸调任新的使馆，全家又要搬去另一个国家了。|Dad has a new posting. The whole family is moving to another country again.', [
+    OE('or_dp_move', 'diplomat', [6, 15], '又要搬家了|Moving Again', '🧳', '爸爸的公司又把他派到另一个国家，全家要搬家了。|Dad\'s company is posting him to another country; the whole family is moving again.', [
       O('很快交到新朋友|Make new friends fast', R('三个月后，你已经能用当地话和同学吵架了。|Three months later you could argue with classmates in the local language.', { eq: 5, smarts: 2 })),
       O('哭着和老朋友告别|Say a tearful goodbye to old friends', R('你们约好每周视频。后来是每月，再后来……|You promised weekly video calls. Then monthly. Then…', { happy: -3, eq: 3 }))
     ], { rep: 1, cd: 3 }),
-    OE('or_dp_reception', 'diplomat', [10, 17], '国庆招待会|The National Day Reception', '🥂', '使馆办招待会，你被安排给各国大使的孩子当“小主人”。|The embassy holds a reception; you\'re the "little host" for the ambassadors\' children.', [
-      O('用三种语言聊天|Chat in three languages', R('一位大使说：“这孩子以后能当外交官。”|One ambassador said: "This child will be a diplomat one day."', { eq: 6, fame: 1 })),
+    OE('or_dp_reception', 'diplomat', [10, 17], '公司年会|The Company Gala', '🥂', '爸爸公司办年会，你被安排给各国同事的孩子当“小主人”。|Dad\'s company holds its annual gala; you\'re the "little host" for colleagues\' children from many countries.', [
+      O('用三种语言聊天|Chat in three languages', R('一位老总说：“这孩子以后能做国际生意。”|One executive said: "This child will do international business one day."', { eq: 6, fame: 1 })),
       O('偷偷吃光甜点|Quietly eat all the desserts', R('第二天，妈妈收到了甜点师的道谢——他说从没见过这么捧场的客人。|The next day the pastry chef thanked Mom — he\'d never had such an appreciative guest.', { happy: 6 }))
     ]),
-    OE('or_dp_crisis', 'diplomat', [8, 17], '撤侨|Evacuation', '🚨', '驻地突然发生动乱，使馆连夜组织撤离。|Unrest breaks out where you live; the embassy organises an evacuation overnight.', [
+    OE('or_dp_crisis', 'diplomat', [8, 17], '撤侨|Evacuation', '🚨', '驻地突然发生动乱，公司连夜安排全家撤离。|Unrest breaks out where you live; the company evacuates your family overnight.', [
       O('帮着照顾更小的孩子|Help look after the younger children', R('飞机起飞时，一个小女孩一直攥着你的手。|As the plane took off, a little girl held your hand the whole way.', { karma: 6, eq: 4 })),
       O('紧紧跟着爸妈|Stay close to your parents', R('落地后，爸爸抱着你说：“没事了。”|When you landed, Dad held you: "It\'s over now."', { happy: -2, par: 4 }))
     ]),
