@@ -69,7 +69,7 @@
     // a richer spouse gives more each year for each child you have together
     if (spo && spo.alive && spo.wealth > Math.max(G.$(1e5), G.netWorth())) {
       var kids = N.rel('child').filter(function (k) { return k.alive && (k.par2 === spo.id || k.other === spo.id); }).length, gift = Math.round(Math.min(spo.wealth * .02, G.$(20000) * (1 + kids)));
-      if (gift > 0) { spo.wealth -= gift; tag('{n}给的家用|Housekeeping from {n}'.replace(/\{n\}/g, spo.name.split('|')[0]), function () { G.addMoney(gift); }); }
+      if (gift > 0) { spo.wealth -= gift; G.giftIn(gift, G.L('{n}给的家用|Housekeeping from {n}', { n: spo.name })); }
     }
     // parents object to a very poor match
     if (sp && sp.rel === 'lover' && !sp.parObj && G.netWorth() > G.$(2e6) && Math.max(0, sp.wealth || 0) < G.netWorth() * .02 && N.rel('father', 'mother').some(function (x) { return x.alive; })) { sp.parObj = 1; q('par_object', sp.id); }
@@ -151,6 +151,7 @@
   };
   G.PRO_HOBBY = PRO;
   function hob(k, n) { var p = P(); p.hob = p.hob || {}; p.hob[k] = (p.hob[k] || 0) + (n || 1) * (p.flags.gift === k ? 2 : 1); if (p.hob[k] >= 10 && !p.flags.pro && p.age >= 16) { p.flags.pro = k; G.major('成为{x}|Became a {x}', { x: PRO[k].n }); G.addStat('fame', 5); return G.L('\n你已经玩成了专业的——现在你是{x}，每年都有收入。|\nYou\'ve gone pro — you\'re now a {x}, with an income every year.', { x: PRO[k].n }); } return ''; }
+  G.hobby = hob;
   var G_TAL = G.title;
   G.title = function () { var p = P(); var t = G_TAL.apply(this, arguments); if (p && p.flags.pro && PRO[p.flags.pro] && !p.job && !p.spy && /无业|Unemployed|自由职业|Freelance/.test(G.T(t))) return PRO[p.flags.pro].n; return t; };
   var MOUNT = [

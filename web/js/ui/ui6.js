@@ -80,7 +80,7 @@
     ['健康|Health', ['health']],
     ['工作与事业|Work & Career', ['hustle', 'kidstar', 'service', 'spy', 'mega', 'honor', 'reign']],
     ['家庭与感情|Family & Love', ['family', 'social', 'elite']],
-    ['生活|Everyday Life', ['life', 'fun', 'learn', 'travel', 'space']],
+    ['生活|Everyday Life', ['life', 'fun', 'petcare', 'learn', 'travel', 'space', 'collect']],
     ['灰色地带|The Gray Zone', ['gray', 'crime', 'gamble']],
     ['钱与家|Money & Home', ['money', 'shop', 'move']]
   ];

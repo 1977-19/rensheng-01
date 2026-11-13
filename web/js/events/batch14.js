@@ -211,7 +211,7 @@
         a = Math.min(a, Math.round(inc * .15 + Math.max(0, n.wealth) * .02)); if (a < 1) return;
         n.wealth = Math.max(0, n.wealth - Math.round(a * .3)); tot += a; by.push(n);
       });
-      if (tot > 0) { if (G.fin) G.fin.tag = G.L('零花钱|Pocket money'); G.addMoney(tot); if (G.fin) G.fin.tag = null; }
+      if (tot > 0) G.giftIn(tot, G.L('父母给的零花钱|Pocket money from your parents'));
     }
     // a roof of your own matters: renting is tolerable, having none is not
     if (p.age >= 22 && !G.dependent() && !p.jail && !G.school.isStudent()) {
@@ -220,7 +220,7 @@
       else if (!own && p.home !== 'parents' && !p.rent) { G.addStat('health', -3, true); G.addStat('happy', -2, true); }
     }
     // a passport marriage brings money in every month
-    N.all(function (n) { return n.citSeeker && n.alive && n.rel === 'spouse'; }).forEach(function (n) { var m = G.$(n.citGift || 60000); if (G.fin) G.fin.tag = G.L('{n}给的家用|Housekeeping from {n}', { n: n.name }); G.addMoney(m); if (G.fin) G.fin.tag = null; });
+    N.all(function (n) { return n.citSeeker && n.alive && n.rel === 'spouse'; }).forEach(function (n) { var m = G.$(n.citGift || 60000); G.giftIn(m, G.L('{n}给的家用|Housekeeping from {n}', { n: n.name })); });
     // a car from your parents on your 18th
     if (p.age === 18 && !p.flags.carGift && (G.famClass && G.famClass() >= 2 || N.rel('father', 'mother').some(function (n) { return n.wealth > G.$(400000); }))) { p.flags.carGift = 1; q('car_gift'); }
     // turning 40 without children

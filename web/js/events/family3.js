@@ -113,7 +113,7 @@
       if (k.nanny) {
         var nn = S().npcs[k.nanny];
         if (!nn || !nn.alive || a >= 14) { if (nn) { nn.rel = 'contact'; nn.pin = 0; } k.nanny = 0; if (a >= 14) G.log('{n}长大了，保姆完成了她的使命。|{n} has grown up; the nanny\'s work is done.', { n: k.name }); }
-        else if (G.pay(nn.inc || G.$w(18000))) { k.smarts = G.clamp(k.smarts + G.rf(.6, 1.4), 1, 100); k.eq = G.clamp((k.eq || 50) + G.rf(.6, 1.4), 1, 100); k.health = G.clamp((k.health || 70) + 1, 1, 100); k.looks = G.clamp((k.looks || 50) + G.rf(0, .6), 1, 100); }
+        else if (G.payHalf ? G.payHalf(k, nn.inc || G.$w(18000)) : G.pay(nn.inc || G.$w(18000))) { k.smarts = G.clamp(k.smarts + G.rf(.6, 1.4), 1, 100); k.eq = G.clamp((k.eq || 50) + G.rf(.6, 1.4), 1, 100); k.health = G.clamp((k.health || 70) + 1, 1, 100); k.looks = G.clamp((k.looks || 50) + G.rf(0, .6), 1, 100); }
         else { nn.rel = 'contact'; nn.pin = 0; k.nanny = 0; G.log('你付不起保姆的工资，她离开了。|You couldn\'t pay the nanny, and she left.'); }
       }
     }

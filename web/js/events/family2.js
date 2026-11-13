@@ -6,7 +6,7 @@
   function S() { return G.S; }
   function pr(k) { return { n: k.name }; }
   function res(a, t, prm, dl) { return G.result(a.n, t, prm, dl || [], a.i); }
-  var ABROAD = ['us', 'gb', 'ca', 'au', 'sg', 'jp', 'de', 'fr'];
+  var ABROAD = ['us', 'gb', 'ch', 'ca', 'au', 'nz', 'ie', 'sg', 'jp', 'kr', 'de', 'fr', 'at'];
 
   /* ---------------- schools ---------------- */
   var SCH = G.KSCHOOL = {
@@ -17,7 +17,9 @@
     board: { n: '寄宿学校|Boarding School', i: '🛏️', fee: 14000, sm: 1.1, perf: 4, aff: -3, d: '封闭管理，独立自律，但一年见不了几次面。|Strict and self-reliant — but you\'ll barely see them.' },
     abroad: { n: '出国读中学|Secondary School Abroad', i: '✈️', fee: 50000, sm: 1.1, perf: 0, eq: 1, abroad: .95, aff: -4, minA: 12, d: '小留学生：语言和眼界飞速提升，但孤独和文化冲击也很大。|A young international student: language and horizons grow fast — so do loneliness and culture shock.' }
   };
-  function feeOf(k, id) { return id === 'pub' ? 0 : G.$w(SCH[id].fee, k.c || S().p.country); }
+  var ABF = { us: 72000, gb: 62000, ch: 90000, ca: 42000, au: 40000, nz: 30000, ie: 28000, sg: 38000, jp: 22000, kr: 20000, de: 12000, fr: 16000, at: 14000 };
+  G.ABROAD_FEE = ABF;
+  function feeOf(k, id, c) { if (id === 'pub') return 0; if (id === 'abroad') { var cc = c || k.schC; if (cc && ABF[cc]) return G.$(ABF[cc]); } return G.$w(SCH[id].fee, k.c || S().p.country); }
   function inSchool(k) { var e = k.edu; return e && ['kinder', 'primary', 'middle', 'high', 'voc', 'none'].indexOf(e.stage) >= 0 && N.age(k) < 18 && N.age(k) >= 3; }
 
   /* ---------------- careers ---------------- */
@@ -35,7 +37,7 @@
     if (a >= 3 && a <= 17 && inSchool(n) && n.rel === 'child') add.push({ id: 'kschool', n: '选择学校|Choose a School', i: '🏫', e: 10, run: async function (k, act) {
       var ids = Object.keys(SCH).filter(function (id) { return !SCH[id].minA || a >= SCH[id].minA; });
       var cur = k.sch || 'pub';
-      var items = ids.map(function (id) { var f = feeOf(k, id); return { t: SCH[id].n, icon: SCH[id].i, sub: (id === cur ? G.T('（当前）|(current) ') : '') + G.T(f ? G.L('每年{m}|{m} / year', { m: G.M(f) }) : '免费|Free') + ' · ' + G.T(SCH[id].d), dis: id === cur || p.money < f }; });
+      var items = ids.map(function (id) { var f = id === 'abroad' ? G.$(12000) : feeOf(k, id); return { t: SCH[id].n, icon: SCH[id].i, sub: (id === cur ? G.T('（当前）|(current) ') : '') + G.T(id === 'abroad' ? G.L('每年{a}～{b}，看国家|{a}–{b} a year, by country', { a: G.M(G.$(12000)), b: G.M(G.$(90000)) }) : f ? G.L('每年{m}|{m} / year', { m: G.M(f) }) : '免费|Free') + ' · ' + G.T(SCH[id].d), dis: id === cur || p.money < f }; });
       var i = await G.UI.pick({ title: G.L('{n}去哪里上学？|Where should {n} go to school?', pr(k)), items: items });
       if (i < 0) return 'cancel';
       var id = ids[i], s = SCH[id], f = feeOf(k, id);
@@ -45,9 +47,9 @@
         if (k.smarts + G.ri(-10, 10) < s.test) { G.dStart(); G.dPush('aff', N.addAff(k, -4)); var dl0 = G.dEnd(); return res(act, '{n}没通过入学考试。{x}|{n} failed the entrance test.{x}', { n: k.name, x: dist ? '' : G.L('择校费不退。| The fee is non-refundable.') }, dl0); }
       }
       if (id === 'abroad') {
-        var ci = await G.UI.pick({ title: G.L('去哪个国家？|Which country?'), items: ABROAD.filter(function (c) { return c !== p.country; }).map(function (c) { return { t: G.C[c].n, icon: G.C[c].flag }; }) });
+        var ci = await G.UI.pick({ title: G.L('去哪个国家？|Which country?'), text: G.L('各国费用差别很大（学费+寄宿+生活费，每年）。|Costs vary hugely by country (tuition, boarding and living, per year).'), items: ABROAD.filter(function (c) { return c !== p.country; }).map(function (c) { return { t: G.C[c].n, icon: G.C[c].flag, sub: G.L('每年{m}|{m} a year', { m: G.M(feeOf(k, 'abroad', c)) }), dis: p.money < feeOf(k, 'abroad', c) }; }) });
         if (ci < 0) return 'cancel';
-        k.schC = ABROAD.filter(function (c) { return c !== p.country; })[ci];
+        k.schC = ABROAD.filter(function (c) { return c !== p.country; })[ci]; f = feeOf(k, 'abroad');
       }
       if (f && !G.payKid(k, f)) { G.UI.toast('钱不够|Not enough money'); return 'cancel'; }
       var like = id === 'pub' ? .7 : id === 'board' || id === 'abroad' ? (k.pers === 'rebel' || k.pers === 'clingy' ? .2 : .5) : .7;
