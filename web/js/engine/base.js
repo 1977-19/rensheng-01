@@ -14,6 +14,25 @@
   G.dStart = function () { G.D.on++; if (G.D.on === 1) G.D.list = []; };
   G.dEnd = function () { G.D.on = Math.max(0, G.D.on - 1); var l = G.D.list.filter(function (x) { return Math.abs(x.n) >= 0.5 || x.x; }); if (!G.D.on) G.D.list = []; return l; };
   G.dNote = function (txt) { pushD('note', 1, txt); };
+  // a short neutral summary of what changed, for the diary: "（快乐+5%，健康−2%）"
+  G.dlText = function (dl) {
+    if (!dl || !dl.length) return '';
+    var names = { perf: '成绩|Grades', money: '钱|Money', aff: '好感|Affection', love: '爱意|Love', fans: '粉丝|Fans', appr: '支持率|Approval', fit: '体能|Fitness', stress: '压力|Stress', karma: '品德|Karma', heat: '警方关注|Police heat', rep: '江湖地位|Street rep', merit: '功绩|Merit' };
+    var out = [];
+    dl.forEach(function (d) {
+      if (!d || d.k === 'note' || !d.n) return;
+      var nm = G.STATS && G.STATS[d.k] ? G.STATS[d.k].n : names[d.k]; if (!nm) return;
+      var v, ve;
+      if (d.k === 'money') { try { v = G.fmL(Math.abs(d.n), null, 0); ve = G.fmL(Math.abs(d.n), null, 1); } catch (e) { v = String(Math.round(Math.abs(d.n))); } }
+      else if (G.STATS && G.STATS[d.k]) { v = Math.round(Math.abs(d.n) * 10) / 10; if (!v) return; v = v + '%'; }
+      else { v = Math.abs(Math.round(d.n)); if (!v) return; }
+      var sign = d.n > 0 ? '+' : '−';
+      var i = nm.indexOf('|'); out.push(nm.slice(0, i) + sign + v + '|' + nm.slice(i + 1) + ' ' + sign + (ve || v));
+    });
+    if (!out.length) return '';
+    var j = G.join(out, '，', ', '), k = j.indexOf('|');
+    return '（' + j.slice(0, k) + '）|(' + j.slice(k + 1) + ')';
+  };
   G.dPush = function (k, n) { pushD(k, n); };
 
   /* ---------- stats ---------- */
@@ -134,7 +153,14 @@
       var res = o.run ? await o.run(c) : null;
       var dl = G.dEnd();
       var rt = res ? G.L(res, c.prm) : null;
-      if (d.log !== false) G.logRaw(rt ? G.join([title, rt], '：', ': ') : G.join([text, G.L('（{x}）|({x})', { x: shown[opts.indexOf(o)].t })], '', ' '));
+      if (d.log !== false) {
+        // the diary keeps the whole story: what happened, what you chose, how it turned out, and what it changed
+        var chosen = shown[opts.indexOf(o)].t, line = G.join([title, text], '：', ': ');
+        line = G.join([line, G.L('你选择了「{x}」。|You chose "{x}".', { x: chosen })], '', ' ');
+        if (rt) line = G.join([line, rt], '', ' ');
+        var dtx = G.dlText ? G.dlText(dl) : ''; if (dtx) line = G.join([line, dtx], '', ' ');
+        G.logRaw(line);
+      }
       if (rt || dl.length) await G.UI.result({ title: title, text: rt, d: dl, icon: icon });
     } else {
       G.dStart();
@@ -142,7 +168,7 @@
       var dl2 = G.dEnd();
       var rt2 = r2 ? G.L(r2, c.prm) : null;
       var full = rt2 ? G.join([text, rt2], '', ' ') : text;
-      if (d.log !== false) G.logRaw(full);
+      if (d.log !== false) { var dtx2 = G.dlText ? G.dlText(dl2) : ''; G.logRaw(dtx2 ? G.join([G.join([title, full], '：', ': '), dtx2], '', ' ') : G.join([title, full], '：', ': ')); }
       if (!d.silent) await G.UI.event({ title: title, text: full, opts: [{ t: G.L(txt(d.ok, c) || '知道了|OK') }], npc: c.npc, icon: icon, d: dl2, kind: d.kind });
     }
     for (var i = 0; i < c.q.length; i++) { if (S.dead) break; await G.runEvent(c.q[i].id, c.q[i].prm, c.q[i].nid); }
@@ -157,7 +183,7 @@
   /* show result card for an action */
   G.result = async function (title, text, prm, dl, icon) {
     var t = text ? G.L(text, prm) : null;
-    if (t) G.logRaw(t);
+    if (t) { var tt = G.L(title || '', prm), dtx = G.dlText ? G.dlText(dl) : '', ln = tt ? G.join([G.L('【{a}】|[{a}] ', { a: tt }), t], '', '') : t; G.logRaw(dtx ? G.join([ln, dtx], '', ' ') : ln); }
     return G.UI.result({ title: G.L(title, prm), text: t, d: dl || [], icon: icon });
   };
 

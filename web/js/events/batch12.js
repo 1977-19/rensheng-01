@@ -275,7 +275,7 @@
   G.evs([{ id: 'cn_kid_passport', sys: 1, title: '组织谈话|A Talk with Your Superiors', icon: '🗂️', bad: 1,
     prep: function (c) { if (!c.npc || !cnSystem()) return false; c.prm.n = c.npc.name; },
     t: '组织上找你谈话：你的孩子{n}持有外国护照，按规定，你必须做出选择。|Your superiors call you in: your child {n} holds a foreign passport. The rules say you must choose.',
-    o: [{ t: '让{n}放弃外国国籍|Have {n} renounce the foreign citizenship', run: function (c) { var k = c.npc; k.cits = ['cn']; k.visa = {}; G.dPush('aff', N.addAff(k, -15)); return '{n}很不情愿地交回了护照。|{n} reluctantly surrendered the passport.'; } },
+    o: [{ t: '让{n}放弃外国国籍|Have {n} renounce the foreign citizenship', run: function (c) { var k = c.npc; k.cits = ['cn']; k.visa = null; k.c = 'cn'; G.dPush('aff', N.addAff(k, -15)); return '{n}很不情愿地交回了护照。|{n} reluctantly surrendered the passport.'; } },
       { t: '辞去公职|Resign your post', run: function (c) { var p = c.p; if (p.mil) G.mil && G.mil.leave ? G.mil.leave() : (p.mil = null); p.gov = null; p.pol = null; if (p.job && /judge|prosecutor/.test(p.job.id)) G.career.leave(true); p.flags.passportQ = 0; G.major('因子女外籍辞去公职|Resigned over a child\'s foreign passport'); H.fx(c, { happy: -8 }); return '你交出了工作证。走出大门时，天很蓝。|You handed in your badge. Outside, the sky was very blue.'; } }] }]);
   var emi12 = G.money.emigrate;
   G.money.emigrate = function (to) {
@@ -301,7 +301,7 @@
   var baby12 = LO.baby;
   LO.baby = async function (other, adopted) {
     var k = await baby12.apply(this, arguments), p = P();
-    if (k && other && !adopted && other.sur && p.sur && String(other.sur).split('|')[0] !== String(p.sur).split('|')[0]) {
+    if (k && !k.surPicked && other && !adopted && other.sur && p.sur && String(other.sur).split('|')[0] !== String(p.sur).split('|')[0]) {
       var dad = p.g === 'm' ? p : other, mom = p.g === 'm' ? other : p;
       var i = await G.UI.pick({ title: G.L('{n}跟谁姓？|Whose surname for {n}?', { n: k.name }), items: [{ t: G.L('随父姓：{s}|Father\'s: {s}', { s: dad.sur }), icon: '👨' }, { t: G.L('随母姓：{s}|Mother\'s: {s}', { s: mom.sur }), icon: '👩' }] });
       var sur = i === 1 ? mom.sur : dad.sur;

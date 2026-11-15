@@ -227,7 +227,11 @@
     var choices = SC.uniChoices(sc);
     var items = choices.map(function (u) { return { t: u.n, sub: G.L('{t}星 · {c}|{t}★ · {c}', { t: u.t, c: SC.chLabel(u.ch) }), icon: '🏛️', v: u }; });
     var sys = G.eduSys(cid), fw = G.famWealth() + p.money;
-    if (p.st.health >= 60 && !p.crime.rec && sc >= 52) items.push({ t: sys.mil, sub: G.L('军校 · 需体能考核|Military Academy · physical test', {}), icon: '🎖️', v: { n: sys.mil, t: 4, spec: 'mil', ch: .8 } });
+    // military academies: grades and fitness both count — a lower bar than the very top universities
+    (G.milAcademies ? G.milAcademies(cid) : [{ n: sys.mil, need: 60, br: null }]).forEach(function (ac) {
+      var fitOk = p.h.fit >= 35 || p.st.health >= 72, ok = !p.crime.rec && sc >= ac.need && fitOk && p.st.health >= 55;
+      items.push({ t: ac.n, icon: '🎖️', dis: !ok, sub: G.L('军校 · 要求：{ex}≥{x}分（你{s}分）· 体能≥35或健康≥72（你体能{f}/健康{h}）· 无犯罪记录 · 另有体能考核|Military academy · needs {ex} ≥ {x} (you: {s}) · fitness ≥ 35 or health ≥ 72 (you: {f}/{h}) · clean record · plus a physical test', { ex: sys.ue, x: ac.need, s: sc, f: Math.round(p.h.fit), h: Math.round(p.st.health) }), v: { n: ac.n, t: 4, spec: 'mil', ch: .8, br: ac.br } });
+    });
     if (p.st.health >= 55 && !p.crime.rec && sc >= 44) items.push({ t: sys.pol, sub: G.L('警校 · 需体能考核|Police Academy · physical test', {}), icon: '👮', v: { n: sys.pol, t: 3, spec: 'pol', ch: .8 } });
     items.push({ t: sys.art, sub: G.L('艺术院校 · 需专业面试|Arts school · audition', {}), icon: '🎭', v: { n: sys.art, t: 4, spec: 'art', ch: 0 } });
     items.push({ t: sys.mus, sub: G.L('音乐学院 · 需专业面试|Conservatory · audition', {}), icon: '🎼', v: { n: sys.mus, t: 4, spec: 'mus', ch: 0 } });
@@ -272,7 +276,7 @@
       var ok = true, gname = v.spec === 'mil' || v.spec === 'pol' || v.spec === 'spo' ? 'sprint' : 'rhythm';
       var r = await c.game(gname, { name: v.n });
       var need = v.spec === 'mil' ? .45 : v.spec === 'pol' ? .4 : .5;
-      var bonus = (v.spec === 'art' && (G.has('actor') || c.p.st.looks > 75) ? .15 : 0) + (v.spec === 'mus' && G.has('music') ? .2 : 0) + (v.spec === 'spo' && G.has('athletic') ? .2 : 0);
+      var bonus = (v.spec === 'art' && (G.has('actor') || c.p.st.looks > 75) ? .15 : 0) + (v.spec === 'mus' && G.has('music') ? .2 : 0) + (v.spec === 'spo' && G.has('athletic') ? .2 : 0) + (v.spec === 'mil' ? G.clamp((c.p.h.fit - 40) / 200, -.1, .2) + (G.has('athletic') ? .1 : 0) : 0);
       ok = r.score + bonus >= need && (v.spec !== 'art' && v.spec !== 'mus' || sc >= 35);
       if (!ok) { e.stage = 'done'; c.add('happy', -8); return G.L('{n}的专业考核没通过。|You failed the {n} entrance assessment.', { n: v.n }); }
       SC.admit(v, await SC.pickMajor(c, v.spec)); SC.payTuition(SC.tuition(cid));

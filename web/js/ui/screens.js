@@ -198,8 +198,18 @@
       b.appendChild(seg([[300, T('灵敏|Quick')], [700, T('标准|Normal')], [1200, T('稳妥|Careful')], [1800, T('很稳|Very careful')]], s.tapDelay || 700, function (v) { s.tapDelay = v; }));
       b.appendChild(h('p', { style: { fontSize: '12.5px', color: 'var(--ink2)', margin: '6px 2px 0' } }, T('弹窗出现后，要等这么久才能点选项：灵敏0.3秒 · 标准0.7秒 · 稳妥1.2秒 · 很稳1.8秒。|After a dialog appears, options can only be tapped after this delay: Quick 0.3s · Normal 0.7s · Careful 1.2s · Very careful 1.8s.')));
       b.appendChild(h('div', { class: 'label' }, T('头像风格|Portrait style')));
-      b.appendChild(seg([['art', T('插画|Illustrated')], ['real', T('写实|Realistic')], ['anime', T('动漫|Anime')], ['classic', T('经典|Classic')]], G.avatarStyle ? G.avatarStyle() : 'art', function (v) { s.avStyle = v; if (G.S && G.S.p && G.UI.main) setTimeout(function () { try { G.UI.main(); } catch (e) { } }, 0); }));
-      b.appendChild(h('p', { style: { fontSize: '12.5px', color: 'var(--ink2)', margin: '6px 2px 0' } }, T('插画头像改编自 Lisa Wischofsky 的 Lorelei（CC0）；写实头像改编自 Pablo Stanley 的 Avataaars；动漫头像改编自 Lisa Wischofsky 的 Adventurer（CC BY 4.0）；由 DiceBear 生成。|Illustrated portraits remix "Lorelei" by Lisa Wischofsky (CC0); realistic portraits remix "Avataaars" by Pablo Stanley; anime portraits remix "Adventurer" by Lisa Wischofsky (CC BY 4.0); generated with DiceBear.')));
+      // portrait style: a picker with live previews of a few faces in each style
+      var curSt = G.avatarStyle ? G.avatarStyle() : 'real';
+      b.appendChild(h('div', { class: 'avpick' }, [['real', '写实|Realistic'], ['anime', '动漫|Anime'], ['classic', '经典|Classic']].map(function (o) {
+        var faces = [[11, 8, 'm', 1], [23, 27, 'f', 0], [37, 66, 'm', 3], [52, 34, 'f', 2]].map(function (f) {
+          return h('i', { html: G.avatar({ seed: f[0], age: f[1], g: f[2], skin: f[3], cul: f[3] ? 'us' : 'cn', happy: 80, style: o[0] }) });
+        });
+        return h('button', { class: 'avopt' + (curSt === o[0] ? ' on' : ''), onclick: tap(function () {
+          s.avStyle = o[0]; G.saveSettings(); rec.refresh();
+          if (G.S && G.S.p && G.UI.main) setTimeout(function () { try { G.UI.main(); } catch (e) { } }, 0);
+        }) }, h('div', { class: 'avfaces' }, faces), h('b', null, T(o[1])), curSt === o[0] ? h('span', { class: 'chip' }, T('使用中|In use')) : null);
+      })));
+      b.appendChild(h('p', { style: { fontSize: '12.5px', color: 'var(--ink2)', margin: '6px 2px 0' } }, T('写实头像改编自 Pablo Stanley 的 Avataaars；动漫头像改编自 Lisa Wischofsky 的 Adventurer（CC BY 4.0）；由 DiceBear 生成。|Realistic portraits remix "Avataaars" by Pablo Stanley; anime portraits remix "Adventurer" by Lisa Wischofsky (CC BY 4.0); generated with DiceBear.')));
       b.appendChild(h('div', { class: 'grp' }, T('数据|Data')));
       b.appendChild(h('button', { class: 'row', onclick: tap(function () { UI.confirm('清除所有数据|Erase Everything', '所有存档、成就和记录都会被删除，VIP 会保留。确定吗？|All saves, achievements and records will be deleted. VIP is kept. Continue?').then(function (ok) { if (!ok) return; ['auto', '1', '2', '3', '4', '5', '6'].forEach(function (k) { G.store.del('save_' + k); }); G.store.del('meta'); G.store.del('snap'); G.loadMeta(); G.meta = { ach: {}, lives: [], stats: {} }; G.saveMeta(); UI.toast('已清除|Erased'); UI.start(); }); }) }, h('div', { class: 'ic' }, '🗑️'), h('div', { class: 'tx' }, h('div', { class: 't', style: { color: 'var(--red)' } }, T('清除所有数据|Erase all data')))));
       b.appendChild(h('p', { class: 'empty' }, 'My Life Simulator v' + G.VERSION));
@@ -296,9 +306,9 @@
       h('div', { class: 'epi' }, '“' + T(d.epitaph) + '”'),
       h('table', { class: 'scoretbl' }, d.parts.map(function (x) { return h('tr', null, h('td', null, T(x.k)), h('td', null, (x.v > 0 ? '+' : '') + x.v)); }).concat([h('tr', null, h('td', null, h('b', null, T('总分|Total'))), h('td', { class: 'redpen', style: { fontSize: '18px' } }, String(d.score)))])));
     b.appendChild(rep);
-    var fn = d.funeral.map(function (f) { return T(f.rel) + ' ' + T(f.name); }).join('、');
+    var fn = d.funeral.map(function (f) { return T(f.rel) + (G.lang === 'en' ? ' ' : '') + T(f.name); }).join(G.lang === 'en' ? ', ' : '、');
     b.appendChild(h('div', { class: 'card' }, h('h5', null, T('葬礼|Funeral')), h('div', { style: { fontSize: '14px' } },
-      T('共有{n}人前来送别。|{n} people came to say goodbye.', { n: d.funeralN }) + (fn ? ' ' + T('其中有：|Among them: ') + fn + '。' : '') + (d.fans ? ' ' + T('另有约{f}名粉丝在网上悼念。|About {f} fans mourned online.', { f: d.fans.toLocaleString() }) : ''))));
+      T('共有{n}人前来送别。|{n} people came to say goodbye.', { n: d.funeralN }) + (fn ? ' ' + T('其中有：|Among them: ') + fn + T('。|.') : '') + (d.fans ? ' ' + T('另有约{f}名粉丝在网上悼念。|About {f} fans mourned online.', { f: d.fans.toLocaleString() }) : ''))));
     var es = d.estate, esRows = [];
     if (es && es.total > 0) {
       if (es.tax) esRows.push(h('div', { class: 'esl' }, h('span', null, T('遗产税|Inheritance tax')), h('b', null, '−' + G.fm(es.tax))));
@@ -314,7 +324,7 @@
     if (d.timeline.length) b.appendChild(h('div', { class: 'card' }, h('h5', null, T('大事年表|Timeline')), h('ul', { class: 'tl' }, d.timeline.slice(-40).map(function (x) { return h('li', null, h('b', null, T('{a}岁|{a}', { a: x.a })), h('span', null, T(x.t))); }))));
     var btns = h('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px' } });
     if (d.heirs.length) btns.appendChild(h('button', { class: 'big solid', onclick: tap(async function () {
-      var i = d.heirs.length === 1 ? 0 : await UI.pick({ title: '选择继承人|Choose an Heir', items: d.heirs.map(function (k) { return { t: k.name, sub: T('{a}岁|age {a}', { a: k.age }) + (k.grand ? T(' · 孙辈| · grandchild') : ''), npc: G.S.npcs[k.id] }; }) });
+      var i = UI.pickHeir ? await UI.pickHeir(d) : d.heirs.length === 1 ? 0 : await UI.pick({ title: '选择继承人|Choose an Heir', items: d.heirs.map(function (k) { return { t: k.name, sub: T('{a}岁|age {a}', { a: k.age }) + (k.grand ? T(' · 孙辈| · grandchild') : ''), npc: G.S.npcs[k.id] }; }) });
       if (i < 0) return;
       var kid = G.S.npcs[d.heirs[i].id]; if (!kid) return;
       if (UI.chooseContinue) { if (!(await UI.chooseContinue(kid))) return; } else G.life.continueAs(kid);

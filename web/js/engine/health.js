@@ -17,7 +17,7 @@
     if (a > 68) G.addStat('smarts', -G.ri(0, 2), true);
     // health: regresses toward an age-dependent cap
     var cap = 100 - Math.max(0, a - 28) * .95 + (h.fit - 30) / 6;
-    if (G.has('iron')) cap += 8; if (G.has('frail')) cap -= 10; if (G.has('longevity')) cap += 6; if (p.flags.antiAge) cap += 8;
+    if (G.has('iron')) cap += 8; if (G.has('frail')) cap -= 10; if (G.has('longevity')) cap += 6; if (p.flags.antiAge) cap += 8; if (p.flags.lifeExt) cap += p.flags.lifeExt * .6;
     cap = G.clamp(cap, 15, 100);
     G.addStat('health', (cap - st.health) * (st.health < cap ? .25 : .3), true);
     // habits
@@ -58,7 +58,8 @@
     if (G.S.dead) return;
     p.ill = keep;
     // new illness
-    var ch = .14 + (a > 50 ? (a - 50) * .006 : 0) + (100 - p.st.health) / 400 + (p.hab.smoke + p.hab.drink) / 600;
+    // healthier bodies fall ill less often (never immune)
+    var ch = (.07 + (100 - p.st.health) / 260) * (p.st.health >= 85 ? .75 : 1) + (a > 50 ? (a - 50) * .006 : 0) + (p.hab.smoke + p.hab.drink) / 600;
     if (G.has('iron')) ch *= .5; if (G.has('frail')) ch *= 1.6;
     if (S.world.pandemicY === S.year) ch += .2;
     if (G.ch(ch)) {
@@ -73,6 +74,7 @@
         if (k === 'myopia') w *= a < 20 ? 4 : .2;
         if (k === 'spine') w *= p.job && (p.job.id === 'coder' || p.job.id === 'acct') ? 4 : 1;
         if (d.rare) w *= .3;
+        if (d.sev >= 3 && p.st.health >= 80) w *= .6;
         return w;
       });
       if (id) {
@@ -93,10 +95,10 @@
     if (p.st.health <= 0) { var big = p.ill.filter(function (x) { return G.ILL[x.id].sev >= 3 && !G.ILL[x.id].hp; })[0]; G.die(big ? G.L('死于{d}|Died of {d}', { d: G.ILL[big.id].n }) : (a >= 75 ? '寿终正寝|Died peacefully of old age' : '病逝|Died of illness')); return; }
     var life = G.C[p.country].life || 78;
     if (a < 40) return;
-    var ae = a - (life - 78);
+    var ae = a - (life - 78) - (p.flags.lifeExt || 0);
     var q = .055 * Math.exp(.095 * (ae - 80)) * (1.8 - 1.4 * p.st.health / 100);
     if (G.has('longevity')) q *= .6; if (p.flags.antiAge) q *= .6; if (G.has('frail')) q *= 1.3; if (G.has('iron')) q *= .85;
-    if (a > 112) q = 1;
+    if (a > 112 + (p.flags.lifeExt || 0)) q = 1;
     if (G.ch(Math.min(q, .9))) G.die(a >= 72 ? '寿终正寝|Died peacefully of old age' : '突发疾病|Died of a sudden illness');
   };
 

@@ -786,3 +786,23 @@ html, body { background: var(--desk2); }
 body.tablet #app { max-width: none; border: 0; }
 body.tablet .sheet { max-width: none; }
 body.tablet .modal { max-width: 460px; }
+/* 1.8 portrait style picker */
+.avpick { display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; }
+.avopt { border-radius: 14px; border: 3px solid var(--grid2); padding: 8px 10px; background: var(--paper2); display: flex; align-items: center; gap: 10px; color: var(--ink); text-align: left; }
+.avopt.on { border-color: var(--red); }
+.avopt b { flex: 1; font-size: 14px; }
+.avfaces { display: flex; gap: 4px; }
+.avfaces i { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; display: block; background: var(--paper); }
+.avfaces i svg { width: 100%; height: 100%; display: block; }
+.tapany { margin-top: 10px; font-size: 11.5px; color: var(--ink3, var(--ink2)); opacity: .7; text-align: center; }
+/* 1.8 pets & promotion card */
+.petav { width: 64px; height: 64px; border-radius: 50%; background: var(--paper2); display: flex; align-items: center; justify-content: center; font-size: 38px; flex: none; }
+.petav.sm { width: 40px; height: 40px; font-size: 24px; }
+.petav.gone { filter: grayscale(1); opacity: .7; }
+.petstone { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 6px 0; }
+.promo7 { margin: 8px 0 10px; padding: 10px 12px; }
+.promo7 .pr + .pr { margin-top: 8px; border-top: 1px dashed var(--grid2); padding-top: 8px; }
+.promo7 ul { list-style: none; margin: 6px 0 0; padding: 0; font-size: 13px; }
+.promo7 li { margin: 2px 0; }
+.promo7 li.no { color: var(--ink2); }
+.promo7 .nt { font-size: 12px; color: var(--ink2); margin-top: 4px; }

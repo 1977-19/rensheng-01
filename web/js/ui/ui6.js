@@ -1,5 +1,5 @@
 /* Version 1.6 interface: the intelligence instinct test (always played, no skipping), confessions waiting on the
-   main page, health first in the activities list, and the new illustrated portraits as the default. */
+   main page, health first in the activities list (the 1.6 illustrated portraits were removed in 1.8). */
 (function () {
   'use strict';
   var h = G.h, UI = G.UI, T = UI.T, tap = UI.tap, N = G.N;
@@ -78,7 +78,7 @@
   /* ---------------- activities: health first ---------------- */
   var AREAS = [
     ['健康|Health', ['health']],
-    ['工作与事业|Work & Career', ['hustle', 'kidstar', 'service', 'spy', 'mega', 'honor', 'reign']],
+    ['工作与事业|Work & Career', ['cadet', 'hustle', 'kidstar', 'service', 'spy', 'mega', 'honor', 'reign']],
     ['家庭与感情|Family & Love', ['family', 'social', 'elite']],
     ['生活|Everyday Life', ['life', 'fun', 'petcare', 'learn', 'travel', 'space', 'collect']],
     ['灰色地带|The Gray Zone', ['gray', 'crime', 'gamble']],
@@ -107,6 +107,4 @@
     });
   };
 
-  /* ---------------- the new portraits become the default once ---------------- */
-  try { var st = G.settings; if (st && !st.avMig16) { if (st.avStyle !== 'classic') st.avStyle = 'art'; st.avMig16 = 1; G.saveSettings && G.saveSettings(); } } catch (e) { }
 })();

@@ -181,7 +181,8 @@
   function heat(n) { var s = P().spy; if (s) s.heat = G.clamp((s.heat || 0) + n, 0, 100); }
   function merit(n) { var s = P().spy; if (s) s.merit += n; }
   function pay(usd) { var m = G.$(usd); if (G.fin) G.fin.tag = G.L('情报工作|Intelligence work'); G.addMoney(m); if (G.fin) G.fin.tag = null; return m; }
-  function high() { var p = P(); return (p.mil && p.mil.off && p.mil.rank >= 5) || (p.pol && p.pol.rank >= Math.ceil(G.POLICE.r.length * .55)) || (p.gov && p.gov.rank >= 4); }
+  // in the army only generals (少将 and up) are worth a foreign service's approach
+  function high() { var p = P(); if (p.mil || (p.edu && p.edu.spec === 'mil')) return !!(p.mil && p.mil.off && p.mil.rank >= 6); return (p.pol && p.pol.rank >= Math.ceil(G.POLICE.r.length * .55)) || (p.gov && p.gov.rank >= 4); }
 
   /* ---------- catastrophe ---------- */
   function strip() {
@@ -332,9 +333,9 @@
       if (!sp.youth && (sp.heat >= 100 || G.ch(Math.max(0, sp.heat - 25) / 240 * (G.spyMole() ? 1.5 : 1)))) q('spy_arrest');
     } else if (!p.jail && !p.spy && !p.flags.exSpy) {
       var cn = p.country === 'cn';
-      if (!p.flags.spyYouth && p.age >= 11 && p.age <= 15 && p.st.smarts >= (cn ? 62 : 72) && G.ch(cn ? .08 : .04)) { p.flags.spyYouth = 1; q('spy_youth', null, { ag: pickAg(p.origin === 'spyfam' ? .9 : .55) }); }
-      else if (!p.flags.spyAsked && p.age >= 20 && p.age <= 45 && p.money < G.$(800) && !p.pol && !p.mil && G.ch(.3)) { p.flags.spyAsked = 1; q('spy_recruit', null, { ag: pickAg(.6) }); }
-      else if (!p.flags.spyHigh && high() && G.ch(.08)) { p.flags.spyHigh = 1; q('spy_high', null, { ag: pickAg(p.flags.spyReported ? .8 : .4) }); }
+      if (!p.flags.spyYouth && !p.mil && p.age >= 11 && p.age <= 15 && p.st.smarts >= (cn ? 62 : 72) && G.ch(cn ? .08 : .04)) { p.flags.spyYouth = 1; q('spy_youth', null, { ag: pickAg(p.origin === 'spyfam' ? .9 : .55) }); }
+      else if (!p.flags.spyAsked && p.age >= 20 && p.age <= 45 && p.money < G.$(800) && !p.pol && !p.mil && !(p.edu && p.edu.spec === 'mil') && G.ch(.3)) { p.flags.spyAsked = 1; q('spy_recruit', null, { ag: pickAg(.6) }); }
+      else if (!p.flags.spyHigh && high() && G.ch(p.mil ? .035 : .08)) { p.flags.spyHigh = 1; q('spy_high', null, { ag: pickAg(p.flags.spyReported ? .8 : .4) }); }
     }
     return r;
   };

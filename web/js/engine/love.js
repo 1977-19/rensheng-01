@@ -61,7 +61,7 @@
     }
     p.flags.tryBaby = 0;
     // affairs found out
-    N.rel('affair').forEach(function (a) { if (N.spouse() && G.ch(.08)) Q.push({ id: 'sys_affair_caught', nid: a.id }); });
+    N.rel('affair').forEach(function (a) { if (N.spouse() && G.ch(G.clamp(.34 - p.st.smarts * .0035, .015, .3))) Q.push({ id: 'sys_affair_caught', nid: a.id }); });
   };
   LO.canConceive = function (pt) {
     var p = G.S.p; if (!pt || pt.g === p.g) return false;
@@ -145,7 +145,17 @@
   LO.baby = async function (other, adopted) {
     var S = G.S, p = S.p;
     var g = G.ch(.5) ? 'm' : 'f';
-    var sur = p.g === 'm' ? p.sur : (other && other.g === 'm' ? other.sur : p.sur);
+    var sur = p.g === 'm' ? p.sur : (other && other.g === 'm' ? other.sur : p.sur), surPicked = 0;
+    // whose surname comes first, then the name
+    if (LO._twin && LO._twinSur) { sur = LO._twinSur; surPicked = 1; }
+    else if (other && !adopted && other.sur && p.sur && String(other.sur).split('|')[0] !== String(p.sur).split('|')[0]) {
+      var het = p.g !== other.g, dad = p.g === 'm' ? p : other, mom = p.g === 'm' ? other : p;
+      var opts = het ? [{ t: G.L('随父姓：{s}|Father\'s surname: {s}', { s: dad.sur }), icon: '👨', v: dad.sur }, { t: G.L('随母姓：{s}|Mother\'s surname: {s}', { s: mom.sur }), icon: '👩', v: mom.sur }]
+        : [{ t: G.L('随你的姓：{s}|Your surname: {s}', { s: p.sur }), icon: '🙋', v: p.sur }, { t: G.L('随{n}的姓：{s}|{n}\'s surname: {s}', { n: other.name, s: other.sur }), icon: '💞', v: other.sur }];
+      var si = await G.UI.pick({ title: G.L('是个{g}！先定下跟谁姓|It\'s a {g}! First, whose surname?', { g: g === 'm' ? '男孩|boy' : '女孩|girl' }), items: opts, noCancel: true });
+      if (si >= 0 && opts[si]) sur = opts[si].v; surPicked = 1;
+    }
+    LO._twinSur = sur;
     var cul = p.cul || G.C[p.country].names;
     var sug = [0, 1, 2].map(function () { return G.genGiven(cul, g, S.year); });
     var txt = await G.UI.input({ title: G.L('给宝宝起名|Name the Baby'), text: G.L('是个{g}！给{h}起个名字吧。|It\'s a {g}! Give {h} a name.', { g: g === 'm' ? '男孩|boy' : '女孩|girl', h: g === 'm' ? '他|him' : '她|her' }), groups: G.nameGroups ? G.nameGroups(cul, sur, g, S.year, N.rel('child')) : null, sug: G.nameSeries ? G.nameSeries(cul, sur, g, S.year, N.rel('child')) : sug.map(function (s) { return G.mkName(cul, sur, s, g); }), def: '', require: G.L('先写一个名字，或者点一个推荐的名字。|Type a name first, or tap one of the suggestions.') });
@@ -155,7 +165,7 @@
     var kid = N.make({ rel: 'child', g: g, age: adopted ? G.ri(0, 4) : 0, name: name, sur: sur, looks: G.clamp(lk, 5, 100), smarts: G.clamp(sm, 5, 100), eq: G.ri(30, 70), health: G.ri(70, 100), aff: 80, c: p.country, orient: G.ch(.9) ? 'het' : G.ch(.5) ? 'gay' : 'bi' });
     kid.edu = { stage: 'none', grade: 0, perf: 50, deg: 0, study: 0, retake: 0 };
     kid.talents = G.ch(.6) ? [G.pick(G.TALENTS.filter(function (t) { return !t.neg; })).id] : [];
-    kid.inv = 0; kid.pin = 1; kid.other = other ? other.id : null; kid.adopted = !!adopted;
+    kid.inv = 0; kid.pin = 1; kid.other = other ? other.id : null; kid.adopted = !!adopted; if (surPicked) kid.surPicked = 1;
     G.major(adopted ? '领养了{n}|Adopted {n}' : '{n}出生了|{n} was born', { n: name }); G.inc('kids');
     G.addStat('happy', 12);
     return kid;

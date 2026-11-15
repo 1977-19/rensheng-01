@@ -68,7 +68,7 @@
     if (spo && spo.secret && !spo.secretFound && G.ch(.25)) { spo.secretFound = 1; q('sp_secret', spo.id); }
     // a richer spouse gives more each year for each child you have together
     if (spo && spo.alive && spo.wealth > Math.max(G.$(1e5), G.netWorth())) {
-      var kids = N.rel('child').filter(function (k) { return k.alive && (k.par2 === spo.id || k.other === spo.id); }).length, gift = Math.round(Math.min(spo.wealth * .02, G.$(20000) * (1 + kids)));
+      var kids = N.rel('child').filter(function (k) { return k.alive && (k.par2 === spo.id || k.other === spo.id); }).length, w0 = spo.wealth, rate = w0 < G.$(1e7) ? .02 : w0 < G.$(1e9) ? .01 : .004, gift = Math.round(Math.min(G.$(5e6), Math.max(Math.min(w0 * .02, G.$(20000) * (1 + kids)), w0 * rate * (1 + kids * .25))) * (spo.aff >= 60 ? 1.2 : spo.aff < 20 ? .5 : 1));
       if (gift > 0) { spo.wealth -= gift; G.giftIn(gift, G.L('{n}给的家用|Housekeeping from {n}', { n: spo.name })); }
     }
     // parents object to a very poor match
@@ -102,7 +102,7 @@
     { id: 'trust_review', sys: 1, title: '信托顾问来了|The Trust Adviser Calls', icon: '🏦',
       prep: function (c) { var tr = S().assets.trust; if (!tr) return false; trustee(); c.prm.t = G.M(tr.amt); c.prm.m = G.M(Math.max(0, c.p.money)); c.prm.r = Math.round((tr.rate || .065) * 1000) / 10; },
       t: '五年一次的家族信托会议。信托里现在有{t}，年收益{r}%。你手头还有{m}。要往里再存吗？|The five-yearly trust meeting. The trust holds {t}, earning {r}% a year. You have {m} in hand. Pay more in?',
-      o: [{ t: '全部存进去|Put it all in', run: function (c) { return trustPut(Math.max(0, c.p.money)); } },
+      o: [{ t: '保留10%~20%现金，其余存入|Keep 10–20% in cash, put the rest in', run: function (c) { var keep = .1 + Math.random() * .1; return trustPut(Math.round(Math.max(0, c.p.money) * (1 - keep))); } },
         { t: '存一半|Put in half', run: function (c) { return trustPut(Math.round(Math.max(0, c.p.money) / 2)); } },
         { t: '这次不存|Not this time', run: function () { return '顾问合上了文件夹：“五年后见。”|The adviser closed the folder: "See you in five years."'; } }] }
   ]);
@@ -110,7 +110,7 @@
   /* ---------- the family trust ---------- */
   function trustee() { var s = S(), tr = s.assets.trust; if (!tr) return null; var n = tr.nid && s.npcs[tr.nid]; if (n && n.alive) return n; n = N.make({ rel: 'contact', age: G.ri(38, 55), job: '家族信托私人顾问|Family Trust Adviser', aff: 70 }); n.pin = 1; n.trustee = 1; tr.nid = n.id; return n; }
   function trustPut(m) { var tr = S().assets.trust; m = Math.min(m, Math.max(0, P().money)); if (!tr || m <= 0) return G.L('没有可存的钱。|There\'s nothing to pay in.'); G.addMoney(-m); tr.amt += m; return G.L('你往信托里存了{m}。信托现在有{t}。|You paid {m} into the trust. It now holds {t}.', { m: G.M(m), t: G.M(tr.amt) }); }
-  async function trustDeposit() { var i = await G.UI.pick({ title: G.L('往信托里存钱|Pay into the Trust'), items: [{ t: G.L('全部现金|All cash'), sub: G.M(Math.max(0, P().money)) }, { t: G.L('一半现金|Half the cash'), sub: G.M(Math.round(Math.max(0, P().money) / 2)) }] }); if (i < 0) return 'cancel'; return G.result(G.L('家族信托|Family Trust'), trustPut(i === 0 ? P().money : Math.round(P().money / 2)), null, [], '🏦'); }
+  async function trustDeposit() { var i = await G.UI.pick({ title: G.L('往信托里存钱|Pay into the Trust'), items: [{ t: G.L('保留15%现金，其余存入|Keep 15% in cash, put in the rest'), sub: G.M(Math.round(Math.max(0, P().money) * .85)) }, { t: G.L('一半现金|Half the cash'), sub: G.M(Math.round(Math.max(0, P().money) / 2)) }] }); if (i < 0) return 'cancel'; return G.result(G.L('家族信托|Family Trust'), trustPut(i === 0 ? Math.round(Math.max(0, P().money) * .85) : Math.round(P().money / 2)), null, [], '🏦'); }
   var money = cat('money');
   if (money) money.items.push({ id: 'trust_open', n: '家族信托|Family Trust', i: '🏦', e: 0, a: [18, 120], if: function () { return G.netWorth() > G.$(1e6); }, run: async function (a) {
     var s = S(); if (!s.assets.trust) { s.assets.trust = { amt: 0, rate: .065 }; G.major('设立了家族信托|Set up a family trust'); }

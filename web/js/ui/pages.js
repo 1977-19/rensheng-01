@@ -117,12 +117,7 @@
       function sellRow(listName, x, ic) { return h('div', { class: 'row' }, h('div', { class: 'ic' }, x.i || ic), h('div', { class: 'tx' }, h('div', { class: 't' }, T(x.n)), h('div', { class: 's' }, G.fm(x.val))), h('button', { class: 'chip m', style: { padding: '6px 10px' }, onclick: tap(function () { G.money.sellAsset(listName, x, listName === 'cars' ? 1 : .8); UI.toast('已卖出|Sold'); rec.refresh(); }) }, T('卖出|Sell'))); }
       sec('车辆|Vehicles', A.cars, function (x) { return sellRow('cars', x, '🚗'); });
       sec('物品|Belongings', A.items, function (x) { return sellRow('items', x, '💎'); });
-      sec('宠物|Pets', A.pets, function (x) {
-        var d = G.PETS.filter(function (y) { return y.id === x.kind; })[0] || { i: '🐾', n: '' };
-        return h('div', { class: 'row' }, h('div', { class: 'ic' }, d.i), h('div', { class: 'tx' }, h('div', { class: 't' }, T(x.name)), h('div', { class: 's' }, T(d.n) + ' · ' + T('{a}岁|{a} yr', { a: S.year - x.by }))),
-          h('button', { class: 'chip e', style: { padding: '6px 10px' }, onclick: tap(async function () { await UI.doAction({ n: '陪宠物玩|Play with Pet', i: d.i, e: 5, run: function (a) { return G.quick(a, G.pick(['{n}开心得直打滚。|{n} rolled around happily.', '你和{n}玩了一下午。|You played with {n} all afternoon.']), { happy: 4, stress: -4 }, { n: x.name }); } }); rec.refresh(); }) }, T('陪玩|Play')),
-          h('button', { class: 'chip', style: { padding: '6px 10px' }, onclick: tap(async function () { if (await UI.confirm('送养|Rehome', G.L('把{n}送给别人养？|Give {n} to a new home?', { n: x.name }))) { A.pets = A.pets.filter(function (y) { return y !== x; }); G.addStat('happy', -6); rec.refresh(); } }) }, T('送养|Rehome')));
-      });
+      if (A.pets.length) b.appendChild(h('button', { class: 'row', onclick: tap(function () { UI.tabRelations(); }) }, h('div', { class: 'ic' }, '🐾'), h('div', { class: 'tx' }, h('div', { class: 't' }, T('宠物在“关系”页面里|Your pets live on the People page')), h('div', { class: 's' }, T('{n}只|{n}', { n: A.pets.length })))));
       var invT = G.sum(Object.keys(A.inv), function (k) { return A.inv[k] || 0; });
       if (invT > 0) { b.appendChild(h('div', { class: 'grp' }, T('投资|Investments'))); b.appendChild(h('button', { class: 'row', onclick: tap(function () { UI.investPage(); }) }, h('div', { class: 'ic' }, '📊'), h('div', { class: 'tx' }, h('div', { class: 't' }, T('投资组合|Portfolio')), h('div', { class: 's' }, G.fm(invT))))); }
       if (A.company) { b.appendChild(h('div', { class: 'grp' }, T('公司|Company'))); b.appendChild(h('button', { class: 'row', onclick: tap(function () { UI.tabLife(); }) }, h('div', { class: 'ic' }, '🏢'), h('div', { class: 'tx' }, h('div', { class: 't' }, T(A.company.name)), h('div', { class: 's' }, T('估值|Valuation') + ' ' + G.fm(A.company.val) + ' · ' + Math.round(A.company.own * 100) + '%')))); }
@@ -153,7 +148,7 @@
     ['伴侣|Partner', ['spouse', 'lover', 'affair']],
     ['家人|Family', ['father', 'mother', 'stepparent', 'grand', 'sibling', 'birthpar', 'kin']],
     ['家里的人|Household', ['staff']],
-    ['子女|Children', ['child', 'grandchild']],
+    ['子女|Children', ['child', 'grandchild', 'kidsp']],
     ['追求者与心动|Admirers & Crushes', ['admirer', 'crush']],
     ['对象的家人|Partner\'s Family', ['inlaw']],
     ['朋友|Friends', ['friend', 'mentor']],
@@ -174,13 +169,14 @@
     UI.sheet('关系|Relationships', function (b, rec) {
       var all = N.all(function (n) { return n.alive; }), any = false;
       GROUPS.forEach(function (g) {
-        var list = all.filter(function (n) { return g[1].indexOf(n.rel) >= 0; });
+        var list = all.filter(function (n) { var r = n.rel === 'contact' && n.inlaw && G.S.npcs[n.inlaw] && (G.S.npcs[n.inlaw].rel === 'child' || G.S.npcs[n.inlaw].rel === 'grandchild') ? 'kidsp' : n.rel; return g[1].indexOf(r) >= 0; });
         if (!list.length) return; any = true;
         b.appendChild(h('div', { class: 'grp' }, T(g[0]) + ' ' + list.length));
-        list.sort(function (a, c) { return g[1].indexOf(a.rel) - g[1].indexOf(c.rel) || (['child', 'sibling', 'grandchild'].indexOf(a.rel) >= 0 ? (a.by - c.by) || ((a.older ? 0 : 1) - (c.older ? 0 : 1)) : 0) || c.aff - a.aff; }).forEach(function (n) { b.appendChild(npcRow(n, async function () { await UI.profile(n); rec.refresh(); })); });
+        list.sort(function (a, c) { var ka = g[1].indexOf(a.rel), kc = g[1].indexOf(c.rel); if (ka < 0) ka = 99; if (kc < 0) kc = 99; return ka - kc || (['child', 'sibling', 'grandchild'].indexOf(a.rel) >= 0 ? (a.by - c.by) || ((a.older ? 0 : 1) - (c.older ? 0 : 1)) : 0) || c.aff - a.aff; }).forEach(function (n) { b.appendChild(npcRow(n, async function () { await UI.profile(n); rec.refresh(); })); });
       });
       var pets = G.S.assets.pets;
-      if (pets.length) { b.appendChild(h('div', { class: 'grp' }, T('宠物|Pets'))); pets.forEach(function (x) { var d = G.PETS.filter(function (y) { return y.id === x.kind; })[0] || {}; b.appendChild(h('div', { class: 'row' }, h('div', { class: 'ic' }, d.i || '🐾'), h('div', { class: 'tx' }, h('div', { class: 't' }, T(x.name)), h('div', { class: 's' }, T(d.n || ''))))); }); }
+      if (UI.petSection) { if (UI.petSection(b, rec)) any = true; }
+      else if (pets.length) { b.appendChild(h('div', { class: 'grp' }, T('宠物|Pets'))); pets.forEach(function (x) { var d = G.PETS.filter(function (y) { return y.id === x.kind; })[0] || {}; b.appendChild(h('div', { class: 'row' }, h('div', { class: 'ic' }, d.i || '🐾'), h('div', { class: 'tx' }, h('div', { class: 't' }, T(x.name)), h('div', { class: 's' }, T(d.n || ''))))); }); }
       if (!any) b.appendChild(h('div', { class: 'empty' }, T('你还不认识任何人。|You don\'t know anyone yet.')));
     });
   };

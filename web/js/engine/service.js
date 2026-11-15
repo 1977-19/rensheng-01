@@ -37,8 +37,9 @@
     if (G.ch(S.world.war ? .7 : .35)) Q.push({ id: 'sys_mission' });
     var max = m.off ? G.MIL.off.length - 1 : G.MIL.enl.length - 1;
     var need = m.off ? 2 + Math.floor(m.rank / 2) : 1 + Math.floor(m.rank / 2);
+    if (m.acad) need = Math.max(1, need - 1); // academy graduates are on the fast track
     var topOk = !m.off || m.rank < 9 || (m.rank === 9 && (m.merit >= 95 || S.world.war)) || (m.rank === 10 && m.merit >= 110 && G.ch(.35));
-    if (m.rank < max && m.yr >= need && m.merit >= 10 + m.rank * 8 && topOk) Q.push({ id: 'sys_assess', prm: { k: 'mil' } });
+    if (m.rank < max && m.yr >= need && m.merit >= Math.round((10 + m.rank * 8) * (m.acad ? .85 : 1)) && topOk) Q.push({ id: 'sys_assess', prm: { k: 'mil' } });
     else if (!m.off && m.rank >= 3 && m.merit >= 40 && !m.offTry && G.ch(.3)) Q.push({ id: 'sys_officer' });
     // generals made young stay on: a general's career doesn't end at 55
     if (m.off && m.rank >= 6 && !m.genAge) m.genAge = p.age;

@@ -64,7 +64,7 @@
   };
   function deltas(dl) {
     if (!dl || !dl.length) return null;
-    var names = { perf: '成绩|Grades', money: '钱|Money', aff: '好感|Affection', love: '爱意|Love', fans: '粉丝|Fans', appr: '支持率|Approval', fit: '体能|Fitness', stress: '压力|Stress', karma: '品德|Karma', heat: '警方关注|Police heat', rep: '江湖地位|Street rep' };
+    var names = { perf: '成绩|Grades', money: '钱|Money', aff: '好感|Affection', love: '爱意|Love', fans: '粉丝|Fans', appr: '支持率|Approval', fit: '体能|Fitness', stress: '压力|Stress', karma: '品德|Karma', heat: '警方关注|Police heat', rep: '江湖地位|Street rep', merit: '功绩|Merit' };
     return h('div', { class: 'deltas' }, dl.map(function (d) {
       if (d.k === 'note') return h('span', { class: 'dl note' }, T(d.x));
       var nm = G.STATS[d.k] ? G.STATS[d.k].n : names[d.k] || d.k;
@@ -76,13 +76,23 @@
     }));
   }
   UI.deltas = deltas;
+  // a result card closes on a tap anywhere on the screen, after the usual mis-tap guard
+  UI.tapAnywhere = function (md, fn) {
+    var t0 = Date.now(), wait = (G.settings && G.settings.tapDelay) || 700;
+    md.el.addEventListener('click', function (e) {
+      if (Date.now() - t0 < wait) return;
+      if (e.target.closest && e.target.closest('button,input,select,textarea,a')) return;
+      fn();
+    });
+  };
   function npcHead(n) { if (!n) return null; return h('div', { class: 'npchead' }, h('div', { class: 'avs', html: G.avatarOf(n) }), h('div', null, h('b', null, T(n.name)), h('div', { style: { fontSize: '12.5px', color: 'var(--ink2)' } }, T(G.N.relName(n)) + ' ' + T('{a}岁|age {a}', { a: G.N.age(n) })))); }
   UI.event = function (o) {
     return new Promise(function (res) {
       var btns = o.opts.map(function (op, i) {
         return h('button', { class: 'opt' + (o.opts.length === 1 ? ' solid' : ''), disabled: op.dis || null, onclick: tap(function () { md.close(); res(i); }) }, T(op.t), op.sub ? h('small', null, T(op.sub)) : null);
       });
-      var md = UI.modal({ title: o.title, icon: o.icon, kind: o.kind, body: h('div', null, npcHead(o.npc), h('div', { class: 'txt' }, T(o.text)), deltas(o.d)), foot: btns });
+      var md = UI.modal({ title: o.title, icon: o.icon, kind: o.kind, body: h('div', null, npcHead(o.npc), h('div', { class: 'txt' }, T(o.text)), deltas(o.d), o.opts.length === 1 ? h('div', { class: 'tapany' }, T('轻触任意处继续|Tap anywhere to continue')) : null), foot: btns });
+      if (o.opts.length === 1 && !o.opts[0].dis) { var once = false; UI.tapAnywhere(md, function () { if (once) return; once = true; md.close(); res(0); }); }
       if (G.audio) G.audio.sfx(o.kind === 'sad' ? 'bell' : 'pop');
     });
   };
@@ -91,7 +101,9 @@
     return new Promise(function (res) {
       var good = (o.d || []).reduce(function (s, d) { return s + (d.k === 'note' ? 0 : (d.k === 'stress' || d.k === 'heat' ? -1 : 1) * Math.sign(d.n)); }, 0);
       if (G.audio) G.audio.sfx(good > 0 ? 'ok' : good < 0 ? 'bad' : 'pop');
-      var md = UI.modal({ title: o.title, icon: o.icon, body: h('div', null, o.text ? h('div', { class: 'txt' }, T(o.text)) : null, deltas(o.d)), foot: [h('button', { class: 'opt solid', onclick: tap(function () { md.close(); res(); }) }, T('好的|OK'))] });
+      var done = false, fin = function () { if (done) return; done = true; md.close(); res(); };
+      var md = UI.modal({ title: o.title, icon: o.icon, body: h('div', null, o.text ? h('div', { class: 'txt' }, T(o.text)) : null, deltas(o.d), h('div', { class: 'tapany' }, T('轻触任意处继续|Tap anywhere to continue'))), foot: [h('button', { class: 'opt solid', onclick: tap(fin) }, T('好的|OK'))] });
+      UI.tapAnywhere(md, fin);
     });
   };
   UI.pick = function (o) {

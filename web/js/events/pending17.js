@@ -91,6 +91,7 @@
     N.rel("child", "grandchild").forEach(function (k) {
       if (!k.alive) return; var a = N.age(k);
       if (k.edu && k.edu.abroad && !k.visa && !k.stayAsk && a >= 21 && a <= 25 && k.edu.stage === "done") { k.stayAsk = 1; if (G.ch(.55 + (k.sch === "abroad" ? .2 : 0))) q("kid_stay_abroad", k.id); }
+      if (k.visa && !(k.visa.c && G.C[k.visa.c])) k.visa = null;
       if (k.visa && k.visa.st === "work" && s.year - k.visa.y >= 4) { k.visa.st = "pr"; G.log("{n}拿到了{c}的永久居留权。|{n} got permanent residency in {c}.", { n: k.name, c: G.C[k.visa.c].n }); }
       else if (k.visa && k.visa.st === "pr" && s.year - k.visa.y >= 8) { k.visa.st = "cit"; k.cits = (k.cits || [p.country]); if (k.cits.indexOf(k.visa.c) < 0) k.cits.push(k.visa.c); G.log("{n}成为了{c}公民。|{n} became a citizen of {c}.", { n: k.name, c: G.C[k.visa.c].n }); }
     });
@@ -101,7 +102,7 @@
   var ni = G.npcInfo;
   G.npcInfo = function (n) {
     var r = ni.apply(this, arguments) || [];
-    if (n.visa) r.push(["签证|Visa", G.C[n.visa.c].flag + " " + G.T(n.visa.st === "cit" ? "已入籍|Citizen" : n.visa.st === "pr" ? "永久居民|Permanent resident" : "工作签证|Work visa") + " · " + G.T(G.C[n.visa.c].n)]);
+    if (n.visa && n.visa.c && G.C[n.visa.c]) r.push(["签证|Visa", G.C[n.visa.c].flag + " " + G.T(n.visa.st === "cit" ? "已入籍|Citizen" : n.visa.st === "pr" ? "永久居民|Permanent resident" : "工作签证|Work visa") + " · " + G.T(G.C[n.visa.c].n)]);
     if (n.sponsor && S().npcs[n.sponsor]) r.push(["学费由谁出|Fees paid by", S().npcs[n.sponsor].name]);
     return r;
   };

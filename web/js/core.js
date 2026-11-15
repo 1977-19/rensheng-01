@@ -2,7 +2,7 @@
 var G = (typeof window !== 'undefined' ? (window.G = window.G || {}) : (global.G = global.G || {}));
 (function () {
   'use strict';
-  G.VERSION = '1.7.0';
+  G.VERSION = '1.8.0';
   G.S = null;           // current life state
 
   /* ---------------- RNG (seeded per life, stored in state) ---------------- */
@@ -245,9 +245,11 @@ var G = (typeof window !== 'undefined' ? (window.G = window.G || {}) : (global.G
     ai: { on: false, provider: 'deepseek', url: '', key: '', model: '' } };
   G.loadSettings = function () {
     var s = G.store.get('settings'); if (s) { for (var k in s) G.settings[k] = s[k]; }
+    G._setLoaded = 1;
     G.setLang(G.settings.lang || G.detectLang());
   };
-  G.saveSettings = function () { G.store.set('settings', G.settings); };
+  // never write settings before they were read back, or a script that runs at load would wipe the player's choices
+  G.saveSettings = function () { if (!G._setLoaded) return; G.store.set('settings', G.settings); };
   G.meta = { ach: {}, lives: [], stats: {} };
   G.loadMeta = function () { var m = G.store.get('meta'); if (m) G.meta = m; G.meta.ach = G.meta.ach || {}; G.meta.lives = G.meta.lives || []; G.meta.stats = G.meta.stats || {}; };
   G.saveMeta = function () { G.store.set('meta', G.meta); };
