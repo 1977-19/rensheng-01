@@ -23,7 +23,7 @@
       h('button', { class: 'big', onclick: tap(function () { UI.settingsPage(); }) }, T('设置|Settings'))));
     var v = G.vip.tier();
     UI.screen(h('div', { class: 'start grid-paper' },
-      h('div', { class: 'title' }, h('h1', { class: 'long', style: G.lang === 'en' ? { letterSpacing: '.02em', marginLeft: '.02em', fontSize: 'clamp(22px, 7.4vw, 30px)' } : null }, T('我的一生模拟器|My Life Simulator')), G.lang === 'en' ? null : h('div', { class: 'en' }, 'My Life Simulator'), h('div', { class: 'tline' })),
+      h('div', { class: 'title' }, h('h1', { class: G.lang === 'en' ? 'long' : '', style: G.lang === 'en' ? { letterSpacing: '.02em', marginLeft: '.02em', fontSize: 'clamp(22px, 7.4vw, 30px)' } : null }, T('我的一生|My Life')), G.lang === 'en' ? null : h('div', { class: 'en' }, 'My Life'), h('div', { class: 'tline' })),
       h('div', { class: 'btns' }, btns),
       h('div', { class: 'foot-note' }, T('已度过 {n} 段人生|{n} lives lived', { n: (G.meta.stats.lives || 0) }) + '  ·  v' + G.VERSION)));
   };
@@ -193,16 +193,17 @@
       b.appendChild(toggle('震动反馈|Haptics', 'haptic'));
       b.appendChild(h('div', { class: 'grp' }, T('玩法|Gameplay')));
       b.appendChild(toggle('小游戏自动结算（不玩小游戏）|Auto-resolve mini-games', 'autoGame'));
+      b.appendChild(toggle('避免重复点击：工作可设为每年自动执行|No repeat tapping: let work run automatically every year', 'autoRepeat'));
       // how long a freshly opened dialog ignores taps, so a quick finger doesn't pick something by accident
       b.appendChild(h('div', { class: 'label' }, T('点按灵敏度（防误触）|Tap sensitivity (mis-tap guard)')));
       b.appendChild(seg([[300, T('灵敏|Quick')], [700, T('标准|Normal')], [1200, T('稳妥|Careful')], [1800, T('很稳|Very careful')]], s.tapDelay || 700, function (v) { s.tapDelay = v; }));
       b.appendChild(h('p', { style: { fontSize: '12.5px', color: 'var(--ink2)', margin: '6px 2px 0' } }, T('弹窗出现后，要等这么久才能点选项：灵敏0.3秒 · 标准0.7秒 · 稳妥1.2秒 · 很稳1.8秒。|After a dialog appears, options can only be tapped after this delay: Quick 0.3s · Normal 0.7s · Careful 1.2s · Very careful 1.8s.')));
       b.appendChild(h('div', { class: 'label' }, T('头像风格|Portrait style')));
       // portrait style: a picker with live previews of a few faces in each style
-      var curSt = G.avatarStyle ? G.avatarStyle() : 'real';
-      b.appendChild(h('div', { class: 'avpick' }, [['real', '写实|Realistic'], ['anime', '动漫|Anime'], ['classic', '经典|Classic']].map(function (o) {
-        var faces = [[11, 8, 'm', 1], [23, 27, 'f', 0], [37, 66, 'm', 3], [52, 34, 'f', 2]].map(function (f) {
-          return h('i', { html: G.avatar({ seed: f[0], age: f[1], g: f[2], skin: f[3], cul: f[3] ? 'us' : 'cn', happy: 80, style: o[0] }) });
+      var curSt = G.avatarStyle ? G.avatarStyle() : 'anime';
+      b.appendChild(h('div', { class: 'avpick' }, [['anime', '动漫（花环少女）|Anime (flower wreaths)'], ['real', '写实|Realistic'], ['classic', '经典|Classic']].map(function (o) {
+        var faces = [[11, 8, 'm', 1], [23, 22, 'f', 0, 1], [37, 66, 'm', 3], [52, 30, 'f', 2]].map(function (f) {
+          return h('i', { html: G.avatar({ seed: f[0], age: f[1], g: f[2], skin: f[3], cul: f[3] ? 'us' : 'cn', happy: 80, style: o[0], wreath: f[4] }) });
         });
         return h('button', { class: 'avopt' + (curSt === o[0] ? ' on' : ''), onclick: tap(function () {
           s.avStyle = o[0]; G.saveSettings(); rec.refresh();
@@ -212,7 +213,7 @@
       b.appendChild(h('p', { style: { fontSize: '12.5px', color: 'var(--ink2)', margin: '6px 2px 0' } }, T('写实头像改编自 Pablo Stanley 的 Avataaars；动漫头像改编自 Lisa Wischofsky 的 Adventurer（CC BY 4.0）；由 DiceBear 生成。|Realistic portraits remix "Avataaars" by Pablo Stanley; anime portraits remix "Adventurer" by Lisa Wischofsky (CC BY 4.0); generated with DiceBear.')));
       b.appendChild(h('div', { class: 'grp' }, T('数据|Data')));
       b.appendChild(h('button', { class: 'row', onclick: tap(function () { UI.confirm('清除所有数据|Erase Everything', '所有存档、成就和记录都会被删除，VIP 会保留。确定吗？|All saves, achievements and records will be deleted. VIP is kept. Continue?').then(function (ok) { if (!ok) return; ['auto', '1', '2', '3', '4', '5', '6'].forEach(function (k) { G.store.del('save_' + k); }); G.store.del('meta'); G.store.del('snap'); G.loadMeta(); G.meta = { ach: {}, lives: [], stats: {} }; G.saveMeta(); UI.toast('已清除|Erased'); UI.start(); }); }) }, h('div', { class: 'ic' }, '🗑️'), h('div', { class: 'tx' }, h('div', { class: 't', style: { color: 'var(--red)' } }, T('清除所有数据|Erase all data')))));
-      b.appendChild(h('p', { class: 'empty' }, 'My Life Simulator v' + G.VERSION));
+      b.appendChild(h('p', { class: 'empty' }, 'My Life v' + G.VERSION));
     });
   };
   UI.THEMES = [['identity', '身份手账（推荐）|Identity Journal', ['#1b2850', '#f6f0e1'], ['#b98a52', '#efe2c4']], ['auto', '跟随系统|System', ['#a9d3f5', '#ffffff'], ['#1f2547', '#242b4a']], ['sky', '晴空|Clear Sky', ['#a9d3f5', '#ffffff']], ['sakura', '樱花|Sakura', ['#f7bccb', '#fffafb']], ['mint', '薄荷|Mint', ['#a6e0c9', '#fcfffd']], ['night', '星夜|Starry Night', ['#1f2547', '#242b4a']], ['light', '木纹手账|Wood & Paper', ['#8d5d3b', '#fbf6ea']], ['dark', '黑板|Blackboard', ['#3a281d', '#2a2420']]];

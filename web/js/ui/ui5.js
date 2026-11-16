@@ -16,11 +16,13 @@
   ];
   async function suggest(used) {
     var p = S().p, L = SUGGEST.filter(function (s) { return !s.if || s.if(); });
-    if (!L.some(function (s) { return p.energy >= s.e; })) { UI.toast(G.L('今年的工作体力已用完（上限{c}点）。|This year\'s work energy is used up (limit {c}).', { c: G.WORK_CAP })); return; }
+    if (!L.some(function (s) { return p.energy >= s.e; }) && p.energy < 5) { UI.toast(G.L('今年的工作体力已用完（上限{c}点）。|This year\'s work energy is used up (limit {c}).', { c: G.WORK_CAP })); return; }
     var i = await UI.pick({ title: G.L('今年的工作已经够拼了|You\'ve Worked Enough This Year'),
       text: G.L('今年你已经在工作和公司上花了{u}点体力（每年上限{c}点）。剩下的体力留给生活吧：|You\'ve spent {u} energy on work and business this year (limit {c}). Give the rest to your life:', { u: used, c: G.WORK_CAP }),
-      items: L.map(function (s) { return { t: G.L(s.t), sub: '⚡' + s.e, icon: s.i, dis: p.energy < s.e }; }) });
+      items: [{ t: G.L('去「生活百态」看看|Open Life\'s Little Things'), sub: G.L('下厨、养花、散步、陪宠物……|Cooking, gardening, walks, pets…'), icon: '🌼' }].concat(L.map(function (s) { return { t: G.L(s.t), sub: '⚡' + s.e, icon: s.i, dis: p.energy < s.e }; })) });
     if (i < 0) return;
+    if (i === 0) { var lc = G.ACT_CATS.filter(function (c) { return c.id === 'life'; })[0]; UI.closeAllSheets && UI.closeAllSheets(); if (lc && UI.catPage) UI.catPage(lc); return; }
+    i -= 1;
     var s = L[i]; if (p.energy < s.e) return;
     p.energy -= s.e; G.dStart && G.dStart(); var txt = s.run(); var dl = G.dEnd ? G.dEnd() : [];
     await G.result(s.t, txt, null, dl, s.i); G.save('auto'); G.emit('change');

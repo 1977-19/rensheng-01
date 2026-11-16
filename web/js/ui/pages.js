@@ -167,7 +167,7 @@
   }
   UI.tabRelations = function () {
     UI.sheet('关系|Relationships', function (b, rec) {
-      var all = N.all(function (n) { return n.alive; }), any = false;
+      var all = N.all(function (n) { return n.alive && !n.cut; }), any = false;
       GROUPS.forEach(function (g) {
         var list = all.filter(function (n) { var r = n.rel === 'contact' && n.inlaw && G.S.npcs[n.inlaw] && (G.S.npcs[n.inlaw].rel === 'child' || G.S.npcs[n.inlaw].rel === 'grandchild') ? 'kidsp' : n.rel; return g[1].indexOf(r) >= 0; });
         if (!list.length) return; any = true;

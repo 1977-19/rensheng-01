@@ -12,7 +12,7 @@
   function R2(s) { return s.split(','); }
 
   var SPY = R2('外围线人|Informant,见习特工|Trainee Agent,特工|Field Agent,高级特工|Senior Agent,行动组长|Operations Lead,情报站站长|Station Chief,情报局副局长|Deputy Director,情报局局长|Director of Intelligence');
-  var SPY_PAY = [30000, 90000, 160000, 260000, 420000, 650000, 1000000, 1600000];
+  var SPY_PAY = [20000, 50000, 85000, 130000, 190000, 260000, 380000, 550000];
   var CADET = '情报预备生|Intelligence Cadet';
   G.SPY = SPY; G.SPY_PAY = SPY_PAY;
 
@@ -238,7 +238,7 @@
       t: function (c) { var x = CASES[c.prm.k], a = x.t.split('|'), b = x.s.split('|'); return '【' + a[0] + '】' + b[0] + '|[' + a[1] + '] ' + b[1]; },
       o: [{ t: '凭直觉做出判断|Trust your instincts', run: async function (c) {
         var r = await G.spyGame({ name: CASES[c.prm.k].t, fixed: [c.prm.k] }), sp = c.p.spy; if (!sp) return '';
-        if (r.ok) { var g = G.ri(10, 20) + (r.great ? 10 : 0); merit(g); heat(-6); var m = pay(G.ri(10, 40) * 1000 * (G.spyMole() ? 1.6 : 1)); return G.L('你的判断是对的。功绩+{g}，奖金{m}。|Your instincts were right. Merit +{g}, bonus {m}.', { g: g, m: G.M(m) }); }
+        if (r.ok) { var g = G.ri(10, 20) + (r.great ? 10 : 0); merit(g); heat(-6); var m = pay(G.ri(3, 12) * 1000 * (G.spyMole() ? 1.4 : 1)); return G.L('你的判断是对的。功绩+{g}，奖金{m}。|Your instincts were right. Merit +{g}, bonus {m}.', { g: g, m: G.M(m) }); }
         heat(G.ri(12, 22) * (sp.youth ? .5 : 1)); c.add('stress', 8); return G.L('你看错了。对方注意到了你。（暴露风险{h}%）|You read it wrong. They noticed you. (Exposure risk {h}%)', { h: Math.round(sp.heat) });
       } }] },
     { id: 'spy_arrest', sys: 1, title: '凌晨的敲门声|A Knock Before Dawn', icon: '🚨', bad: 1,
@@ -285,7 +285,7 @@
       function (r) { var g = G.ri(25, 40) + (r.great ? 15 : 0); merit(g); P().spy.assets = (P().spy.assets || 0) + 1; return G.L('对方终于点头了。你多了一条线人。功绩+{g}。|They finally agreed. You have a new source. Merit +{g}.', { g: g }); },
       function () { heat(G.ri(14, 20)); G.addStat('stress', 6); return G.L('对方起了疑心，你只好断了联系。|They grew suspicious; you cut contact.'); }),
     act('spy_op', '潜伏任务（三关）|Deep-Cover Mission (3 tests)', '🎭', 30, 2, 3,
-      function (r) { var g = G.ri(60, 90) + (r.great ? 50 : 0); merit(g); var m = pay(G.ri(r.great ? 300 : 60, r.great ? 600 : 200) * 1000 * mole()); G.addStat('fame', 0); return G.L(r.great ? '你在对方心脏里潜伏了半年，带回了一份改变局势的情报。总部为你开了香槟。功绩+{g}，奖金{m}。|Six months in the heart of their operation, and you brought back intelligence that changed everything. HQ opened champagne. Merit +{g}, bonus {m}.' : '任务完成。功绩+{g}，奖金{m}。|Mission accomplished. Merit +{g}, bonus {m}.', { g: g, m: G.M(m) }); },
+      function (r) { var g = G.ri(60, 90) + (r.great ? 50 : 0); merit(g); var m = pay(G.ri(r.great ? 80 : 20, r.great ? 160 : 60) * 1000 * mole()); G.addStat('fame', 0); return G.L(r.great ? '你在对方心脏里潜伏了半年，带回了一份改变局势的情报。总部为你开了香槟。功绩+{g}，奖金{m}。|Six months in the heart of their operation, and you brought back intelligence that changed everything. HQ opened champagne. Merit +{g}, bonus {m}.' : '任务完成。功绩+{g}，奖金{m}。|Mission accomplished. Merit +{g}, bonus {m}.', { g: g, m: G.M(m) }); },
       function (r) { heat(G.ri(25, 35)); if (r.score < .2 && G.ch(.08)) { G.die('潜伏任务中牺牲|Killed on a deep-cover mission'); return ''; } return G.L('任务失败，你在最后一刻逃了出来。|The mission failed; you escaped at the last moment.'); }, { diff: .05 }),
     act('spy_interrog', '审讯对方特工（两关）|Interrogate an Enemy Agent (2 tests)', '🔦', 20, 3, 2,
       function () { var g = G.ri(40, 60); merit(g); return G.L('他终于开口了。功绩+{g}。|He finally talked. Merit +{g}.', { g: g }); },
@@ -312,7 +312,8 @@
   /* ---------- while you serve, life is the work ---------- */
   var pre = G.pickRandomEvents;
   G.pickRandomEvents = function (n) {
-    if (G.spyOn()) { var out = [{ id: 'spy_case' }]; if (!P().spy.youth && n > 1 && G.ch(.6)) out.push({ id: 'spy_case' }); return out; }
+    // a field test now and then — not an exam every single year
+    if (G.spyOn()) { var sp = P().spy; if (sp.caseY == null || S().year - sp.caseY >= 3 || G.ch(.2)) { sp.caseY = S().year; return [{ id: 'spy_case' }]; } }
     return pre.apply(this, arguments);
   };
 
@@ -326,7 +327,7 @@
       var sp = p.spy; sp.yrs++; sp.heat = sp.heat || 0;
       if (sp.youth && p.age >= 18) { sp.youth = 0; sp.rank = Math.max(sp.rank, 1); sp.heat = Math.min(sp.heat, 20); G.major('正式成为{a}的特工|Became a full agent of {a}', { a: G.agencyName(sp.ag) }); }
       if (sp.youth) pay(3000);
-      else pay(SPY_PAY[sp.rank] * (G.spyMole() ? 1.6 : 1));
+      else pay(SPY_PAY[sp.rank] * (G.spyMole() ? 1.4 : 1));
       sp.merit += G.ri(2, 6);
       sp.heat = G.clamp(sp.heat - 7 + (G.spyMole() ? 5 : 0) + ((p.pol || p.mil || p.gov) ? 2 : 0), 0, 100);
       if (!sp.youth && sp.merit >= 25 + sp.rank * 20 && sp.rank < SPY.length - 1) promote();

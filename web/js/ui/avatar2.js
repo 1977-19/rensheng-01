@@ -1,4 +1,4 @@
-/* Portrait avatars drawn with DiceBear styles: "写实" (Avataaars, the default) and "动漫" (Adventurer).
+/* Portrait avatars drawn with DiceBear styles: "动漫" (Adventurer, the default since 1.9 — girls often wear flower wreaths) and "写实" (Avataaars).
    The old sticker faces stay available as "经典". Same inputs as before: seed, age, gender, skin tone, culture, mood. */
 (function () {
   'use strict';
@@ -50,15 +50,18 @@
     };
     return svg('avataaars', opts);
   }
+  // curated for a sweeter look: gentle eyes and brows, real smiles, and flower wreaths for many of the girls
+  var EYES = [1, 2, 3, 12, 19, 24, 25, 26], SMILE = [1, 8, 23, 25, 27, 28, 30], SAD = [2, 4, 9, 29], BROWS = [6, 8, 9, 10, 11, 12, 13, 14, 15], FLOWER = [3, 8, 18];
   function anime(o, r, age, g, si, mood) {
     var f = g === 'f', n = function (k) { return (k < 10 ? '0' : '') + k; };
-    var hair = f ? 'long' + n(1 + Math.floor(r() * 26)) : 'short' + n(1 + Math.floor(r() * 19));
-    var happy = mood >= 50;
+    var wreath = f && age >= 3 && age <= 45 && (o.wreath || r() < .38);
+    var hair = f ? 'long' + n(wreath ? pick(r, FLOWER) : 1 + Math.floor(r() * 26)) : 'short' + n(1 + Math.floor(r() * 19));
+    var happy = mood >= 45;
     var opts = {
       seed: 'a' + (o.seed || 7), idRandomization: true,
       skinColor: [SKIN_B[si]], hairColor: [hairCol(r, si, age, o.cul)], hairVariant: [hair], hairProbability: age < 2 ? 0 : 100,
-      eyesVariant: ['variant' + n(1 + Math.floor(r() * 26))], eyebrowsVariant: ['variant' + n(1 + Math.floor(r() * 15))],
-      mouthVariant: ['variant' + n(happy ? 1 + Math.floor(r() * 20) : 21 + Math.floor(r() * 10))],
+      eyesVariant: ['variant' + n(pick(r, EYES))], eyebrowsVariant: ['variant' + n(pick(r, BROWS))],
+      mouthVariant: ['variant' + n(happy ? pick(r, SMILE) : pick(r, SAD))],
       glassesProbability: (o.glasses || (age >= 8 && r() < .12) || (age >= 60 && r() < .4)) ? 100 : 0,
       earringsProbability: f && age >= 14 && r() < .45 ? 100 : 0,
       detailsProbability: age < 10 ? 100 : (!f && age >= 40 && r() < .25 ? 100 : (r() < .3 ? 100 : 0)),
@@ -67,7 +70,7 @@
     };
     return svg('adventurer', opts);
   }
-  G.avatarStyle = function () { var s = G.settings && G.settings.avStyle; return s === 'anime' || s === 'classic' ? s : 'real'; };
+  G.avatarStyle = function () { var s = G.settings && G.settings.avStyle; return s === 'real' || s === 'classic' ? s : 'anime'; };
   G.avatar = function (o) {
     o = o || {};
     var st = o.style || G.avatarStyle();

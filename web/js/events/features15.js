@@ -24,7 +24,7 @@
     { id: "hero", n: "做一个好人（品德80以上）|Be a truly good person (virtue 80+)", i: "😇", ok: function () { return (P().h.karma || 0) >= 80; } },
     { id: "home", n: "拥有一套属于自己的房子|Own a home of your own", i: "🏡", ok: function () { return S().assets.houses.length > 0; } },
     { id: "hundred", n: "活到一百岁|Live to a hundred", i: "🎂", ok: function () { return P().age >= 100; } },
-    { id: "pet", n: "养一只陪你很多年的宠物|Keep a pet for many years", i: "🐕", ok: function () { var pt = P().pet; return !!pt && S().year - pt.y >= 10; } },
+    { id: "pet", n: "养一只陪你很多年的宠物|Keep a pet for many years", i: "🐕", ok: function () { return S().assets.pets.some(function (x) { return S().year - x.by >= 10; }) || (S().petGone || []).some(function (x) { return (x.died || 0) - x.by >= 10; }); } },
     { id: "top", n: "做到行业顶尖|Reach the top of your field", i: "🏆", ok: function () { var f = P().flags; return (f.peakJob || 0) >= 1 || cnt("topcop") > 0 || cnt("general") > 0 || cnt("leader") > 0 || cnt("famerank") >= 3; } },
     { id: "book", n: "出版一本书|Publish a book", i: "📕", ok: function () { return !!P().flags.published || cnt("books") > 0; } },
     { id: "love", n: "遇见一生挚爱（伴侣爱意90以上）|Find the love of your life (partner love 90+)", i: "💞", ok: function () { var pt = N.partner(); return !!pt && pt.love >= 90; } }
@@ -124,12 +124,12 @@
   /* ===================== pets that grow old ===================== */
   var PET = { dog: ["小狗|dog", 13], cat: ["小猫|cat", 16], rabbit: ["兔子|rabbit", 9], parrot: ["鹦鹉|parrot", 40] };
   G.evs([
-    { id: "pet_trick", sys: 1, title: "宠物学会了新本领|A New Trick", icon: "🐾", prep: function (c) { if (!c.p.pet) return false; },
+    { id: "pet_trick", sys: 1, title: "宠物学会了新本领|A New Trick", icon: "🐾", prep: function (c) { if (!S().assets.pets.length) return false; },
       t: function (c) { return G.pick(["你的宠物学会了握手，见人就伸爪子。|Your pet learned to shake hands and offers a paw to everyone.", "它学会了自己开门，还会把你的拖鞋叼过来。|It learned to open doors and fetch your slippers.", "你下班回家，它在门口已经等了一个小时。|You came home from work and it had been waiting by the door for an hour."]); },
       o: [{ t: "摸摸它的头|Pat its head", run: function (c) { c.add("happy", 6); c.add("stress", -5); return "它眯起眼睛，尾巴摇个不停。|It closed its eyes, tail going non-stop."; } }] },
-    { id: "pet_old", sys: 1, title: "老伙计|Old Friend", icon: "🕯️", bad: 1, prep: function (c) { var pt = c.p.pet; if (!pt) return false; c.prm.y = S().year - pt.y; },
+    { id: "pet_old", sys: 1, title: "老伙计|Old Friend", icon: "🕯️", bad: 1, prep: function (c) { var pt = S().assets.pets.slice().sort(function (a, b) { return a.by - b.by; })[0]; if (!pt) return false; c.prm.pid = pt.id; c.prm.y = S().year - pt.by; },
       t: "陪了你{y}年的宠物走得越来越慢了。今天早上，它没有像往常一样来叫你起床。|The pet who has been with you for {y} years has slowed down. This morning, it didn’t come to wake you as usual.",
-      o: [{ t: "抱着它，陪它走完最后一程|Hold it through the end", run: function (c) { var y = c.prm.y; c.p.flags.petMem = (c.p.flags.petMem || 0) + 1; c.p.flags.lastPet = { k: c.p.pet.k, y: y }; c.p.pet = null; c.add("happy", -15); c.add("eq", 3); G.major("和陪伴{y}年的宠物告别|Said goodbye to a pet of {y} years", { y: y }); return "它在你怀里安静地睡着了。你在院子里给它种了一棵树。|It fell asleep quietly in your arms. You planted a tree for it in the garden."; } }] }
+      o: [{ t: "抱着它，陪它走完最后一程|Hold it through the end", run: function (c) { var y = c.prm.y; c.p.flags.petMem = (c.p.flags.petMem || 0) + 1; var gone = S().assets.pets.filter(function (x) { return x.id === c.prm.pid; })[0]; c.p.flags.lastPet = { k: gone ? gone.kind : "dog", y: y }; if (gone) { gone.died = S().year; } c.p.pet = null; c.add("happy", -15); c.add("eq", 3); G.major("和陪伴{y}年的宠物告别|Said goodbye to a pet of {y} years", { y: y }); return "它在你怀里安静地睡着了。你在院子里给它种了一棵树。|It fell asleep quietly in your arms. You planted a tree for it in the garden."; } }] }
   ]);
   var mt = G.money.tick;
   G.money.tick = function () {
@@ -141,7 +141,9 @@
     // collections drift with the market
     collItems().forEach(function (x) { var c = COLL.filter(function (y) { return y.id === x.coll; })[0]; if (!c) return; x.val = Math.max(1, Math.round(x.val * (1 + c.drift + G.nrm(0, c.vol)))); });
     // pets
-    if (p.pet) { var info = PET[p.pet.k] || ["|", 14], age = s.year - p.pet.y; if (age >= info[1] - 2 && G.ch(.25 + (age - info[1]) * .1)) q("pet_old"); else if (G.ch(.18)) q("pet_trick"); G.addStat("happy", 1, true); G.addStat("stress", -2, true); }
+    if (p.pet && !p.pet.aid) { var pid = G.uid(); s.assets.pets.push({ id: pid, kind: p.pet.k, name: p.pet.n || G.pick(G.PET_NAMES), by: p.pet.y || s.year, aff: 70 }); p.pet = null; }
+    var op = s.assets.pets.slice().sort(function (a, b) { return a.by - b.by; })[0];
+    if (op) { var info = PET[op.kind] || ["|", 14], age = s.year - op.by; if (age >= info[1] - 2 && G.ch(.25 + (age - info[1]) * .1)) q("pet_old"); else if (G.ch(.18)) q("pet_trick"); G.addStat("happy", 1, true); G.addStat("stress", -2, true); }
     return r;
   };
   // the bucket list, on the life page

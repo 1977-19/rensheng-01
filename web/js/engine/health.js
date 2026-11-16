@@ -95,7 +95,7 @@
     if (p.st.health <= 0) { var big = p.ill.filter(function (x) { return G.ILL[x.id].sev >= 3 && !G.ILL[x.id].hp; })[0]; G.die(big ? G.L('死于{d}|Died of {d}', { d: G.ILL[big.id].n }) : (a >= 75 ? '寿终正寝|Died peacefully of old age' : '病逝|Died of illness')); return; }
     var life = G.C[p.country].life || 78;
     if (a < 40) return;
-    var ae = a - (life - 78) - (p.flags.lifeExt || 0);
+    var ae = a - (life - 78) - (p.flags.lifeExt || 0) - (p.flags.lifeBonus || 0);
     var q = .055 * Math.exp(.095 * (ae - 80)) * (1.8 - 1.4 * p.st.health / 100);
     if (G.has('longevity')) q *= .6; if (p.flags.antiAge) q *= .6; if (G.has('frail')) q *= 1.3; if (G.has('iron')) q *= .85;
     if (a > 112 + (p.flags.lifeExt || 0)) q = 1;

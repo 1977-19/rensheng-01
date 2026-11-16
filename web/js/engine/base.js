@@ -22,6 +22,7 @@
     dl.forEach(function (d) {
       if (!d || d.k === 'note' || !d.n) return;
       var nm = G.STATS && G.STATS[d.k] ? G.STATS[d.k].n : names[d.k]; if (!nm) return;
+      if (d.who) { var w = String(d.who), wi = w.indexOf('|'), wz = wi >= 0 ? w.slice(0, wi) : w, we = wi >= 0 ? w.slice(wi + 1) : w, ni = nm.indexOf('|'); nm = wz + nm.slice(0, ni) + '|' + we + '\'s ' + nm.slice(ni + 1).toLowerCase(); }
       var v, ve;
       if (d.k === 'money') { try { v = G.fmL(Math.abs(d.n), null, 0); ve = G.fmL(Math.abs(d.n), null, 1); } catch (e) { v = String(Math.round(Math.abs(d.n))); } }
       else if (G.STATS && G.STATS[d.k]) { v = Math.round(Math.abs(d.n) * 10) / 10; if (!v) return; v = v + '%'; }

@@ -305,7 +305,7 @@
       var dad = p.g === 'm' ? p : other, mom = p.g === 'm' ? other : p;
       var i = await G.UI.pick({ title: G.L('{n}跟谁姓？|Whose surname for {n}?', { n: k.name }), items: [{ t: G.L('随父姓：{s}|Father\'s: {s}', { s: dad.sur }), icon: '👨' }, { t: G.L('随母姓：{s}|Mother\'s: {s}', { s: mom.sur }), icon: '👩' }] });
       var sur = i === 1 ? mom.sur : dad.sur;
-      if (sur && String(sur) !== String(k.sur)) { var cul = (k.cul || p.cul || G.C[p.country].names); k.sur = sur; k.name = G.mkName(cul, sur, k.giv || String(k.name), k.g); }
+      if (sur && String(sur) !== String(k.sur)) { var cul = (k.cul || p.cul || G.C[p.country].names); var os = String(k.sur || '').split('|')[0], nm0 = String(k.name).split('|')[0], gv = k.giv || (os && nm0.indexOf(os) === 0 ? nm0.slice(os.length) : nm0); k.sur = sur; k.name = G.mkName(cul, sur, gv, k.g); }
     }
     return k;
   };

@@ -65,7 +65,9 @@
   function deltas(dl) {
     if (!dl || !dl.length) return null;
     var names = { perf: '成绩|Grades', money: '钱|Money', aff: '好感|Affection', love: '爱意|Love', fans: '粉丝|Fans', appr: '支持率|Approval', fit: '体能|Fitness', stress: '压力|Stress', karma: '品德|Karma', heat: '警方关注|Police heat', rep: '江湖地位|Street rep', merit: '功绩|Merit' };
-    return h('div', { class: 'deltas' }, dl.map(function (d) {
+    var bars = dl.filter(function (d) { return d.who && (d.k === 'aff' || d.k === 'love') && d.n; });
+    var chips = h('div', { class: 'deltas' }, dl.map(function (d) {
+      if (d.who && (d.k === 'aff' || d.k === 'love')) return null;
       if (d.k === 'note') return h('span', { class: 'dl note' }, T(d.x));
       var nm = G.STATS[d.k] ? G.STATS[d.k].n : names[d.k] || d.k;
       var good = d.n > 0; if (d.k === 'stress' || d.k === 'heat') good = !good;
@@ -74,6 +76,14 @@
       if (v === 0 || v === '0') return null;
       return h('span', { class: 'dl ' + (good ? 'up' : 'dn') }, T(nm) + ' ' + (d.n > 0 ? '+' : '−') + v);
     }));
+    if (!bars.length) return chips;
+    // affection and love shown as bars, like the stats on the main page
+    return h('div', null, h('div', { class: 'affbars' }, bars.map(function (d) {
+      var v = Math.max(0, Math.min(100, Math.round(d.v))), before = Math.max(0, Math.min(100, Math.round(d.v - d.n)));
+      return h('div', { class: 'affb' }, h('span', { class: 'nm' }, T(d.who) + ' · ' + T(d.k === 'love' ? '爱意|Love' : '好感|Affection')),
+        h('div', { class: 'bar' }, h('i', { class: d.k === 'love' ? 'c-rose' : 'c-gold', style: { width: v + '%' } }), d.n > 0 ? h('u', { style: { left: before + '%', width: Math.max(0, v - before) + '%' } }) : null),
+        h('b', { class: d.n > 0 ? 'up' : 'dn' }, v + ' (' + (d.n > 0 ? '+' : '−') + Math.abs(Math.round(d.n)) + ')'));
+    })), chips);
   }
   UI.deltas = deltas;
   // a result card closes on a tap anywhere on the screen, after the usual mis-tap guard

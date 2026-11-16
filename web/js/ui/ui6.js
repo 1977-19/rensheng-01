@@ -78,7 +78,7 @@
   /* ---------------- activities: health first ---------------- */
   var AREAS = [
     ['健康|Health', ['health']],
-    ['工作与事业|Work & Career', ['cadet', 'hustle', 'kidstar', 'service', 'spy', 'mega', 'honor', 'reign']],
+    ['工作与事业|Work & Career', ['cadet', 'hustle', 'kidstar', 'service', 'spy', 'mega', 'honor']],
     ['家庭与感情|Family & Love', ['family', 'social', 'elite']],
     ['生活|Everyday Life', ['life', 'fun', 'petcare', 'learn', 'travel', 'space', 'collect']],
     ['灰色地带|The Gray Zone', ['gray', 'crime', 'gamble']],
@@ -102,7 +102,7 @@
         b.appendChild(h('div', { class: 'grp' }, T(ar[0])));
         rows.forEach(function (r) { b.appendChild(r); });
       });
-      var rest = G.ACT_CATS.filter(function (c) { return !used[c.id]; }).map(row).filter(Boolean);
+      var rest = G.ACT_CATS.filter(function (c) { return !used[c.id] && !c.hideAct; }).map(row).filter(Boolean);
       if (rest.length) { b.appendChild(h('div', { class: 'grp' }, T('其他|More'))); rest.forEach(function (r) { b.appendChild(r); }); }
     });
   };

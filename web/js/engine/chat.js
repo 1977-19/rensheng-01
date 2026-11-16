@@ -127,7 +127,7 @@
     var na = N.age(n), minor = na < 18 || p.age < 18;
     var T = function (s) { return G.T(s); };
     var lines = [
-      '你正在一款名为《我的一生模拟器》的人生模拟游戏中扮演一个角色，正在用手机和玩家聊天。',
+      '你正在一款名为《我的一生》的人生模拟游戏中扮演一个角色，正在用手机和玩家聊天。',
       '【你的角色】姓名：' + T(n.name) + '；' + na + '岁；' + (n.g === 'm' ? '男' : '女') + '；职业：' + T(n.job) + '；性格：' + (G.persona ? (function () { var x = G.persona(n); return G.persName(n) + '（' + T(x.d) + '）；爱好：' + x.hob.map(T).join('、') + '；小习惯：' + T(x.quirk) + (x.cp ? '；口头禅：“' + T(x.cp) + '”' : ''); })() : T(G.PERS[n.pers].n)) + '；国家：' + T(G.C[n.c].n) + '；经济状况：' + T(N.wealthLabel(n)) + '。',
       '【你和玩家的关系】' + T(N.relName(n)) + '；你对玩家的好感度：' + n.aff + '（-100到100）' + (n.rel === 'lover' || n.rel === 'spouse' ? '；爱意：' + n.love + '/100' : '') + '。',
       '【玩家】' + T(p.name) + '，' + p.age + '岁，' + (p.g === 'm' ? '男' : '女') + '，' + T(G.title()) + '，颜值' + p.st.looks + '/100。',

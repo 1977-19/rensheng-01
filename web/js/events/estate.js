@@ -25,7 +25,8 @@
   };
 
   /* ====================== PREGNANCY WITH A CHOSEN PARTNER ====================== */
-  function fertileAge(p, n) { var wa = p.g === 'f' ? p.age : N.age(n); return wa < 30 ? .55 : wa < 35 ? .42 : wa < 40 ? .25 : wa < 45 ? .08 : 0; }
+  // trying couples usually conceive within a year or two; each year of trying adds to the odds
+  function fertileAge(p, n) { var wa = p.g === 'f' ? p.age : N.age(n), b = wa < 30 ? .82 : wa < 35 ? .72 : wa < 40 ? .52 : wa < 45 ? .24 : wa < 49 ? .07 : 0; if (n && n.trying && b > 0) b = Math.min(.95, b + Math.max(0, G.S.year - n.trying) * .12); return b; }
   LO.canConceive = function (pt) {
     var p = G.S.p; if (!pt || !pt.alive || pt.g === p.g) return false;
     if (['spouse', 'lover', 'affair'].indexOf(pt.rel) < 0) return false;
@@ -64,7 +65,7 @@
     if (k && other && other.rel === 'affair') {
       k.illegit = 1; k.secret = N.spouse() ? 1 : 0; k.ack = 0; k.rel = 'child'; k.par2 = other.id; other.kidOf = (other.kidOf || 0) + 1;
       k.aff = G.ri(30, 60);
-      if (S().p.g === 'm') { k.sur = other.sur; k.name = G.mkName(G.S.p.cul || G.C[G.S.p.country].names, other.sur, k.giv || (k.name || '').replace(/^\S/, ''), k.g); }
+      if (S().p.g === 'm' && !k.surPicked) { k.sur = other.sur; k.name = G.mkName(G.S.p.cul || G.C[G.S.p.country].names, other.sur, k.giv || (k.name || '').replace(/^\S/, ''), k.g); }
       G.major('有了一个私生{x}：{n}|Had a secret {x}: {n}', { x: k.g === 'm' ? '子|son' : '女|daughter', n: k.name });
     }
     return k;

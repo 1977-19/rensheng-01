@@ -79,7 +79,7 @@
       O("不参加|Pass", R("那期什么也没中。你松了一口气。|That week nothing won. You were relieved.", {}))
     ], 1.1, function (p) { return !!p.job; }),
     D("dl_stray_dog", [8, 80], "跟着你回家的狗|A Dog Follows You Home", "🐕", "一只流浪狗跟了你一路，你走它也走，你停它也停。|A stray follows you all the way home — stopping when you stop.", [
-      O("收养它|Adopt it", function (c) { if (c.p.pet) { H.fx(c, { karma: 4 }); return "你已经有宠物了，于是帮它找到了一户好人家。|You already had a pet, so you found it a good home."; } c.p.pet = { k: "dog", y: G.S.year, n: "小黄|Lucky" }; H.fx(c, { happy: 10, karma: 4 }); return "你给它起名叫“小黄”。它从此再也没离开过你。|You named it Lucky. It never left your side again."; }),
+      O("收养它|Adopt it", function (c) { if (G.S.assets.pets.length >= 4) { H.fx(c, { karma: 4 }); return "家里的毛孩子已经够多了，于是你帮它找到了一户好人家。|You already had plenty of pets, so you found it a good home."; } G.S.assets.pets.push({ id: G.uid(), kind: "dog", name: "小黄|Lucky", by: G.S.year - 1, aff: 75 }); H.fx(c, { happy: 10, karma: 4 }); return "你给它起名叫“小黄”。它从此再也没离开过你。|You named it Lucky. It never left your side again."; }),
       O("买根火腿肠给它|Buy it a sausage", R("它吃完舔了舔你的手，走了。|It ate, licked your hand, and trotted off.", { karma: 2, happy: 2 }))
     ]),
     D("dl_fortune_cookie", [12, 90], "签文|A Fortune", "🔮", "你在一家餐馆的签饼里抽到一张字条：“今年你会遇到改变命运的人。”|In a restaurant fortune cookie: “This year you will meet someone who changes your life.”", [

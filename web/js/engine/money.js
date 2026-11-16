@@ -113,7 +113,7 @@
       other += Math.round(h.val * .004);
     });
     A.cars.forEach(function (c) { c.val = Math.round(c.val * .86); other += G.$(900) + Math.round(c.val * .01); });
-    A.items.forEach(function (it) { it.val = Math.round(it.val * (it.inv ? (1 + G.nrm(.04, .12)) : .93)); });
+    A.items.forEach(function (it) { it.val = Math.round(it.val * (it.inv ? (1 + G.nrm(.015, .07)) : .93)); });
     A.pets.forEach(function (pt) { other += G.$((G.PETS.filter(function (x) { return x.id === pt.kind; })[0] || { up: 500 }).up); });
     // investments
     var invGain = 0;

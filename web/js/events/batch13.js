@@ -100,10 +100,10 @@
     life('cook', '学做一道新菜|Learn a New Dish', '🍳', 8, [12, 110], async function (a) { return G.quick(a, G.L(G.pick(['你做的红烧肉第一次成功了，全家抢着吃。|Your braised pork finally worked; the family fought over it.', '蛋糕塌了，但味道还不错。|The cake collapsed, but it tasted fine.', '你学会了一道外国菜，朋友们都夸你。|You learned a foreign dish; friends were impressed.'])), { happy: 4, health: 1 }); }),
     life('adopt_pet', '领养一只宠物|Adopt a Pet', '🐶', 10, [8, 100], async function (a) {
       var i = await G.UI.pick({ title: G.L('领养什么？|Adopt what?'), items: [{ t: G.L('小狗|A puppy'), icon: '🐶' }, { t: G.L('小猫|A kitten'), icon: '🐱' }, { t: G.L('兔子|A rabbit'), icon: '🐰' }, { t: G.L('鹦鹉|A parrot'), icon: '🦜' }] });
-      if (i < 0) return 'cancel'; var k = ['dog', 'cat', 'rabbit', 'parrot'][i]; P().pet = { k: k, y: S().year };
+      if (i < 0) return 'cancel'; var k = ['dog', 'cat', 'rabbit', 'parrot'][i]; var nm = await G.UI.input({ title: G.L('给它起个名字|Name it'), def: G.T(G.pick(G.PET_NAMES)) }); S().assets.pets.push({ id: G.uid(), kind: k, name: nm || G.pick(G.PET_NAMES), by: S().year, aff: 70 });
       return G.quick(a, G.L('你把它抱回了家。从此家里多了一个成员。|You brought it home. The family has a new member.'), { happy: 8 });
-    }, { if: function () { return !P().pet; } }),
-    life('pet_play', '陪宠物玩|Play with Your Pet', '🐾', 5, [8, 110], async function (a) { return G.quick(a, G.L('它蹭着你的手，把一天的烦恼都蹭没了。|It nuzzled your hand and rubbed the day\'s worries away.'), { happy: 5, stress: -5 }); }, { if: function () { return !!P().pet; } }),
+    }, { if: function () { return S().assets.pets.length < 6; } }),
+    life('pet_play', '陪宠物玩|Play with Your Pet', '🐾', 5, [8, 110], async function (a) { return G.quick(a, G.L('它蹭着你的手，把一天的烦恼都蹭没了。|It nuzzled your hand and rubbed the day\'s worries away.'), { happy: 5, stress: -5 }); }, { if: function () { return !!S().assets.pets.length; } }),
     life('garden', '养花种菜|Grow Flowers and Vegetables', '🌱', 6, [10, 110], async function (a) { return G.quick(a, G.L('阳台上的小番茄红了。|The balcony tomatoes turned red.'), { happy: 4, health: 1 }); }),
     life('photo', '街头摄影|Street Photography', '📷', 8, [12, 100], async function (a) { var f = G.ch(.08); return G.quick(a, G.L(f ? '你拍的一张照片在网上火了！|One of your photos went viral!' : '你拍下了城市里一个安静的瞬间。|You caught a quiet moment in the city.'), f ? { happy: 6, fame: 4 } : { happy: 4 }); }),
     life('museum', '逛博物馆|Visit a Museum', '🏛️', 6, [6, 110], async function (a) { return G.quick(a, G.L('你在一幅画前站了很久。|You stood before one painting for a long time.'), { smarts: 2, happy: 2 }); }),

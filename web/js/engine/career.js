@@ -62,9 +62,13 @@
   CR.search = async function (c) {
     var list = CR.listings(9);
     if (!list.length) { G.UI.toast(G.L('现在没有合适的岗位。|No suitable openings right now.')); return; }
-    var items = list.map(function (j) {
-      var q = CR.qualify(j);
-      return { t: j.r[0], sub: G.L('{s}/年 · {q}|{s}/yr · {q}', { s: G.M(CR.salary(j, 0)), q: q.ok ? G.L('符合要求|Qualified') : q.miss.join(' / ') }), icon: q.ok ? '✅' : '⚠️' };
+    // the best fits first: qualified, matching your major and talents, then by pay and odds
+    var p0 = G.S.p, maj = p0.edu && p0.edu.major;
+    function fit(j) { var q = CR.qualify(j); return (q.ok ? 1000 : 0) + (j.maj && maj && j.maj.indexOf(maj) >= 0 ? 400 : 0) + (p0.flags.gift && j.id === p0.flags.gift ? 300 : 0) + q.ch * 200 + Math.log(Math.max(1, CR.salary(j, 0))) * 20; }
+    list.sort(function (a, b) { return fit(b) - fit(a); });
+    var items = list.map(function (j, ix) {
+      var q = CR.qualify(j), rec = ix < 3 && q.ok;
+      return { t: (rec ? '⭐ ' : '') + G.T(j.r[0]), sub: G.L('{s}/年 · {q}{r}|{s}/yr · {q}{r}', { s: G.M(CR.salary(j, 0)), q: q.ok ? G.L('符合要求|Qualified') : q.miss.join(' / '), r: rec ? G.L(' · 最适合你|· Best fit for you') : '' }), icon: q.ok ? '✅' : '⚠️' };
     });
     var i = await G.UI.pick({ title: G.L('求职|Job Search'), text: G.L('选择一个岗位投递简历。|Pick a position to apply for.'), items: items });
     if (i < 0) return;
