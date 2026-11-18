@@ -58,11 +58,7 @@
   function decorate() {
     try {
       if (!G.S || !G.S.p) return;
-      var ttl = document.querySelector('.desk .hdr .who .ttl');
-      if (ttl && !ttl.querySelector('.idchip')) {
-        var id = G.idNow ? G.idNow() : 'common', meta = IDN[id];
-        if (meta && id !== 'common' && (ttl.textContent || '').indexOf(T(meta[1])) < 0) ttl.appendChild(h('span', { class: 'idchip tone-' + meta[2] }, meta[0] + ' ' + T(meta[1])));
-      }
+      // (no identity chip on the journal: it was redrawn on every refresh and flickered)
       var ps = document.querySelectorAll('.desk .diary p:not(.v3d)');
       for (var i = 0; i < ps.length; i++) {
         var p = ps[i], t = p.textContent || ''; p.classList.add('v3d');
