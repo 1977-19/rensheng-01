@@ -13,6 +13,7 @@ const html = `<!doctype html>
 <meta name="format-detection" content="telephone=no">
 <title>我的一生 · My Life</title>
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/v3.css">
 </head>
 <body>
 <div id="app"></div>

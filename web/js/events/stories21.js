@@ -43,12 +43,13 @@
   var pick = G.pickRandomEvents;
   G.pickRandomEvents = function (n) {
     idc.k = null; var out = pick.apply(this, arguments) || [], s = S(), id = idNow();
-    if (!STRONG[id] && id !== 'student' && id !== 'elder') return out;
+    var SOFT = { student: .6, elder: .6, soldier: .6, police: .6, child: .35, common: .3 };
+    if (!STRONG[id] && !SOFT[id]) return out;
     // the year belongs to who you are: identity storylines first, everyday ones only to fill gaps
     var pool = G.EVL.filter(function (d) { return d.who && whoOk(d, id) && G.eligible(d, s) && out.indexOf(d) < 0; });
     var res = [];
     for (var i = 0; i < Math.max(1, out.length); i++) {
-      if (pool.length && (STRONG[id] || G.ch(.6))) { var d = G.wpick(pool, function (x) { return G.weight(x, s); }); res.push(d); pool = pool.filter(function (x) { return x !== d; }); }
+      if (pool.length && (STRONG[id] || G.ch(SOFT[id] || .6))) { var d = G.wpick(pool, function (x) { return G.weight(x, s); }); res.push(d); pool = pool.filter(function (x) { return x !== d; }); }
       else if (out[i] && !/^(spy_case)$/.test(out[i].id) && (!STRONG[id] || !/^(dl_|a_|x_|t_)/.test(out[i].id))) res.push(out[i]);
     }
     // a scheduled spy field test is never dropped
@@ -58,7 +59,7 @@
 
   /* helpers */
   function X(id, who, a, title, icon, t, opts, ex) {
-    return E(id, a, title, icon, t, opts.map(function (o) { return O(o[0], typeof o[1] === 'function' ? o[1] : R(o[2], o[1] || {})); }), Object.assign({ who: who, rep: 1, cd: 9, w: 3 }, ex || {}));
+    return E(id, a, title, icon, t, opts.map(function (o) { return O(o[0], typeof o[1] === 'function' ? o[1] : R(o[2], o[1] || {})); }), Object.assign({ who: who, rep: 0, w: 3 }, ex || {}));
   }
   function mkNpc(c, o) { var p = c.p, g = o.g || (p.orient === 'gay' ? p.g : p.orient === 'bi' ? (G.ch(.5) ? 'm' : 'f') : (p.g === 'm' ? 'f' : 'm')); var n = N.make({ rel: o.rel || 'contact', g: g, age: p.age + G.ri(o.d0 == null ? -5 : o.d0, o.d1 == null ? 6 : o.d1), aff: o.aff || G.ri(25, 45), c: o.c || p.country }); n.pin = 1; if (o.job) n.job = o.job; if (o.love) n.love = o.love; c.prm.n = n.name; c.prm.nid = n.id; return n; }
   function nAff(c, v) { var n = S().npcs[c.prm.nid]; if (n) G.dPush('aff', N.addAff(n, v)); return n; }
@@ -146,7 +147,7 @@
       ['打字条上的紧急电话|Ring the emergency number on the note', { stress: 2 }, '电话那头的声音说：“他们很好。三天后到家。”说完就挂了。|A voice said: "They\'re fine. Home in three days." Then the line went dead.']
     ]),
     X('sf_interpret', 'spyfam', [16, 25], '酒会上的翻译|Interpreting at the Reception', '🥂', '妈妈带你去一个外交酒会“帮忙翻译”。她让你特别留意一位穿灰西装的客人说的每一句话。|Mum takes you to a diplomatic reception "to help interpret". She asks you to note every word a guest in a grey suit says.', [
-      ['一字不漏地记下来|Remember every word', function (c) { H.fx(c, { smarts: 4 }); if (c.p.spy) c.p.spy.merit += 6; return '回家的车上，妈妈听完你复述，只说了一个字：“好。”|In the car home Mum listened to your account and said a single word: "Good."'; }],
+      ['一字不漏地记下来|Remember every word', function (c) { H.fx(c, { smarts: 4 }); if (c.p.spy) if (c.p.spy) c.p.spy.merit += 6; return '回家的车上，妈妈听完你复述，只说了一个字：“好。”|In the car home Mum listened to your account and said a single word: "Good."'; }],
       ['专心做好翻译|Just interpret well', { eq: 3 }, '那位客人夸你翻得好，给了你一张名片。妈妈把名片收走了。|The guest praised your interpreting and gave you his card. Mum confiscated it.']
     ]),
     X('sf_lie', 'spyfam', [10, 17], '识破谎言|Spotting a Lie', '🧐', '妈妈和你玩一个游戏：她说三句话，其中一句是假的。|Mum plays a game: she says three things, one of them false.', [
@@ -170,7 +171,7 @@
   /* ===================== working spies ===================== */
   G.evs([
     X('sp_cover_love', 'spy', [22, 55], '掩护身份|The Cover', '💍', '组织给你安排了一个新任务：和另一名特工假扮夫妻，在国外生活三年。|A new assignment: pose as a married couple with another agent and live abroad for three years.', [
-      ['接受|Accept', function (c) { var n = mkNpc(c, { rel: 'crush', d0: -4, d1: 5, job: '情报特工|Intelligence Officer', love: 30, aff: 40 }); n.tags = n.tags || []; c.p.spy.merit += 6; G.dPush('merit', 6); return '你的“配偶”是{n}。三年里，你们一起吃了一千顿饭。有时候你会忘了，这只是任务。|Your "spouse" was {n}. Over three years you ate a thousand meals together. Sometimes you forgot it was only a mission.'; }],
+      ['接受|Accept', function (c) { var n = mkNpc(c, { rel: 'crush', d0: -4, d1: 5, job: '情报特工|Intelligence Officer', love: 30, aff: 40 }); n.tags = n.tags || []; if (c.p.spy) c.p.spy.merit += 6; G.dPush('merit', 6); return '你的“配偶”是{n}。三年里，你们一起吃了一千顿饭。有时候你会忘了，这只是任务。|Your "spouse" was {n}. Over three years you ate a thousand meals together. Sometimes you forgot it was only a mission.'; }],
       ['申请换人|Ask for someone else', { stress: 2 }, '上级皱了皱眉：“这不是相亲。”|Your handler frowned. "This isn\'t a dating service."']
     ]),
     X('sp_handler', 'spy', [22, 55], '你的联络人|Your Handler', '📞', '每个月，你和联络人只在公园长椅上见十分钟。今天，ta多坐了一会儿。|Each month you and your handler meet for ten minutes on a park bench. Today they stay longer.', [
@@ -187,7 +188,7 @@
     ]),
     X('sp_mole', 'spy', [28, 65], '内鬼|The Mole', '🐀', '总部认定站里有内鬼。名单上有五个人——包括你最好的朋友，也包括你。|HQ is certain there\'s a mole in the station. Five names on the list — your best friend\'s, and yours.', [
       ['主动接受测谎|Volunteer for the polygraph', RC(.75, '你通过了。三个月后，内鬼被找到了——是你最没想到的那个人。|You passed. Three months later the mole was found — the last person you\'d have guessed.', { stress: 8 }, '测谎仪的指针乱跳。你被停职调查了半年，最后才洗清嫌疑。|The needle jumped. You were suspended for six months before you were cleared.', { stress: 20, happy: -10 })],
-      ['暗中自己查|Investigate quietly yourself', function (c) { c.p.spy.merit += 10; G.dPush('merit', 10); H.fx(c, { stress: 10, smarts: 2 }); return '你在一份报销单上发现了破绽。内鬼落网那天，局长亲自给你打了电话。|You found the flaw in an expense claim. The day the mole was taken, the director phoned you himself.'; }]
+      ['暗中自己查|Investigate quietly yourself', function (c) { if (c.p.spy) c.p.spy.merit += 10; G.dPush('merit', 10); H.fx(c, { stress: 10, smarts: 2 }); return '你在一份报销单上发现了破绽。内鬼落网那天，局长亲自给你打了电话。|You found the flaw in an expense claim. The day the mole was taken, the director phoned you himself.'; }]
     ]),
     X('sp_wedding', 'spy', [25, 60], '婚礼上的任务|A Job at the Wedding', '💒', '你最好的朋友结婚，可你同一天接到了任务：目标就在婚礼宾客里。|Your best friend\'s wedding — and the same day, an assignment: the target is among the guests.', [
       ['边当伴郎/伴娘边完成任务|Be in the wedding party and do the job', RC(.6, '交换戒指的时候，你拿到了你要的东西。没有人发现。|During the ring exchange you got what you came for. Nobody noticed.', { stress: 6 }, '你在关键时刻离席，朋友到现在还在怪你。|You slipped out at the crucial moment; your friend has never forgiven you.', { stress: 10, happy: -6 })],
@@ -358,7 +359,7 @@
     spyfam: [['少了一个人的年夜饭|A Place Set for No One', '🥢', '年夜饭桌上摆着四双筷子，可爸爸又“出差”了。|Four pairs of chopsticks at New Year dinner — but Dad is "travelling" again.', [['给他留一碗饺子|Save him a bowl of dumplings', { eq: 3 }, '凌晨两点，你听到开门声。第二天早上，那碗饺子空了。|At 2 a.m. you heard the door. In the morning, the bowl was empty.'], ['问妈妈爸爸在哪|Ask Mum where Dad is', { stress: 3 }, '妈妈看着窗外：“在一个看不见烟花的地方。”|Mum looked out of the window. "Somewhere you can\'t see fireworks."']]],
       ['新年的密码|A New Year Code', '🧩', '爸爸送你的新年礼物是一把锁着的盒子，密码要你自己猜。|Dad\'s New Year present is a locked box. You must work out the code.', [['熬夜破解|Stay up cracking it', { smarts: 5 }, '密码是你出生那天的星期数和体重。盒子里是一张全家福——拍于你出生前的另一个国家。|The code was your birth weekday and weight. Inside: a family photo — taken before you were born, in another country.'], ['直接问爸爸|Just ask Dad', { par: 3 }, '爸爸大笑：“这样可当不了特工。”|Dad roared with laughter. "That\'s no way to be a spy."']]]],
     spy: [['安全屋里的新年|New Year in the Safe House', '🕯️', '零点，你在一个异国的安全屋里，用一台旧收音机听着家乡的新年钟声。|Midnight, in a safe house abroad, listening to home\'s New Year bells on an old radio.', [['给家里发一条暗语|Send home a coded line', { eq: 2, stress: 2 }, '“天气很好，饺子是韭菜馅的。”——家人会明白的。|"Weather fine, dumplings with chives." They\'d understand.'], ['打开窗听当地的烟花|Open the window to the local fireworks', { happy: 3 }, '这座城市的烟花，和家乡的一样好看。|This city\'s fireworks were as lovely as home\'s.']]],
-      ['新年任务|The New Year Job', '🎯', '目标也在过年。总部说，他最松懈的时候，就是今晚。|The target is celebrating too. HQ says tonight he\'ll be at his most careless.', [['出发|Go', function (c) { if (c.p.spy) { c.p.spy.merit += 8; G.dPush('merit', 8); } H.fx(c, { stress: 6 }); return '烟花最响的那一刻，你拿到了他口袋里的硬盘。|At the loudest burst of fireworks, you lifted the drive from his pocket.'; }], ['申请换个日子|Ask for another night', { happy: 3 }, '总部同意了。你给自己煮了一碗面。|HQ agreed. You made yourself a bowl of noodles.']]]],
+      ['新年任务|The New Year Job', '🎯', '目标也在过年。总部说，他最松懈的时候，就是今晚。|The target is celebrating too. HQ says tonight he\'ll be at his most careless.', [['出发|Go', function (c) { if (c.p.spy) { if (c.p.spy) c.p.spy.merit += 8; G.dPush('merit', 8); } H.fx(c, { stress: 6 }); return '烟花最响的那一刻，你拿到了他口袋里的硬盘。|At the loudest burst of fireworks, you lifted the drive from his pocket.'; }], ['申请换个日子|Ask for another night', { happy: 3 }, '总部同意了。你给自己煮了一碗面。|HQ agreed. You made yourself a bowl of noodles.']]]],
     prison: [['狱中的年夜饭|New Year Dinner Inside', '🥟', '除夕，监狱加了一个菜：每人八个饺子。|New Year\'s Eve: an extra dish — eight dumplings each.', [['把饺子分给新来的狱友|Give some to a new inmate', function (c) { c.p.jail.beh = Math.min(100, (c.p.jail.beh || 50) + 3); H.fx(c, { karma: 3, eq: 2 }); return '他边吃边哭：“这是我第一次在外面过年。”|He wept as he ate: "My first New Year away from home."'; }], ['一个一个慢慢吃|Eat them slowly, one by one', { happy: 3 }, '你吃出了一枚硬币。狱友们都说你明年要转运了。|One had a coin in it. Your cellmates said your luck would turn.']], 1],
       ['隔着电视的烟花|Fireworks on the Television', '📺', '监区的电视里在放春晚。窗外很远的地方，有人在放烟花。|The wing\'s TV shows the gala. Far beyond the window, someone sets off fireworks.', [['给家人写新年信|Write a New Year letter home', { eq: 3 }, '你写了一句：“明年，我想回家过年。”|You wrote one line: "Next year, I want to be home for New Year."'], ['跟着电视一起唱|Sing along with the TV', { happy: 4 }, '整个监区都在唱。狱警没有制止。|The whole wing sang. The guards let it be.']], 1]],
     general: [['哨所里的新年|New Year at an Outpost', '🏔️', '你带着慰问品去了最远的边防哨所，和战士们一起包饺子。|You take gifts to the most distant border post and make dumplings with the soldiers.', [['替哨兵站一班岗|Stand a watch for a sentry', { eq: 4, health: -1 }, '零下三十度，你站了两个小时。那个哨兵后来一直留在部队。|Two hours at minus thirty. That sentry never left the army.'], ['给每个人敬一杯|Toast every soldier', { happy: 6 }, '一个新兵喝多了，抱着你喊“首长”喊了一晚上。|A recruit had one too many and called you "sir" all night long.']]]],
@@ -406,10 +407,15 @@
     var id = G.identity(); if (!EASTNY[p.country] && NY[id + '_w']) id = id + '_w'; else if (!EASTNY[p.country] && ['common', 'red', 'nanny'].indexOf(id) >= 0) id = 'common_w';
     if (!NY[id]) id = EASTNY[p.country] ? 'common' : 'common_w';
     var L = NY[id]; s.nySeen = s.nySeen || {};
-    var opts = L.map(function (v, i) { return 'ny_' + id + '_' + i; });
-    var fresh = opts.filter(function (x) { return (s.nySeen[x] || 0) < s.year - 3; });
-    var pick1 = G.pick(fresh.length ? fresh : opts);
-    s.nySeen[pick1] = s.year;
+    // New Year is a scene now and then, not a form to fill in every January: at most one every few years,
+    // and each scene only once in a life. When an identity's scenes are used up, the holiday passes quietly.
+    if (s.nyLast != null && s.year - s.nyLast < 3) return;
+    if (!G.ch(s.nyLast == null ? .55 : .4)) return;
+    var opts = L.map(function (v, i) { return 'ny_' + id + '_' + i; }).concat((G.NYX && G.NYX(id)) || []);
+    var fresh = opts.filter(function (x) { var d = G.EV[x]; return !s.nySeen[x] && d && (!G.storyOk || G.storyOk(d)) && (!d.when || d.when(s, p)); });
+    if (!fresh.length) return;
+    var pick1 = G.pick(fresh);
+    s.nySeen[pick1] = s.year; s.nyLast = s.year;
     (s.pendQ = s.pendQ || []).unshift({ id: pick1 });
   }
   G.newYear19 = newYear;

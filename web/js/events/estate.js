@@ -65,7 +65,7 @@
     if (k && other && other.rel === 'affair') {
       k.illegit = 1; k.secret = N.spouse() ? 1 : 0; k.ack = 0; k.rel = 'child'; k.par2 = other.id; other.kidOf = (other.kidOf || 0) + 1;
       k.aff = G.ri(30, 60);
-      if (S().p.g === 'm' && !k.surPicked) { k.sur = other.sur; k.name = G.mkName(G.S.p.cul || G.C[G.S.p.country].names, other.sur, k.giv || (k.name || '').replace(/^\S/, ''), k.g); }
+      // the surname was already chosen at birth (father's or mother's) — never stack the lover's surname on top of it
       G.major('有了一个私生{x}：{n}|Had a secret {x}: {n}', { x: k.g === 'm' ? '子|son' : '女|daughter', n: k.name });
     }
     return k;

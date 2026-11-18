@@ -48,7 +48,7 @@
     var groups = o.groups || [{ label: '', names: o.sug }];
     return new Promise(function (res) {
       var chosen = null, inp = h('input', { class: 'inp', value: T(o.def || ''), maxlength: 24, placeholder: T('写一个名字，或点下面的推荐|Type a name, or tap a suggestion') });
-      var body = h('div', null, o.text ? h('div', { class: 'txt', style: { marginBottom: '10px' } }, T(o.text)) : null, inp,
+      var body = h('div', null, o.parents ? h('div', { class: 'npar' }, h('span', { class: 'np np-d' }, '👨 ', T(o.parents.dad || '—')), h('span', { class: 'np np-m' }, '👩 ', T(o.parents.mom || '—'))) : null, o.text ? h('div', { class: 'txt', style: { marginBottom: '10px', whiteSpace: 'pre-line' } }, T(o.text)) : null, inp,
         groups.map(function (gp) { return h('div', { class: 'ngrp' }, gp.label ? h('div', { class: 'nlab' }, T(gp.label)) : null, h('div', { class: 'sugs' }, gp.names.map(function (s) { return h('button', { class: 'sug', onclick: tap(function () { chosen = s; inp.value = T(s); }) }, T(s)); }))); }));
       var md = UI.modal({ title: o.title, body: body, foot: [h('button', { class: 'opt solid', onclick: tap(function () {
         var v = inp.value.replace(/\|/g, '').trim();

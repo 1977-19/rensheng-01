@@ -9,7 +9,7 @@
     var p = G.S.p, v = G.vip ? G.vip.tier() : 0, t = [];
     if (v >= 1 || p.flags.rich || N.netWorthScore() > .55) t.push('rich');
     if (v >= 2 || p.st.fame > 60) t.push('celeb');
-    if (v >= 3) { t.push('red'); if (G.C[p.country].mon || G.ch(.3)) t.push('royal'); }
+    if (v >= 3) { if (p.country === 'cn' || G.ch(.5)) t.push('red'); if (G.C[p.country].mon || G.ch(.25)) t.push('royal'); }
     return t;
   };
   LO.admirerRate = function () {
@@ -152,17 +152,30 @@
       var het = p.g !== other.g, dad = p.g === 'm' ? p : other, mom = p.g === 'm' ? other : p;
       var opts = het ? [{ t: G.L('随父姓：{s}|Father\'s surname: {s}', { s: dad.sur }), icon: '👨', v: dad.sur }, { t: G.L('随母姓：{s}|Mother\'s surname: {s}', { s: mom.sur }), icon: '👩', v: mom.sur }]
         : [{ t: G.L('随你的姓：{s}|Your surname: {s}', { s: p.sur }), icon: '🙋', v: p.sur }, { t: G.L('随{n}的姓：{s}|{n}\'s surname: {s}', { n: other.name, s: other.sur }), icon: '💞', v: other.sur }];
-      var si = await G.UI.pick({ title: G.L('是个{g}！先定下跟谁姓|It\'s a {g}! First, whose surname?', { g: g === 'm' ? '男孩|boy' : '女孩|girl' }), items: opts, noCancel: true });
+      var si = await G.UI.pick({ title: G.L('是个{g}！先定下跟谁姓|It\'s a {g}! First, whose surname?', { g: g === 'm' ? '男孩|boy' : '女孩|girl' }), text: het ? G.L('爸爸：{a}{x}　妈妈：{b}{y}|Father: {a}{x} · Mother: {b}{y}', { a: dad.name, b: mom.name, x: dad === p ? '（你）| (you)' : '', y: mom === p ? '（你）| (you)' : '' }) : G.L('{a}（你）和{b}的孩子|The child of {a} (you) and {b}', { a: p.name, b: other.name }), items: opts, noCancel: true });
       if (si >= 0 && opts[si]) sur = opts[si].v; surPicked = 1;
     }
     LO._twinSur = sur;
     var cul = p.cul || G.C[p.country].names;
     var sug = [0, 1, 2].map(function () { return G.genGiven(cul, g, S.year); });
-    var txt = await G.UI.input({ title: G.L('给宝宝起名|Name the Baby'), text: G.L('是个{g}！给{h}起个名字吧。|It\'s a {g}! Give {h} a name.', { g: g === 'm' ? '男孩|boy' : '女孩|girl', h: g === 'm' ? '他|him' : '她|her' }), groups: G.nameGroups ? G.nameGroups(cul, sur, g, S.year, N.rel('child')) : null, sug: G.nameSeries ? G.nameSeries(cul, sur, g, S.year, N.rel('child')) : sug.map(function (s) { return G.mkName(cul, sur, s, g); }), def: '', require: G.L('先写一个名字，或者点一个推荐的名字。|Type a name first, or tap one of the suggestions.') });
-    var name = txt || G.mkName(cul, sur, sug[0], g);
+    // who the parents are, right on the naming card
+    var dadN = adopted ? null : (p.g === 'm' ? p.name : (other && other.g === 'm' ? other.name : null)), momN = adopted ? null : (p.g === 'f' ? p.name : (other && other.g === 'f' ? other.name : null));
+    if (!adopted && other && p.g === other.g) { dadN = p.name; momN = other.name; }
+    var parTxt = adopted ? G.L('（领养）|(adopted)') : (other && p.g === other.g) ? G.L('家长：{a}（你）、{b}|Parents: {a} (you) and {b}', { a: p.name, b: other.name })
+      : G.L('爸爸：{a}{x}　妈妈：{b}{y}|Father: {a}{x} · Mother: {b}{y}', { a: dadN || '—', b: momN || '—', x: p.g === 'm' ? '（你）| (you)' : (other && other.rel === 'affair' ? '（情人）| (lover)' : ''), y: p.g === 'f' ? '（你）| (you)' : (other && other.rel === 'affair' ? '（情人）| (lover)' : '') });
+    var txt = await G.UI.input({ title: G.L('给宝宝起名|Name the Baby'), text: G.join([parTxt, G.L('是个{g}，姓{s}。给{h}起个名字吧。|It\'s a {g}, surname {s}. Give {h} a name.', { g: g === 'm' ? '男孩|boy' : '女孩|girl', h: g === 'm' ? '他|him' : '她|her', s: sur })], '\n', '\n'), parents: { dad: dadN, mom: momN }, groups: G.nameGroups ? G.nameGroups(cul, sur, g, S.year, N.rel('child')) : null, sug: G.nameSeries ? G.nameSeries(cul, sur, g, S.year, N.rel('child')) : sug.map(function (s) { return G.mkName(cul, sur, s, g); }), def: '', require: G.L('先写一个名字，或者点一个推荐的名字。|Type a name first, or tap one of the suggestions.') });
+    var name = txt || G.mkName(cul, sur, sug[0], g), giv = null;
+    // a typed name never stacks two surnames ("李王小明"): if it already starts with a parent's surname, that surname wins
+    if (txt) {
+      var tz = String(txt).split('|')[0].trim(), cands = [sur, p.sur, other && other.sur].filter(Boolean).map(function (x) { return String(x).split('|')[0]; }).sort(function (a, b) { return b.length - a.length; });
+      var east = (G.NAMES_EAST || { cn: 1, tw: 1, hk: 1, jp: 1, kr: 1 })[cul];
+      var hit = null; cands.forEach(function (c0) { if (!hit && c0 && tz.indexOf(c0) === 0 && tz.length > c0.length) hit = c0; });
+      if (hit) { [sur, p.sur, other && other.sur].forEach(function (x) { if (x && String(x).split('|')[0] === hit) sur = x; }); giv = tz.slice(hit.length); name = G.mkName(cul, sur, giv, g); }
+      else if (east && /^[\u4e00-\u9fff]{1,2}$/.test(tz)) { giv = tz; name = G.mkName(cul, sur, giv, g); }
+    }
     var lk = other ? Math.round((p.st.looks + other.looks) / 2 + G.ri(-12, 12)) : G.ri(30, 80);
     var sm = other ? Math.round((p.st.smarts + other.smarts) / 2 + G.ri(-12, 12)) : G.ri(30, 80);
-    var kid = N.make({ rel: 'child', g: g, age: adopted ? G.ri(0, 4) : 0, name: name, sur: sur, looks: G.clamp(lk, 5, 100), smarts: G.clamp(sm, 5, 100), eq: G.ri(30, 70), health: G.ri(70, 100), aff: 80, c: p.country, orient: G.ch(.9) ? 'het' : G.ch(.5) ? 'gay' : 'bi' });
+    var kid = N.make({ rel: 'child', g: g, age: adopted ? G.ri(0, 4) : 0, name: name, sur: sur, giv: giv || undefined, looks: G.clamp(lk, 5, 100), smarts: G.clamp(sm, 5, 100), eq: G.ri(30, 70), health: G.ri(70, 100), aff: 80, c: p.country, orient: G.ch(.9) ? 'het' : G.ch(.5) ? 'gay' : 'bi' });
     kid.edu = { stage: 'none', grade: 0, perf: 50, deg: 0, study: 0, retake: 0 };
     kid.talents = G.ch(.6) ? [G.pick(G.TALENTS.filter(function (t) { return !t.neg; })).id] : [];
     kid.inv = 0; kid.pin = 1; kid.other = other ? other.id : null; kid.adopted = !!adopted; if (surPicked) kid.surPicked = 1;

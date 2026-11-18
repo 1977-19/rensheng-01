@@ -281,7 +281,7 @@
   var dna = { id: 'dna_test', n: '做一次DNA检测|Take a DNA Test', i: '🧬', e: 5, $: 200, a: [16, 110], if: function () { return !P().flags.dna; }, run: function (a) {
     if (!G.pay(G.$(200))) return 'cancel'; var p = P(); p.flags.dna = S().year;
     var found = [];
-    if (G.ch(.35)) { var n = N.make({ rel: 'sibling', age: p.age + G.ri(-12, 12), aff: G.ri(20, 45), sur: p.sur }); n.illegit = 1; n.half = G.ch(.75) ? 'father' : 'mother'; n.older = N.age(n) > p.age; n.pin = 1; n.dna = 1; found.push(n.name); }
+    if (G.ch(.12)) { var n = N.make({ rel: 'sibling', age: p.age + G.ri(-12, 12), aff: G.ri(20, 45), sur: p.sur }); n.illegit = 1; n.half = G.ch(.75) ? 'father' : 'mother'; n.older = N.age(n) > p.age; n.pin = 1; n.dna = 1; found.push(n.name); }
     if (G.ch(.4)) { var k2 = N.make({ rel: 'kin', age: p.age + G.ri(-15, 15), aff: G.ri(25, 50), c: G.pick(G.CLIST) }); k2.kin = 'cousin'; k2.pin = 1; k2.dna = 1; found.push(k2.name); }
     var anc = G.pick(['北方游牧民族|northern nomads', '江南水乡|the southern water towns', '地中海沿岸|the Mediterranean coast', '东欧平原|the East European plain', '西非海岸|the West African coast', '安第斯山区|the Andes', '日本列岛|the Japanese islands']);
     return G.quick(a, found.length ? G.L('报告显示你有{a}的血统。更意外的是：你多了{k}个从没见过的亲人——{n}。他们出现在了你的关系列表里。|Your report shows roots in {a}. More surprising: {k} relatives you never knew — {n}. They\'re now in your relationships list.', { a: anc, k: found.length, n: found.join('、') }) : G.L('报告显示你有{a}的血统。没有发现失散的亲人。|Your report shows roots in {a}. No long-lost relatives turned up.', { a: anc }), { smarts: 1, happy: 3 });

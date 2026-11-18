@@ -1,0 +1,47 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;background:transparent}</style></head><body>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#1f2a5a"/><stop offset=".42" stop-color="#7a3b72"/><stop offset=".72" stop-color="#e2735a"/><stop offset="1" stop-color="#f7c26b"/>
+  </linearGradient>
+  <radialGradient id="sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6d6"/><stop offset=".55" stop-color="#ffd27a"/><stop offset="1" stop-color="#ffb35a" stop-opacity="0"/></radialGradient>
+  <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffaf0"/><stop offset="1" stop-color="#f3e6cc"/></linearGradient>
+  <linearGradient id="hill1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5e8f5a"/><stop offset="1" stop-color="#3f6b45"/></linearGradient>
+  <linearGradient id="hill2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86b46b"/><stop offset="1" stop-color="#5f9152"/></linearGradient>
+  <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#1a0f24" flood-opacity=".45"/></filter>
+  <filter id="sh2" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#3a0d0d" flood-opacity=".45"/></filter>
+  <clipPath id="card"><rect x="240" y="232" width="544" height="500" rx="10"/></clipPath>
+</defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22324f"/><stop offset="1" stop-color="#162238"/></linearGradient>
+<pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M64 0H0V64" fill="none" stroke="#3a4f73" stroke-width="2" opacity=".55"/></pattern>
+<rect width="1024" height="1024" fill="url(#bg)"/><rect width="1024" height="1024" fill="url(#grid)"/>
+<!-- stars -->
+<g fill="#ffe9b8" opacity=".9"><circle cx="120" cy="120" r="5"/><circle cx="230" cy="70" r="3"/><circle cx="900" cy="110" r="4"/><circle cx="820" cy="60" r="3"/><circle cx="960" cy="230" r="3"/><circle cx="70" cy="260" r="3"/></g>
+<!-- the card (a life's diary page), slightly tilted -->
+<g transform="rotate(-5 512 520)" filter="url(#sh)">
+  <rect x="200" y="190" width="624" height="660" rx="34" fill="url(#paper)"/>
+  <g clip-path="url(#card)">
+    <!-- little sky window inside the card -->
+    <rect x="240" y="232" width="544" height="500" fill="url(#sky)"/>
+    <circle cx="512" cy="540" r="200" fill="url(#sun)"/>
+    <circle cx="512" cy="540" r="96" fill="#ffe3a0"/>
+    <path d="M200 600 C 320 520, 420 560, 520 590 S 720 560, 824 510 L 824 860 L 200 860 Z" fill="url(#hill1)"/>
+    <path d="M200 670 C 330 620, 470 670, 600 640 S 760 600, 824 630 L 824 860 L 200 860 Z" fill="url(#hill2)"/>
+    <!-- the winding road of a life -->
+    <path d="M380 740 C 400 700, 590 700, 560 660 S 480 630, 512 610" fill="none" stroke="#fff3cf" stroke-width="34" stroke-linecap="round"/>
+    <path d="M380 740 C 400 700, 590 700, 560 660 S 480 630, 512 610" fill="none" stroke="#e7b860" stroke-width="5" stroke-dasharray="18 18" stroke-linecap="round"/>
+    <!-- ruled lines at the bottom of the page -->
+    
+  </g>
+  <path d="M280 800 C 330 780, 360 815, 410 795 S 490 780, 530 800" fill="none" stroke="#9a7b5a" stroke-width="9" stroke-linecap="round" opacity=".75"/>
+  <!-- washi tape -->
+  <g transform="rotate(4 512 196)"><rect x="410" y="168" width="204" height="56" fill="#e8574a" opacity=".92"/><g fill="#fff" opacity=".85"><rect x="424" y="168" width="14" height="56"/><rect x="452" y="168" width="14" height="56"/><rect x="480" y="168" width="14" height="56"/><rect x="508" y="168" width="14" height="56"/><rect x="536" y="168" width="14" height="56"/><rect x="564" y="168" width="14" height="56"/><rect x="592" y="168" width="14" height="56"/></g></g>
+</g>
+<!-- red seal: 一生 -->
+<g transform="rotate(8 718 770)" filter="url(#sh2)">
+  <rect x="598" y="650" width="240" height="240" rx="36" fill="#c9342b"/>
+  <rect x="616" y="668" width="204" height="204" rx="24" fill="none" stroke="#ffe7d6" stroke-width="7"/>
+  <text x="718" y="760" text-anchor="middle" font-family="Noto Serif CJK SC" font-weight="900" font-size="104" fill="#fff4e8">一</text>
+  <text x="718" y="858" text-anchor="middle" font-family="Noto Serif CJK SC" font-weight="900" font-size="104" fill="#fff4e8">生</text>
+</g>
+</svg></body></html>

@@ -30,13 +30,24 @@
   function skinFor(cid) { var w = (G.C[cid] || G.C.cn).skin; return G.wpick([0, 1, 2, 3, 4, 5], function (i) { return w[i]; }); }
   N.skinFor = skinFor;
 
+  /* the given-name part of a full "zh|en" name, so a surname is never stored inside a given name */
+  N.givOf = function (name, sur) {
+    name = String(name || ''); if (!sur) return name;
+    var nz = name.split('|')[0], ne = name.indexOf('|') >= 0 ? name.slice(name.indexOf('|') + 1) : nz, sz = String(sur).split('|')[0], se = String(sur).indexOf('|') >= 0 ? String(sur).slice(String(sur).indexOf('|') + 1) : sz;
+    if (sz && nz.indexOf(sz) === 0 && nz.length > sz.length) nz = nz.slice(sz.length);
+    else if (sz && nz.indexOf('·') > 0 && nz.slice(nz.lastIndexOf('·') + 1) === sz) nz = nz.slice(0, nz.lastIndexOf('·'));
+    if (se && ne.indexOf(se + ' ') === 0) ne = ne.slice(se.length + 1); else if (se && ne.slice(-(se.length + 1)) === ' ' + se) ne = ne.slice(0, -(se.length + 1));
+    return nz + '|' + ne;
+  };
   N.make = function (o) {
     var S = G.S; o = o || {};
     var cid = o.c || S.p.country, cc = G.C[cid] || G.C.cn;
+    // a royal is always a royal of some kingdom: republics like China have no royal family, so the prince comes from abroad
+    if ((o.tags || []).indexOf('royal') >= 0 && !cc.mon) { var MON = (G.CLIST || []).filter(function (x) { return G.C[x] && G.C[x].mon; }); if (MON.length) { cid = G.pick(MON); cc = G.C[cid]; o.cul = null; } }
     var g = o.g || (G.ch(.5) ? 'm' : 'f');
     var by = o.by != null ? o.by : S.year - (o.age != null ? o.age : G.ri(18, 45));
     var age = S.year - by;
-    var nm = o.name ? { name: o.name, sur: o.sur || '', giv: o.giv || o.name } : G.genName(o.cul || cc.names, g, by, o.sur);
+    var nm = o.name ? { name: o.name, sur: o.sur || '', giv: o.giv || N.givOf(o.name, o.sur) } : G.genName(o.cul || cc.names, g, by, o.sur);
     var pers = o.pers || G.pick(G.PERS_LIST);
     var r = G.R();
     var n = {
@@ -61,7 +72,7 @@
     else {
       var tag = n.tags[0], pool = tag && G.ELITE_JOBS[tag] ? G.ELITE_JOBS[tag] : G.NPC_JOBS;
       var jb = G.pick(pool);
-      if (tag === 'royal') jb = J(g === 'm' ? '王子|Prince' : '公主|Princess', 3500000);
+      if (tag === 'royal') jb = J(G.L((g === 'm' ? '{c}王子|Prince of {c}' : '{c}公主|Princess of {c}'), { c: cc.n }), 3500000);
       n.job = jb.n; n.inc = G.$w(jb.u * G.rf(.7, 1.4), cid);
     }
     n.wealth = o.wealth != null ? o.wealth : (age < 18 ? 0 : Math.max(0, Math.round(n.inc * G.rf(.3, 3) * Math.min(1, (age - 17) / 15) + (n.tags.length ? n.inc * G.rf(5, 30) : 0))));

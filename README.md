@@ -27,6 +27,8 @@
 node tools/build.js            # 重新生成 web/index.html
 node tools/sim.js 300 1 -s     # 无界面模拟 300 段人生，检查报错与数值
 node tools/ui_test.js out zh   # 用 Playwright 自动点一遍界面并截图
+node tools/audit.js 40 red     # 剧情审计：统计每局重复弹出的事件和家族穿帮（如爷爷去世后又出场）
+node tools/ui_showcase.js out  # 3.0 新界面截图（事件卡、新年、起名、更新说明）
 ```
 
 VIP 兑换码只以 SHA-256 哈希的形式存在 `web/js/data/codes.js` 里，明文码不在仓库中。
