@@ -99,3 +99,9 @@
 @media (prefers-reduced-motion: reduce) {
   .veil .modal.v3, .modal.v3 .mh .ic, .idchip, .modal.v3 .deltas .dl, .start .v3badge, .pencilrow .pencil::after, .modal.v3.ny .mh::after, .wnew .wn, .start .hero .hav { animation: none !important; }
 }
+
+/* ending: origin verdict */
+.ovcard { border: 2.5px solid var(--red) !important; background: linear-gradient(180deg, #fff8ea, var(--paper2)) !important; }
+.ovcard .ovt { font-family: var(--serif); font-size: 22px; font-weight: 700; color: var(--red); letter-spacing: .08em; margin: 2px 0 6px; }
+.ovcard .ovd { margin: 0 0 6px; font-size: 14.5px; line-height: 1.7; }
+.ovcard .ovn { color: var(--ink3); font-size: 12px; }

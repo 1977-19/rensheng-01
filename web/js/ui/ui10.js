@@ -36,6 +36,7 @@
       if (m && d) {
         var mh = m.querySelector('.mh'), tag = null;
         if (/^nyx?_/.test(d.id)) { cls(m, 'v3 ny'); tag = '🧧 ' + T('新年|New Year'); }
+        else if (d.odb) { var og = G.ORIGIN[d.odb]; cls(m, 'v3 who tone-' + ({ fam: 'red', kid: 'pink', sch: 'blue', soc: 'green', adu: 'brown', turn: 'ink', late: 'gold' }[d.ocat] || 'brown')); tag = '🏠 ' + (og ? T(og.n) : '') + ' · ' + T((G.ODB_CAT || {})[d.ocat] || ''); }
         else if (d.who) {
           var id = G.idNow ? G.idNow() : null, w = [].concat(d.who), k = w.indexOf(id) >= 0 ? id : w[0], meta = IDN[k];
           if (meta) { cls(m, 'v3 who tone-' + meta[2]); tag = meta[0] + ' ' + T(meta[1]) + T('专属|'); }
@@ -75,8 +76,26 @@
   var main0 = UI.main;
   UI.main = function () { var r = main0.apply(this, arguments); decorate(); return r; };
 
+  /* ---------------- the ending: a verdict from your own origin ---------------- */
+  var endU = UI.ending;
+  UI.ending = function (d) {
+    var r = endU.apply(this, arguments);
+    try {
+      var ov = d && d.ov, rep = document.querySelector('.report');
+      if (ov && rep && !document.querySelector('.ovcard')) {
+        var org = G.ORIGIN[ov.org];
+        rep.parentNode.insertBefore(h('div', { class: 'card ovcard' },
+          h('h5', null, T('出身评价 · {o}|Your Origin · {o}', { o: org ? org.n : '' })),
+          h('div', { class: 'ovt' }, T(ov.t)), h('p', { class: 'ovd' }, T(ov.d)),
+          h('small', { class: 'ovn' }, T('经历了{n}/{m}段出身专属剧情|Lived {n} of {m} origin chapters', { n: ov.n, m: ov.tot }))), rep.nextSibling);
+      }
+    } catch (e) { }
+    return r;
+  };
+
   /* ---------------- what's new ---------------- */
   var NEWS = [
+    ['🏠', '60种出身，60种人生|60 origins, 60 different lives', '每一种出身都有自己独立的事件库：专属的家庭矛盾、童年、求学、人情、立业、人生转折和晚年，前面的选择会改变后面的剧情；死后还有专属的“出身评价”。军人家庭的矛盾是驻地分离，富豪家是遗产信托，工薪家是下岗和房贷，孤儿有院长妈妈和开放日。这些事件只属于对应的出身，不会出现在别人的人生里。|Every origin has its own event library: its own family conflict, childhood, school, people, career, turning point and old age; earlier choices change later chapters, and an origin verdict closes the life. These events never appear in anyone else\'s life.'],
     ['🔁', '剧情不再重播|No more reruns', '身份剧情一生只发生一次；同一个标题十年内不会再出现；新年场景几年才有一次、每个只看一次；表白、约会、任务、考核这类弹窗都拉开了间隔。|Identity stories happen once in a life; the same headline won\'t return within ten years; New Year scenes come every few years and never repeat; admirers, dates, missions and exams are spaced out.'],
     ['👴', '家族不再穿帮|A consistent family', '有爷爷奶奶、爸爸妈妈出场的剧情，只在他们还活着的时候发生。红二代的爷爷只会去世一次，之后有告别、遗物和后续故事。|Stories with grandparents or parents only happen while they\'re alive. A political dynasty\'s grandfather dies once — followed by a farewell, his keepsakes and what comes after.'],
     ['👶', '孩子起名|Naming babies', '起名时能看到孩子的爸爸妈妈是谁；非婚生子女可以自由选择随父姓或随母姓，不会再出现两个姓叠在一起。|The naming card shows who the father and mother are; a child born outside marriage can take either parent\'s surname — never two stacked together.'],
@@ -88,7 +107,7 @@
   ];
   UI.whatsNew = function () {
     var body = h('div', { class: 'wnew' }, NEWS.map(function (n) { return h('div', { class: 'wn' }, h('div', { class: 'wi' }, n[0]), h('div', null, h('b', null, T(n[1])), h('p', null, T(n[2])))); }));
-    var md = UI.modal({ title: T('3.0 大更新|Version 3.0'), icon: '🎉', kind: 'v3 wnm', body: body, foot: [h('button', { class: 'opt solid', onclick: tap(function () { md.close(); }) }, T('开始新的人生吧|Let\'s live'))], close: true });
+    var md = UI.modal({ title: T('3.1 大更新|Version 3.1'), icon: '🎉', kind: 'v3 wnm', body: body, foot: [h('button', { class: 'opt solid', onclick: tap(function () { md.close(); }) }, T('开始新的人生吧|Let\'s live'))], close: true });
     try { G.meta.seen3 = 1; G.saveMeta(); } catch (e) { }
   };
 
