@@ -167,20 +167,28 @@
     { id: 'mars', n: '火星之城|A City on Mars', i: '🚀', d: '让人类成为跨星球的物种|Making humanity a multi-planet species', cost: 5e10, yrs: 20, fame: 100, smarts: 92, ret: .15, risk: .35 }
   ];
   var MEGA_BY = {}; MEGA.forEach(function (m) { MEGA_BY[m.id] = m; });
+  // great families with connections pay far less to get a mega project going (returns still follow the real scale)
+  var MEGA_RANK = MEGA.slice().sort(function (a, b) { return a.cost - b.cost; }).map(function (m) { return m.id; });
+  G.megaCost = function (m) {
+    var cl = G.connLevel ? G.connLevel() : 0;
+    if (cl >= 2) { var i = MEGA_RANK.indexOf(m.id), n = Math.max(1, MEGA_RANK.length - 1); return G.$(Math.round((1e6 + 1e6 * i / n) / 1000) * 1000); }
+    return G.$(m.cost);
+  };
+  G.megaReq = function (m, k) { var cl = G.connLevel ? G.connLevel() : 0, v = m[k]; if (cl >= 2) v -= k === 'fame' ? 25 : 15; return Math.max(0, v); };
   G.megaDone = function () { var L = S() && S().legacy; return L && L.mega ? Object.keys(L.mega).length : 0; };
   function megaLock(m) {
     var s = S(), p = s.p, L = s.legacy || {};
     if (L.mega && L.mega[m.id]) return G.T('✓ 家族已建成（{y}年，第{g}代）· 每年回报{r}|✓ Built by the family ({y}, gen {g}) · returns {r} a year', { y: L.mega[m.id].y, g: L.mega[m.id].gen, r: G.M(Math.round(G.$(m.cost) * m.ret)) });
     if (p.mega) return p.mega.id === m.id ? G.T('建设中：第{a}/{b}年|Under construction: year {a} of {b}', { a: p.mega.done + 1, b: m.yrs }) : G.T('家族正在建设另一个百亿项目|The family is already building another mega project');
     var miss = [];
-    if (p.st.fame < m.fame) miss.push(G.T('名声 ≥ {v}|Fame ≥ {v}', { v: m.fame }));
-    if (p.money < G.$(m.cost)) miss.push(G.T('现金 ≥ {v}|Cash ≥ {v}', { v: G.M(G.$(m.cost)) }));
-    if (p.st.smarts < m.smarts) miss.push(G.T('智力 ≥ {v}|Smarts ≥ {v}', { v: m.smarts }));
+    if (p.st.fame < G.megaReq(m, 'fame')) miss.push(G.T('名声 ≥ {v}|Fame ≥ {v}', { v: G.megaReq(m, 'fame') }));
+    if (p.money < G.megaCost(m)) miss.push(G.T('现金 ≥ {v}|Cash ≥ {v}', { v: G.M(G.megaCost(m)) }));
+    if (p.st.smarts < G.megaReq(m, 'smarts')) miss.push(G.T('智力 ≥ {v}|Smarts ≥ {v}', { v: G.megaReq(m, 'smarts') }));
     return miss.length ? G.T('需要：|Needs: ') + miss.join(' · ') : null;
   }
   function megaYear(pr, Q) {
     var m = MEGA_BY[pr.id], s = S(), p = s.p; if (!m) { p.mega = null; return; }
-    var due = Math.round(G.$(m.cost) * .7 / m.yrs);
+    var due = Math.round(G.megaCost(m) * .7 / m.yrs);
     if (p.money < due) { pr.stall = (pr.stall || 0) + 1; G.log('【{x}】资金跟不上，工地停工了。|[{x}] The money ran short and the site went quiet.', { x: m.n }); if (pr.stall >= 3) Q.push({ id: 'mega_stall' }); return; }
     p.money -= due; if (G.fin) G.fin.add('out', G.L('百亿项目：{x}|Mega project: {x}', { x: m.n }), due); pr.done++;
     if (pr.done < m.yrs && G.ch(.45)) Q.push({ id: 'mega_turn' });
@@ -188,7 +196,7 @@
   }
   G.evs([
     { id: 'mega_turn', sys: 1, title: function (c) { return G.L('{x}：转折|{x}: A Turning Point', { x: MEGA_BY[c.p.mega.id].n }); }, icon: '🏗️',
-      prep: function (c) { if (!c.p.mega) return false; c.m = MEGA_BY[c.p.mega.id]; c.k = G.pick(['tech', 'protest', 'boom', 'rival']); c.extra = Math.round(G.$(c.m.cost) * .1); c.prm.m = G.M(c.extra); c.prm.x = c.m.n; },
+      prep: function (c) { if (!c.p.mega) return false; c.m = MEGA_BY[c.p.mega.id]; c.k = G.pick(['tech', 'protest', 'boom', 'rival']); c.extra = Math.round(G.megaCost(c.m) * .1); c.prm.m = G.M(c.extra); c.prm.x = c.m.n; },
       t: function (c) { return { tech: '工程师们遇到了从没见过的技术难题，进度卡住了。追加{m}能请来全世界最好的团队。|The engineers hit a problem no one has seen before. Another {m} would bring in the best team in the world.', protest: '工地外聚集了抗议的人群，说工程会毁了他们的家园。|Protesters gather outside the site, saying the project will destroy their homes.', boom: '一个年轻工程师提出了大胆的新方案，可能让工期大大缩短。|A young engineer proposes a bold new design that could cut years off the schedule.', rival: '另一个国家宣布要做同样的项目，抢人、抢供应商。|Another country announces the same project and starts poaching people and suppliers.' }[c.k]; },
       o: [
         { t: '追加投资，全力推进|Invest more and push on', dis: function (c) { return c.p.money < c.extra; }, run: function (c) { c.money(-c.extra); if (c.k === 'protest') { c.add('karma', 3); return '你出钱给居民修了新家。抗议的人散了。|You paid to build the residents new homes. The protesters went home.'; } c.p.mega.done = Math.min(c.m.yrs - 1, c.p.mega.done + 1); return '进度一下子快了一年。|Progress jumped ahead a full year.'; } },
@@ -210,8 +218,8 @@
   G.ACT_CATS.push({ id: 'mega', n: '百亿项目|Mega Projects', i: '🚀', items: MEGA.map(function (m) {
     return { id: 'mega_' + m.id, n: m.n, i: m.i, d: m.d, e: 0, a: [20, 110], lock: function () { return megaLock(m); },
       run: async function (a) {
-        var p = S().p, first = Math.round(G.$(m.cost) * .3);
-        if (!(await G.UI.confirm(G.L(m.n), G.L('总投资{t}，先付{f}，剩下的在{y}年里分期投入。中途资金断了就会停工。确定开工吗？|Total cost {t}: {f} up front, the rest over {y} years. If the money runs out, work stops. Break ground?', { t: G.M(G.$(m.cost)), f: G.M(first), y: m.yrs })))) return 'cancel';
+        var p = S().p, first = Math.round(G.megaCost(m) * .3);
+        if (!(await G.UI.confirm(G.L(m.n), G.L('总投资{t}，先付{f}，剩下的在{y}年里分期投入。中途资金断了就会停工。确定开工吗？|Total cost {t}: {f} up front, the rest over {y} years. If the money runs out, work stops. Break ground?', { t: G.M(G.megaCost(m)), f: G.M(first), y: m.yrs })))) return 'cancel';
         G.addMoney(-first); p.mega = { id: m.id, done: 0, y: S().year };
         G.major('开工建设{x}|Broke ground on {x}', { x: m.n });
         return G.quick(a, G.L('奠基仪式上，你铲下了第一锹土。{x}开工了。|At the groundbreaking you turned the first spadeful of earth. {x} has begun.', { x: m.n }), { fame: 5, happy: 5 });

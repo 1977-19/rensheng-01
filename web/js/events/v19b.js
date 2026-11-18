@@ -122,13 +122,13 @@
   } });
 
   /* ===================== a new phone every year ===================== */
-  var LINE = ['灵犀|Lumen', '星芒|Stellar', '青鸾|Phoenix'];
+  var LINE = ['灵犀手机|Lumen Phone', '星芒手机|Stellar Phone', '青鸾手机|Phoenix Phone'];
   G.phoneModel = function (y, tier) {
     y = y || S().year;
     if (y < 1995) return null;
-    if (y < 2007) return { n: G.L('{b} 翻盖手机 {v}|{b} Flip {v}', { b: LINE[tier % 3], v: 'S' + (y - 1990) }), usd: [180, 320, 600][tier], gen: y };
+    if (y < 2007) return { n: G.L('{b}（{y}款 翻盖机）|{b} ({y}, Flip)', { b: LINE[tier % 3], y: y }), usd: [180, 320, 600][tier], gen: y };
     var v = y - 2006;
-    return { n: G.L(['{b} {v}|{b} {v}', '{b} {v} Pro|{b} {v} Pro', '{b} {v} Ultra 折叠屏|{b} {v} Ultra Fold'][tier], { b: LINE[tier === 2 ? 1 : 0], v: v }), usd: [699, 1099, 1899][tier] + Math.max(0, v - 10) * 20, gen: y };
+    return { n: G.L(['{b}（{y}款 标准版）|{b} ({y}, Standard)', '{b}（{y}款 高配版）|{b} ({y}, Pro)', '{b}（{y}款 折叠屏旗舰）|{b} ({y}, Foldable Flagship)'][tier], { b: LINE[tier === 2 ? 1 : 0], y: y }), usd: [699, 1099, 1899][tier] + Math.max(0, v - 10) * 20, gen: y };
   };
   function buyPhone(forKid) {
     return async function (a) {
@@ -157,7 +157,7 @@
   };
   G.evs([
     { id: 'v19_phone_launch', sys: 1, title: '新品发布会|The Launch Event', icon: '📱',
-      prep: function (c) { var m = G.phoneModel(S().year, 1); if (!m) return false; c.prm.m = m.n; c.prm.p = G.M(G.$(m.usd)); },
+      prep: function () { return false; }, // no more yearly launch pop-ups (1.9.1)
       t: '{m}发布了，起售价{p}。发布会上，那块新屏幕亮起来的时候，台下一片惊呼。|The {m} is out, from {p}. When the new screen lit up on stage, the audience gasped.',
       o: [{ t: '马上下单|Order one now', run: async function (c) { var m = G.phoneModel(S().year, 1), cost = G.$(m.usd); if (!G.pay(cost)) return '这个月的钱不够，你把它加进了购物车。|Not enough this month — it went into your basket.'; c.p.phone = { n: m.n, y: S().year }; S().assets.items.push({ id: G.uid(), k: 'phone', n: m.n, val: Math.round(cost * .6), i: '📱' }); c.add('happy', 6); return '三天后快递到了。你拆箱的手有点抖。|It arrived three days later. Your hands shook a little opening it.'; } },
         { t: '旧手机还能用|The old one still works', run: function (c) { c.add('smarts', 1); return '你把省下的钱存了起来。|You saved the money instead.'; } }] }
@@ -195,7 +195,6 @@
     if (s.dead) return r;
     try {
       shopYear();
-      if (p.age >= 14 && s.year >= 2008 && (!p.phone || s.year - p.phone.y >= 2) && !p.jail && G.ch(.35)) (s.pendQ = s.pendQ || []).push({ id: 'v19_phone_launch' });
     } catch (e) { console.error(e); }
     return r;
   };

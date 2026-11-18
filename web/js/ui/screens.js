@@ -125,7 +125,7 @@
       G.ORIGINS.filter(originOk).forEach(function (o) {
         var locked = o.vip > v;
         b.appendChild(h('button', { class: 'tal' + (w.origin === o.id ? ' on' : '') + (locked ? ' dis' : ''), style: locked ? { opacity: .5 } : null, onclick: tap(function () { if (locked) { UI.toast(G.L('需要{v}|Requires {v}', { v: G.vip.NAMES[o.vip] })); return; } w.origin = o.id; render(); }) },
-          h('div', { class: 'r ' + (o.vip ? 'r3' : 'r1') }), h('div', null, h('b', null, T(o.n)), h('span', null, T(o.d)))));
+          h('div', { class: 'r ' + (o.vip ? 'r3' : 'r1') }), h('div', null, h('b', null, T(o.n)), h('span', null, T(o.d)), G.originPerks && G.originPerks(o, w.country, w.by) ? h('small', { class: 'perk' }, T(G.originPerks(o, w.country, w.by))) : null)));
       });
     }
     function step4(b) {

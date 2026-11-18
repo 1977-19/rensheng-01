@@ -221,7 +221,7 @@
   /* ======================= achievements ======================= */
   [
     { id: 'shop_brand', i: '🏪', n: '从小摊到品牌|From Stall to Brand', d: '把一家小生意做到最高级|Grow a small business to its top level', f: function (S2) { return (S2.assets.shops || []).some(function (x) { return x.lv >= 4; }); } },
-    { id: 'phone_fan', i: '📱', n: '数码控|Gadget Lover', d: '买一部顶配新手机|Buy a top-of-the-range new phone', f: function (S2, p) { return !!(p.phone && /Ultra/.test(G.T(p.phone.n))); } },
+    { id: 'phone_fan', i: '📱', n: '数码控|Gadget Lover', d: '买一部顶配新手机|Buy a top-of-the-range new phone', f: function (S2, p) { return !!(p.phone && /折叠屏|Foldable/.test(G.T(p.phone.n))); } },
     { id: 'dyn_new', i: '🏰', n: '顶级世家|A Great House', d: '出生在一个新的顶级世家|Be born into one of the new great dynasties', f: function (S2, p) { return DYN_IDS.indexOf(p.origin) >= 0; } },
     { id: 'kidnap_escape', i: '🗝️', n: '虎口脱险|Out of the Lion\'s Mouth', d: '从绑匪手里逃脱|Escape from kidnappers', f: function (S2, p) { return !!p.flags.kidEscape; } }
   ].forEach(function (a) { if (!G.ACH.some(function (x) { return x.id === a.id; })) G.ACH.push(a); });

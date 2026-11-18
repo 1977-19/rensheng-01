@@ -46,18 +46,31 @@
     UI.amount = async function () { return null; };
     UI.result = async function (o) { if (o && o.text) lines.push({ t: o.title, x: o.text }); };
     try {
-      for (var i = 0; i < autos().length; i++) {
-        var x = autos()[i], a = findAct(x.id);
-        if (!a || (a.if && !a.if()) || (a.lock && a.lock())) { lines.push({ t: x.n, x: G.L('今年做不了，已从自动列表中移除。|Not possible this year — removed from the automatic list.') }); continue; }
-        keep.push(x);
-        var e = a.e || 0;
-        if (p.energy < e || (G.isWorkAct(a) && G.workUsed() + e > G.WORK_CAP)) { lines.push({ t: x.n, x: G.L('体力不够，今年跳过。|Not enough energy — skipped this year.') }); continue; }
-        p.energy -= e; if (G.isWorkAct(a)) G.addWork(e);
-        var price = a.$ ? G.$(a.$) : 0; if (price) { if (!G.canPay(price)) { p.energy += e; lines.push({ t: x.n, x: G.L('钱不够，今年跳过。|Not enough money — skipped.') }); continue; } G.charge(price); }
-        var r = await a.run(a);
-        if (r === 'cancel') { p.energy += e; if (price) G.addMoney(price); }
-        if (G.S.dead) break;
+      // check what can still be done this year, then keep cycling through the list until the energy runs out
+      var live = [];
+      autos().forEach(function (x) {
+        var a = findAct(x.id);
+        if (!a || (a.if && !a.if()) || (a.lock && a.lock())) { lines.push({ t: x.n, x: G.L('今年做不了，已从自动列表中移除。|Not possible this year — removed from the automatic list.') }); return; }
+        keep.push(x); live.push({ x: x, a: a, n: 0 });
+      });
+      for (var round = 0; round < 15 && live.length && !G.S.dead; round++) {
+        var ran = false;
+        for (var i = 0; i < live.length; i++) {
+          var it = live[i], a = it.a, e = a.e || 0;
+          if (a.if && !a.if()) continue;
+          if (e <= 0 && it.n > 0) continue; // free actions only once a year
+          if (p.energy < e || (G.isWorkAct(a) && G.workUsed() + e > G.WORK_CAP)) continue;
+          var price = a.$ ? G.$(a.$) : 0; if (price && !G.canPay(price)) continue;
+          p.energy -= e; if (G.isWorkAct(a)) G.addWork(e); if (price) G.charge(price);
+          var r = await a.run(a);
+          if (r === 'cancel') { p.energy += e; if (price) G.addMoney(price); it.stop = 1; live.splice(i, 1); i--; continue; }
+          it.n++; ran = true;
+          if (G.S.dead) break;
+        }
+        if (!ran) break;
       }
+      var head = live.filter(function (it) { return it.n > 0; }).map(function (it) { return G.L('{a} ×{n}（共{e}体力）|{a} ×{n} ({e} energy)', { a: it.x.n, n: it.n, e: it.n * (it.a.e || 0) }); });
+      if (head.length) lines.unshift({ t: G.L('今年自动完成|Done automatically this year'), x: G.join([G.join(head, '；', '; '), G.L('。剩余体力{r}。|. Energy left: {r}.', { r: Math.max(0, Math.round(p.energy)) })], '', '') });
       P().autoActs = keep;
     } catch (err) { console.error(err); }
     finally { Object.assign(UI, saved); UI._autoRun = 0; }

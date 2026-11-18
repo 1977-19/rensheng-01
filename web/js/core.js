@@ -2,7 +2,7 @@
 var G = (typeof window !== 'undefined' ? (window.G = window.G || {}) : (global.G = global.G || {}));
 (function () {
   'use strict';
-  G.VERSION = '1.9.0';
+  G.VERSION = '1.9.1';
   G.S = null;           // current life state
 
   /* ---------------- RNG (seeded per life, stored in state) ---------------- */
