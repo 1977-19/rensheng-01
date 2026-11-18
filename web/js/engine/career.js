@@ -225,7 +225,7 @@
     co.yrs++;
     var skill = (p.st.smarts + p.st.eq) / 200 * .1 + (G.has('biz') ? .06 : 0) + Math.min(co.eff, 3) * .025 + (G.stat('luck') / 600) - (p.jail ? .2 : 0);
     var big = Math.max(0, Math.log10(Math.max(1, co.val / G.$(1e6)))) * .035;
-    var r = G.nrm(I.m * .45 + skill - .13 - big * 1.2, I.v * .5) + (S.world.mkRet || 0) * .4;
+    var r = G.nrm(I.m * .5 + skill - .06 - big * .8, I.v * .45) + (S.world.mkRet || 0) * .3; // 1.9.2: a well-run company usually grows
     if (co.ind === 'ai' && S.year > 2023) r += .05;
     co.last = r;
     co.val = Math.max(0, Math.round(co.val * (1 + r)));
@@ -235,7 +235,7 @@
     if (profit > 0) { var dv = Math.round(profit * co.div * co.own); G.S.p.money += dv; G.S.cnt.earned = (G.S.cnt.earned || 0) + dv; co.lastDiv = dv; }
     if (co.val < co.base * .12 || co.val <= 0) { Q.push({ id: 'sys_bankrupt' }); return; }
     if (!co.ipo && co.val > G.$(80000000)) Q.push({ id: 'sys_ipo' });
-    if (G.ch(.22)) Q.push({ id: 'sys_biz_crisis' });
+    if (G.ch(.12)) Q.push({ id: 'sys_biz_crisis' });
   };
   G.evs([
     { id: 'sys_bankrupt', sys: 1, title: '公司破产|Bankruptcy', icon: '💥', bad: 1,

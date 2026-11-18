@@ -177,6 +177,7 @@
     var p = P(); p.spy = { rank: rank || 0, merit: 0, yrs: 0, y: S().year, ag: ag, heat: 0, youth: youth ? 1 : 0, ops: 0, seen: [] };
     G.major('秘密加入了{a}|Secretly joined {a}', { a: G.agencyName(ag) }); G.inc('spy');
   }
+  G.spyJoin = join;
   function promote() { var s = P().spy; if (s.rank >= SPY.length - 1) return; s.rank++; s.merit = Math.round(s.merit * .3); G.major('晋升为{r}|Promoted to {r}', { r: SPY[s.rank] }); G.inc('promos'); }
   function heat(n) { var s = P().spy; if (s) s.heat = G.clamp((s.heat || 0) + n, 0, 100); }
   function merit(n) { var s = P().spy; if (s) s.merit += n; }
@@ -219,7 +220,13 @@
       t: function (c) { return c.prm.own ? '少年宫的一位老师注意你很久了。今天，她带来一位穿便装的叔叔。他没说自己是谁，只问了你几道奇怪的题，最后说：“国家需要像你这样的孩子。”（{a}）|A teacher at your youth centre has watched you for a long time. Today she brings a man in plain clothes. He doesn\'t say who he is — just asks you a few strange questions, then: "Your country needs children like you." ({a})'
         : '国际夏令营里，一位和蔼的外国教授总是单独给你出难题。离营前，他递给你一张卡片：“我们资助天才少年。只要你偶尔帮我们一点小忙。”（{a}）|At an international summer camp, a kindly foreign professor keeps giving you special puzzles. As camp ends he hands you a card: "We sponsor gifted young people. All we ask is the occasional small favour." ({a})'; },
       o: [{ t: '答应他们|Say yes', run: function (c) { join(c.prm.ag, 0, true); c.add('stress', 6); return c.prm.own ? '你成了一名情报预备生。每周三下午，你说去补课。|You became an intelligence cadet. Every Wednesday afternoon, you tell everyone you have extra tutoring.' : '你收下了卡片。从此，你有了一个谁也不能说的秘密。|You kept the card. From now on you have a secret you can tell no one.'; } },
-        { t: '告诉爸妈|Tell your parents', if: function (c) { return !c.prm.own; }, run: function (c) { c.add('karma', 6); c.p.flags.spyReported = 1; N.rel('father', 'mother').forEach(function (n) { N.addAff(n, 4); }); return '爸妈脸色大变，第二天带你去报了案。几年后，有人记住了你这份警觉。|Your parents went pale and took you to report it the next day. Years later, someone remembered how alert you were.'; } },
+        { t: '告诉爸妈（他们也是干这行的）|Tell your parents (they\'re in the trade too)', if: function (c) { return !c.prm.own && c.p.flags.spyfam; }, run: function (c) {
+          // spy parents don't march you to the police station — they turn the approach around
+          join(c.p.country, 0, true); var sp = c.p.spy; sp.merit += 15; sp.dbl = c.prm.ag; c.p.flags.spyDouble = 1;
+          N.rel('father', 'mother').forEach(function (n) { N.addAff(n, 8); });
+          return G.L('爸妈听完，对视了一眼。妈妈慢慢放下茶杯：“既然{a}找上门来了，我们就陪他们玩玩。”从那天起，你收下了对方的卡片——但每一份交给他们的东西，都先经过爸爸的手。你成了一名少年双面间谍。|Your parents exchanged a look. Mum set down her tea: "If {a} has come knocking, we\'ll play along." From that day you kept their card — but everything you passed them went through Dad first. You had become a teenage double agent.', { a: c.prm.a });
+        } },
+        { t: '告诉爸妈|Tell your parents', if: function (c) { return !c.prm.own && !c.p.flags.spyfam; }, run: function (c) { c.add('karma', 6); c.p.flags.spyReported = 1; N.rel('father', 'mother').forEach(function (n) { N.addAff(n, 4); }); return '爸妈脸色大变，第二天带你去报了案。几年后，有人记住了你这份警觉。|Your parents went pale and took you to report it the next day. Years later, someone remembered how alert you were.'; } },
         { t: '拒绝|Say no', run: function () { return '他们没有再来。只是有时候，你觉得有人在看你。|They never came back. Only sometimes, you feel someone watching.'; } }] },
     { id: 'spy_recruit', sys: 1, title: '一个陌生人|A Stranger', icon: '🕵️',
       prep: function (c) { if (c.p.spy || c.p.jail) return false; c.prm.ag = c.prm.ag || pickAg(.6); c.prm.a = G.agencyName(c.prm.ag); },
@@ -313,7 +320,7 @@
   var pre = G.pickRandomEvents;
   G.pickRandomEvents = function (n) {
     // a field test now and then — not an exam every single year
-    if (G.spyOn()) { var sp = P().spy; if (sp.caseY == null || S().year - sp.caseY >= 3 || G.ch(.2)) { sp.caseY = S().year; return [{ id: 'spy_case' }]; } }
+    if (G.spyOn()) { var sp = P().spy; if (sp.caseY == null ? S().year - (sp.y || S().year) >= 2 : S().year - sp.caseY >= 4) { sp.caseY = S().year; return [{ id: 'spy_case' }]; } }
     return pre.apply(this, arguments);
   };
 

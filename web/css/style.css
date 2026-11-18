@@ -833,3 +833,6 @@ body.tablet .modal { max-width: 460px; }
 .spacephoto .face svg { width: 100%; height: 100%; }
 .spacephoto .sp-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 6px 10px; font-size: 12px; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,.6)); text-align: right; }
 .tal small.perk { display: block; margin-top: 4px; font-size: 11.5px; line-height: 1.45; color: var(--gold, #a47a1a); }
+.row.gone .avs { filter: grayscale(1); }
+.row.gone .avwrap { border-radius: 50%; box-shadow: 0 0 0 2px #9a9a9a; }
+.stone .plot { margin-top: 6px; font-size: 12.5px; color: var(--ink2); }

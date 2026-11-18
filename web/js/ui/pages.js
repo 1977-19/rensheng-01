@@ -144,11 +144,14 @@
   };
 
   /* ===================== RELATIONSHIPS ===================== */
+  // parents first, then children, then pets — everyone else after (1.9.2)
   var GROUPS = [
-    ['伴侣|Partner', ['spouse', 'lover', 'affair']],
-    ['家人|Family', ['father', 'mother', 'stepparent', 'grand', 'sibling', 'birthpar', 'kin']],
-    ['家里的人|Household', ['staff']],
+    ['父母|Parents', ['father', 'mother', 'stepparent', 'birthpar']],
     ['子女|Children', ['child', 'grandchild', 'kidsp']],
+    ['__pets__', []],
+    ['伴侣|Partner', ['spouse', 'lover', 'affair']],
+    ['家人|Family', ['grand', 'sibling', 'kin']],
+    ['家里的人|Household', ['staff']],
     ['追求者与心动|Admirers & Crushes', ['admirer', 'crush']],
     ['对象的家人|Partner\'s Family', ['inlaw']],
     ['朋友|Friends', ['friend', 'mentor']],
@@ -157,25 +160,29 @@
     ['其他|Others', ['contact', 'ex', 'enemy', 'rival', 'inmate', 'gang']]
   ];
   function npcRow(n, onTap) {
-    var rom = n.rel === 'spouse' || n.rel === 'lover' || n.rel === 'affair' || n.rel === 'admirer' || n.rel === 'crush';
+    var rom = n.alive && (n.rel === 'spouse' || n.rel === 'lover' || n.rel === 'affair' || n.rel === 'admirer' || n.rel === 'crush');
     var v = rom ? n.love : n.aff;
     var cits = n.rel === 'child' || n.rel === 'grandchild' || (n.c && G.S && n.c !== G.S.p.country) ? (n.cits && n.cits.length ? n.cits : [n.c || G.S.p.country]) : null;
-    return h('button', { class: 'row', onclick: tap(onTap) }, h('div', { class: 'avwrap' }, h('div', { class: 'avs', html: G.avatarOf(n) }), cits ? h('span', { class: 'natf' }, cits.slice(0, 3).map(function (c) { return G.C[c] ? G.C[c].flag : ''; }).join('')) : null),
+    return h('button', { class: 'row' + (n.alive ? '' : ' gone'), onclick: tap(onTap) }, h('div', { class: 'avwrap' }, h('div', { class: 'avs', html: G.avatarOf(n) }), cits ? h('span', { class: 'natf' }, cits.slice(0, 3).map(function (c) { return G.C[c] ? G.C[c].flag : ''; }).join('')) : null),
       h('div', { class: 'tx' }, h('div', { class: 't' }, T(n.name), n.tags.length ? h('span', { class: 'chip tag' }, T({ rich: '富豪|Rich', celeb: '明星|Star', red: '权贵|Elite', royal: '王室|Royal' }[n.tags[0]])) : null),
         h('div', { class: 's' }, T(N.relName(n)) + ' · ' + (n.alive ? T('{a}岁|{a}', { a: N.age(n) }) : T('已故|Deceased')) + ' · ' + T(n.job || '') + '')),
-      h('div', { class: 'rt' }, h('span', null, rom ? '❤️' : '🙂'), h('div', { class: 'mini' }, h('i', { class: v < 0 ? 'neg' : '', style: { width: Math.abs(v) + '%' } }))));
+      n.alive ? h('div', { class: 'rt' }, h('span', null, rom ? '❤️' : '🙂'), h('div', { class: 'mini' }, h('i', { class: v < 0 ? 'neg' : '', style: { width: Math.abs(v) + '%' } }))) : h('div', { class: 'rt' }, h('span', { class: 'chip' }, T('扫墓|Visit'))));
   }
   UI.tabRelations = function () {
     UI.sheet('关系|Relationships', function (b, rec) {
-      var all = N.all(function (n) { return n.alive && !n.cut; }), any = false;
+      // close family stay in their place after they die (greyed), so you can always visit the grave
+      var KEEPDEAD = { father: 1, mother: 1, stepparent: 1, birthpar: 1, child: 1, grandchild: 1, grand: 1, sibling: 1, spouse: 1 };
+      var all = N.all(function (n) { return (n.alive || KEEPDEAD[n.rel]) && !n.cut; }), any = false;
       GROUPS.forEach(function (g) {
+        if (g[0] === '__pets__') { if (UI.petSection && UI.petSection(b, rec)) any = true; return; }
         var list = all.filter(function (n) { var r = n.rel === 'contact' && n.inlaw && G.S.npcs[n.inlaw] && (G.S.npcs[n.inlaw].rel === 'child' || G.S.npcs[n.inlaw].rel === 'grandchild') ? 'kidsp' : n.rel; return g[1].indexOf(r) >= 0; });
         if (!list.length) return; any = true;
+        list.sort(function (a, c) { return (a.alive ? 0 : 1) - (c.alive ? 0 : 1); });
         b.appendChild(h('div', { class: 'grp' }, T(g[0]) + ' ' + list.length));
-        list.sort(function (a, c) { var ka = g[1].indexOf(a.rel), kc = g[1].indexOf(c.rel); if (ka < 0) ka = 99; if (kc < 0) kc = 99; return ka - kc || (['child', 'sibling', 'grandchild'].indexOf(a.rel) >= 0 ? (a.by - c.by) || ((a.older ? 0 : 1) - (c.older ? 0 : 1)) : 0) || c.aff - a.aff; }).forEach(function (n) { b.appendChild(npcRow(n, async function () { await UI.profile(n); rec.refresh(); })); });
+        list.sort(function (a, c) { var ka = g[1].indexOf(a.rel), kc = g[1].indexOf(c.rel); if (ka < 0) ka = 99; if (kc < 0) kc = 99; return ((a.alive ? 0 : 1) - (c.alive ? 0 : 1)) || ka - kc || (['child', 'sibling', 'grandchild'].indexOf(a.rel) >= 0 ? (a.by - c.by) || ((a.older ? 0 : 1) - (c.older ? 0 : 1)) : 0) || c.aff - a.aff; }).forEach(function (n) { b.appendChild(npcRow(n, async function () { if (!n.alive && UI.grave) { UI.grave(n, function () { rec.refresh(); }); return; } await UI.profile(n); rec.refresh(); })); });
       });
       var pets = G.S.assets.pets;
-      if (UI.petSection) { if (UI.petSection(b, rec)) any = true; }
+      if (UI.petSection) { /* drawn above, right after the children */ }
       else if (pets.length) { b.appendChild(h('div', { class: 'grp' }, T('宠物|Pets'))); pets.forEach(function (x) { var d = G.PETS.filter(function (y) { return y.id === x.kind; })[0] || {}; b.appendChild(h('div', { class: 'row' }, h('div', { class: 'ic' }, d.i || '🐾'), h('div', { class: 'tx' }, h('div', { class: 't' }, T(x.name)), h('div', { class: 's' }, T(d.n || ''))))); }); }
       if (!any) b.appendChild(h('div', { class: 'empty' }, T('你还不认识任何人。|You don\'t know anyone yet.')));
     });

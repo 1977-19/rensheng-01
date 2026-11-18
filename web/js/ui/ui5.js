@@ -82,7 +82,8 @@
   UI.tabRelations = function () {
     var r = tr5.apply(this, arguments);
     var sheets = document.querySelectorAll('.sheet'), sh = sheets[sheets.length - 1], body = sh && sh.querySelector('.sb');
-    var gone = G.graves ? G.graves() : [];
+    var KEEP = { father: 1, mother: 1, stepparent: 1, birthpar: 1, child: 1, grandchild: 1, grand: 1, sibling: 1, spouse: 1 };
+    var gone = (G.graves ? G.graves() : []).filter(function (n) { return !KEEP[n.rel] && !n.cut; });
     if (body && gone.length) {
       body.appendChild(h('div', { class: 'grp' }, T('已故的人|In Memory') + ' ' + gone.length));
       gone.forEach(function (n) {

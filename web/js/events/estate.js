@@ -404,7 +404,7 @@
     var v = await G.UI.amount({ title: G.L(a.n), text: G.L('捐得越多，名声和口碑涨得越多。|The more you give, the more your fame and reputation grow.'), max: p.money, presets: [.01, .05, .1, .25, .5, 1] });
     if (v == null) return 'cancel';
     G.addMoney(-v); G.inc('donated', v);
-    var usd = v / G.$(1), f = G.clamp(Math.log10(usd / 500 + 1) * 7.5, 0, 45), k = G.clamp(Math.log10(usd / 100 + 1) * 5, 1, 30);
+    var usd = v / G.$(1), f = G.clamp(Math.log10(usd / 200 + 1) * 9, 0, 55), k = G.clamp(Math.log10(usd / 100 + 1) * 5, 1, 30);
     G.dStart(); G.addStat('fame', f); G.addStat('karma', k); G.addStat('happy', Math.min(10, f / 3)); G.addStat('rep', Math.min(15, f / 2)); var dl = G.dEnd();
     var big = usd >= 1e6;
     if (big) G.major('捐赠{m}|Donated {m}', { m: G.M(v) });

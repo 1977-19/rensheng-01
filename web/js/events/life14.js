@@ -156,13 +156,17 @@
   G.title = function () { var p = P(); var t = G_TAL.apply(this, arguments); if (p && p.flags.pro && PRO[p.flags.pro] && !p.job && !p.spy && /无业|Unemployed|自由职业|Freelance/.test(G.T(t))) return PRO[p.flags.pro].n; return t; };
   var MOUNT = [
     ['泰山|Mount Tai', 1545, 0, 30, .0], ['富士山|Mount Fuji', 3776, 800, 45, .002], ['乞力马扎罗山|Kilimanjaro', 5895, 6000, 60, .006], ['勃朗峰|Mont Blanc', 4808, 3000, 60, .01],
-    ['阿空加瓜山|Aconcagua', 6961, 9000, 70, .02], ['德纳里峰|Denali', 6190, 12000, 75, .03], ['珠穆朗玛峰|Mount Everest', 8849, 70000, 82, .05], ['K2乔戈里峰|K2', 8611, 90000, 88, .12]
+    ['阿空加瓜山|Aconcagua', 6961, 9000, 70, .02], ['德纳里峰|Denali', 6190, 12000, 75, .03], ['珠穆朗玛峰|Mount Everest', 8849, 70000, 82, .05], ['K2乔戈里峰|K2', 8611, 90000, 88, .12],
+    ['华山|Mount Hua', 2155, 0, 35, .001], ['黄山|Huangshan', 1864, 0, 30, 0], ['玉龙雪山|Jade Dragon Snow Mountain', 5596, 4000, 62, .008], ['四姑娘山|Mount Siguniang', 6250, 5000, 68, .015],
+    ['慕士塔格峰|Muztagh Ata', 7509, 15000, 76, .025], ['厄尔布鲁士山|Mount Elbrus', 5642, 5000, 60, .008], ['马特洪峰|The Matterhorn', 4478, 6000, 72, .02], ['文森峰|Vinson Massif', 4892, 45000, 74, .015],
+    ['卓奥友峰|Cho Oyu', 8188, 40000, 78, .03], ['洛子峰|Lhotse', 8516, 60000, 84, .06], ['干城章嘉峰|Kangchenjunga', 8586, 75000, 86, .09], ['安纳布尔纳峰|Annapurna', 8091, 65000, 86, .15]
   ];
+  MOUNT.sort(function (a, b) { return a[1] - b[1]; });
   var fun = cat('fun');
   if (fun) {
     var hk = fun.items.filter(function (x) { return x.id === 'hike'; })[0]; if (hk) { hk.n = '徒步|Hiking'; hk.run = function (a) { var t = hob('hiker'); return G.quick(a, G.L(G.pick(['你走完了一条二十公里的山路。|You walked a twenty-kilometre trail.', '林子里很安静，只有你的脚步声。|The woods were silent but for your footsteps.']) + t), { health: G.ri(5, 8), happy: 5, stress: -6 }); }; }
-    fun.items.push({ id: 'climb', n: '登山|Mountaineering', i: '🏔️', e: 25, a: [14, 75], run: async function (a) {
-      var p = P(), i = await G.UI.pick({ title: G.L('爬哪座山？|Which mountain?'), text: G.L('越高越危险。八千米以上必须请夏尔巴向导。|The higher, the deadlier. Above 8,000 m you need a Sherpa guide.'), items: MOUNT.map(function (m) { return { t: m[0], sub: G.L('{h}米 · 费用{c} · 需要健康{p}%|{h} m · cost {c} · health {p}%+', { h: m[1], c: G.M(G.$(m[2])), p: m[3] }), icon: '🏔️', dis: p.st.health < m[3] }; }) });
+    fun.items.push(G.CLIMB = { id: 'climb', n: '登山（选择一座山）|Mountaineering (pick a peak)', i: '🏔️', e: 25, a: [14, 75], run: async function (a) {
+      var p = P(), i = await G.UI.pick({ title: G.L('爬哪座山？|Which mountain?'), text: G.L('越高越危险。八千米以上必须请夏尔巴向导。|The higher, the deadlier. Above 8,000 m you need a Sherpa guide.'), items: MOUNT.map(function (m) { return { t: m[0], icon: m[1] >= 8000 ? '🏔️' : m[1] >= 5000 ? '🗻' : '⛰️', dis: p.st.health < m[3], sub: G.L('{h}米 · 费用{c} · 需要健康{p}%|{h} m · cost {c} · health {p}%+', { h: m[1], c: G.M(G.$(m[2])), p: m[3] }), icon: '🏔️', dis: p.st.health < m[3] }; }) });
       if (i < 0) return 'cancel'; var m = MOUNT[i], cost = G.$(m[2]);
       if (p.st.health < m[3]) return G.result(a.n, '你的身体条件不够。|You\'re not fit enough.', null, [], a.i);
       if (cost && !G.pay(cost)) return G.result(a.n, '费用要{m}，你付不起。|It costs {m}. You can\'t afford it.', { m: G.M(cost) }, [], a.i);
@@ -187,7 +191,7 @@
     var sc = fun.items.filter(function (x) { return x.id === 'scroll'; })[0];
     if (sc) sc.run = function (a) { P().hab.night += 5; return G.quick(a, G.pick(['你刷到凌晨两点，笑得停不下来。|You scrolled until 2 a.m., laughing nonstop.', '你看了一百个猫咪视频，心情好极了。|A hundred cat videos later, you felt wonderful.']), { happy: 12, stress: -6, health: -1 }); };
     var vo = fun.items.filter(function (x) { return x.id === 'volunteer'; })[0];
-    if (vo) { var v0 = vo.run; vo.run = function () { G.addStat('fame', 3); G.addStat('karma', 3); return v0.apply(this, arguments); }; }
+    if (vo) { var v0 = vo.run; vo.run = function () { var p = P(); if (p.st.fame < 25) G.addStat('fame', .8); G.addStat('karma', 3); return v0.apply(this, arguments); }; }
     // concerts: choose your seat; enough of them and you might meet the star
     var cc = fun.items.filter(function (x) { return x.id === 'concert'; })[0];
     if (cc) cc.run = async function (a) {
@@ -219,7 +223,7 @@
     if (a.id === 'garden') { a.run = async function (x) { return G.quick(x, G.L('阳台上的小番茄红了。|The balcony tomatoes turned red.'), { happy: 6, health: 3 }); }; }
     if (a.id === 'stars') { a.run = async function (x) { return G.quick(x, G.L('银河横过头顶，你第一次觉得自己很小，也很幸运。|The Milky Way stretched overhead; you felt small, and lucky.'), { happy: 10, stress: -8 }); }; }
   });
-  if (lifeC) lifeC.items.push({ id: 'volunteer2', n: '主动做义工攒名声|Volunteer to Build a Name', i: '🙋', e: 10, a: [14, 100], run: async function (a) { return G.quick(a, G.L('你在社区服务中心帮了一整天。负责人说会给你写一封推荐信。|You spent the day at the community centre. The coordinator promised you a reference.'), { fame: 4, karma: 5, happy: 3 }); } });
+  if (lifeC) lifeC.items.push({ id: 'volunteer2', n: '主动做义工攒名声|Volunteer to Build a Name', i: '🙋', e: 10, a: [14, 100], run: async function (a) { return G.quick(a, G.L('你在社区服务中心帮了一整天。负责人说会给你写一封推荐信。|You spent the day at the community centre. The coordinator promised you a reference.'), { fame: P().st.fame < 20 ? 1 : .3, karma: 5, happy: 3 }); } });
 
   /* ---------- the blood drive: not for the heir, and honest about the cost ---------- */
   ['a_blood_drive', 'a_bloodd'].forEach(function (id) {
