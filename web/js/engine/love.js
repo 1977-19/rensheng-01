@@ -148,12 +148,24 @@
     var sur = p.g === 'm' ? p.sur : (other && other.g === 'm' ? other.sur : p.sur), surPicked = 0;
     // whose surname comes first, then the name
     if (LO._twin && LO._twinSur) { sur = LO._twinSur; surPicked = 1; }
-    else if (other && !adopted && other.sur && p.sur && String(other.sur).split('|')[0] !== String(p.sur).split('|')[0]) {
-      var het = p.g !== other.g, dad = p.g === 'm' ? p : other, mom = p.g === 'm' ? other : p;
-      var opts = het ? [{ t: G.L('随父姓：{s}|Father\'s surname: {s}', { s: dad.sur }), icon: '👨', v: dad.sur }, { t: G.L('随母姓：{s}|Mother\'s surname: {s}', { s: mom.sur }), icon: '👩', v: mom.sur }]
-        : [{ t: G.L('随你的姓：{s}|Your surname: {s}', { s: p.sur }), icon: '🙋', v: p.sur }, { t: G.L('随{n}的姓：{s}|{n}\'s surname: {s}', { n: other.name, s: other.sur }), icon: '💞', v: other.sur }];
-      var si = await G.UI.pick({ title: G.L('是个{g}！先定下跟谁姓|It\'s a {g}! First, whose surname?', { g: g === 'm' ? '男孩|boy' : '女孩|girl' }), text: het ? G.L('爸爸：{a}{x}　妈妈：{b}{y}|Father: {a}{x} · Mother: {b}{y}', { a: dad.name, b: mom.name, x: dad === p ? '（你）| (you)' : '', y: mom === p ? '（你）| (you)' : '' }) : G.L('{a}（你）和{b}的孩子|The child of {a} (you) and {b}', { a: p.name, b: other.name }), items: opts, noCancel: true });
-      if (si >= 0 && opts[si]) sur = opts[si].v; surPicked = 1;
+    else {
+      // whose surname: yours, the other birth parent's (a lover's too), your spouse's, or the co-parent's for an adoption
+      var zs = function (x) { return String(x || '').split('|')[0]; };
+      var het = other && p.g !== other.g, dad = other ? (p.g === 'm' ? p : other) : null, mom = other ? (p.g === 'm' ? other : p) : null;
+      var spz = N.spouse && N.spouse(), opts = [], seenS = {};
+      var addS = function (v, label, icon) { if (!v || seenS[zs(v)]) return; seenS[zs(v)] = 1; opts.push({ t: G.L(label, { s: v }), icon: icon, v: v }); };
+      addS(p.sur, '随你的姓：{s}|Your surname: {s}', '🙋');
+      if (other) addS(other.sur, adopted ? G.L('随{n}的姓：{s}|{n}\'s surname: {s}', { n: other.name, s: '{s}' }) : other.rel === 'affair' || other.rel === 'lover' && spz && spz !== other ? G.L('随亲生{r}{n}的姓：{s}|Birth {r} {n}\'s surname: {s}', { r: other.g === 'm' ? '父亲|father' : '母亲|mother', n: other.name, s: '{s}' }) : G.L('随{n}的姓：{s}|{n}\'s surname: {s}', { n: other.name, s: '{s}' }), other.g === 'm' ? '👨' : '👩');
+      if (spz && spz !== other && spz.alive) addS(spz.sur, G.L('随你配偶{n}的姓：{s}|Your spouse {n}\'s surname: {s}', { n: spz.name, s: '{s}' }), '💍');
+      if (!adopted && other && het) { opts.sort(function (x, y) { return (x.v === dad.sur ? -1 : 0) - (y.v === dad.sur ? -1 : 0); }); }
+      if (opts.length >= 2) {
+        var ptxt = adopted ? (other ? G.L('领养人：{a}（你）和{b}|Adoptive parents: {a} (you) and {b}', { a: p.name, b: other.name }) : G.L('领养人：{a}（你）|Adoptive parent: {a} (you)', { a: p.name }))
+          : other && het ? G.L('爸爸：{a}{x}　妈妈：{b}{y}|Father: {a}{x} · Mother: {b}{y}', { a: dad.name, b: mom.name, x: dad === p ? '（你）| (you)' : '', y: mom === p ? '（你）| (you)' : '' })
+          : other ? G.L('{a}（你）和{b}的孩子|The child of {a} (you) and {b}', { a: p.name, b: other.name }) : '';
+        if (spz && other && spz !== other) ptxt = G.join([ptxt, G.L('你的配偶：{n}|Your spouse: {n}', { n: spz.name })], '\n', '\n');
+        var si = await G.UI.pick({ title: G.L('是个{g}！先定下跟谁姓|It\'s a {g}! First, whose surname?', { g: g === 'm' ? '男孩|boy' : '女孩|girl' }), text: ptxt, items: opts, noCancel: true });
+        if (si >= 0 && opts[si]) sur = opts[si].v; surPicked = 1;
+      } else if (adopted && other && other.sur) { sur = p.g === 'm' ? p.sur : (other.g === 'm' ? other.sur : p.sur); }
     }
     LO._twinSur = sur;
     var cul = p.cul || G.C[p.country].names;
@@ -161,7 +173,7 @@
     // who the parents are, right on the naming card
     var dadN = adopted ? null : (p.g === 'm' ? p.name : (other && other.g === 'm' ? other.name : null)), momN = adopted ? null : (p.g === 'f' ? p.name : (other && other.g === 'f' ? other.name : null));
     if (!adopted && other && p.g === other.g) { dadN = p.name; momN = other.name; }
-    var parTxt = adopted ? G.L('（领养）|(adopted)') : (other && p.g === other.g) ? G.L('家长：{a}（你）、{b}|Parents: {a} (you) and {b}', { a: p.name, b: other.name })
+    var parTxt = adopted ? (other ? G.L('领养人：{a}（你）和{b}|Adoptive parents: {a} (you) and {b}', { a: p.name, b: other.name }) : G.L('（领养）|(adopted)')) : (other && p.g === other.g) ? G.L('家长：{a}（你）、{b}|Parents: {a} (you) and {b}', { a: p.name, b: other.name })
       : G.L('爸爸：{a}{x}　妈妈：{b}{y}|Father: {a}{x} · Mother: {b}{y}', { a: dadN || '—', b: momN || '—', x: p.g === 'm' ? '（你）| (you)' : (other && other.rel === 'affair' ? '（情人）| (lover)' : ''), y: p.g === 'f' ? '（你）| (you)' : (other && other.rel === 'affair' ? '（情人）| (lover)' : '') });
     var txt = await G.UI.input({ title: G.L('给宝宝起名|Name the Baby'), text: G.join([parTxt, G.L('是个{g}，姓{s}。给{h}起个名字吧。|It\'s a {g}, surname {s}. Give {h} a name.', { g: g === 'm' ? '男孩|boy' : '女孩|girl', h: g === 'm' ? '他|him' : '她|her', s: sur })], '\n', '\n'), parents: { dad: dadN, mom: momN }, groups: G.nameGroups ? G.nameGroups(cul, sur, g, S.year, N.rel('child')) : null, sug: G.nameSeries ? G.nameSeries(cul, sur, g, S.year, N.rel('child')) : sug.map(function (s) { return G.mkName(cul, sur, s, g); }), def: '', require: G.L('先写一个名字，或者点一个推荐的名字。|Type a name first, or tap one of the suggestions.') });
     var name = txt || G.mkName(cul, sur, sug[0], g), giv = null;

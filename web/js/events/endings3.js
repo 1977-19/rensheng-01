@@ -7,7 +7,7 @@
   'use strict';
   var N = G.N;
   function S() { return G.S; }
-  var GENERIC = ['亿万富翁', '普通人', '大善人', '碌碌无为', '失信人', '自由自在', '平凡而幸福', '多情', '潦倒一生', '含着金汤匙的闲人', '富可敌国', '金汤匙里的空虚', '他乡即故乡'];
+  var GENERIC = ['亿万富翁', '普通人', '大善人', '碌碌无为', '失信人', '自由自在', '平凡而幸福', '多情', '教子有方', '潦倒一生', '含着金汤匙的闲人', '富可敌国', '金汤匙里的空虚', '他乡即故乡'];
   function zh(x) { return String(x || '').split('|')[0]; }
   function T2(x, o) { return G.L(x, o || {}); }
   // [test(p, c, f, d, extra), key, title, verdict]

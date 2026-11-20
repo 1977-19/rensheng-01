@@ -98,6 +98,12 @@
 
   /* ---------------- what's new ---------------- */
   var NEWS = [
+    ['✅', '每个结果都会真的改变什么|Every outcome changes something', '检查了全部3998个事件选项：原来约两成的结果只写了文字，属性、金钱、关系都没变。现在说给了钱就真的给钱，说朋友疏远了就真的降好感，至少也会影响心情。|All 3,998 event options were checked: about one in five changed nothing. Now money, affection or mood always moves the way the story says.'],
+    ['👶', '孩子跟谁姓、和谁领养|Surnames, adoption and IVF', '孩子可以随你的姓、亲生父亲或母亲（包括情人）的姓、或者你配偶的姓。领养和试管婴儿可以指定和谁一起抚养：配偶、父母、兄弟姐妹、祖辈，或者自己一个人。|A child can take your surname, the birth father\'s or mother\'s (a lover\'s too), or your spouse\'s. Adoption and IVF let you choose who raises the child with you.'],
+    ['💌', '谁都可以约会表白|Ask anyone out', '除了自己家的亲人（父母、兄弟姐妹、子女、祖辈等），任何成年人都可以约会和表白，对方答不答应看ta自己。|Anyone who isn\'t your own family can be asked out or confessed to; whether they say yes is up to them.'],
+    ['💎', '四个顶级世家|Four top dynasties', '新增顶奢世家、港岛豪门、政商世家、隐世家族：和红二代同级的顶级人脉，18岁起每年家族信托分红，出事有家族律师团，生病有顶级医疗，家族集团留着位子，还有各自的专属剧情和结局。|Top Luxury Dynasty, Harbour City Tycoon Clan, Political-Business Dynasty and The Hidden Clan: top connections, a yearly trust payout, family lawyers, the best doctors, a seat in the family group, and their own storylines.'],
+    ['📸', '全新结算页|A new end-of-life page', '人生相册（你从小到老的照片）、一生三个词、高光与转折、别人眼中的你、人生曲线和“最富/最穷/最快乐/最难熬的一年”、这一生的数字、如果重来一次。|A photo album, three words, big moments, what people said about you, your life charted with its best and worst years, life in numbers, and what you\'d do differently.'],
+    ['📚', '新一批剧情|New stories', '童年、青春、成年、为人父母和晚年的新剧情：金鱼葬礼、追星、考驾照、裸辞、催婚、AI抢工作、同学会、中年学跳舞、立遗嘱、养老院乐队……|New stories for every stage of life.'],
     ['🕵️', '特工不再答题|Spies: no more quizzes', '特工的直觉答题全部取消，改为真正的任务：东方快车、大使馆舞会、雪山缆车、赌场、桥上交换……每次任务有不同的做法（硬闯、智取、社交、用装备），结果看你的能力和运气。新增自选代号、掩护身份、装备科（口红麻醉枪、滑翔伞雨伞、改装跑车等），装备会解锁新的任务方案。|The instinct quizzes are gone. Spies now run real missions — a night train, an embassy ball, a ski lift, a casino, a bridge exchange — each with several approaches (force, wits, charm, gadgets) settled by your abilities and luck. Pick your own codename and cover job; the gadget lab hands out kit that unlocks new options.'],
     ['🏆', '结局大扩充|Many more endings', '新增几十种结局（无名英雄、双面人生、桥上归来的人、百岁人瑞、东山再起、一个人的一生、连续创业者、环球旅行家……），平淡的人生会以你出身的专属评价作为结局；还有结局图鉴，记录你解锁过的所有结局。|Dozens of new endings, an origin verdict for quieter lives, and an ending gallery that records every ending you reach.'],
     ['🏠', '60种出身，60种人生|60 origins, 60 different lives', '每一种出身都有自己独立的事件库：专属的家庭矛盾、童年、求学、人情、立业、人生转折和晚年，前面的选择会改变后面的剧情；死后还有专属的“出身评价”。军人家庭的矛盾是驻地分离，富豪家是遗产信托，工薪家是下岗和房贷，孤儿有院长妈妈和开放日。这些事件只属于对应的出身，不会出现在别人的人生里。|Every origin has its own event library: its own family conflict, childhood, school, people, career, turning point and old age; earlier choices change later chapters, and an origin verdict closes the life. These events never appear in anyone else\'s life.'],
@@ -112,7 +118,7 @@
   ];
   UI.whatsNew = function () {
     var body = h('div', { class: 'wnew' }, NEWS.map(function (n) { return h('div', { class: 'wn' }, h('div', { class: 'wi' }, n[0]), h('div', null, h('b', null, T(n[1])), h('p', null, T(n[2])))); }));
-    var md = UI.modal({ title: T('3.2 大更新|Version 3.2'), icon: '🎉', kind: 'v3 wnm', body: body, foot: [h('button', { class: 'opt solid', onclick: tap(function () { md.close(); }) }, T('开始新的人生吧|Let\'s live'))], close: true });
+    var md = UI.modal({ title: T('3.3 大更新|Version 3.3'), icon: '🎉', kind: 'v3 wnm', body: body, foot: [h('button', { class: 'opt solid', onclick: tap(function () { md.close(); }) }, T('开始新的人生吧|Let\'s live'))], close: true });
     try { G.meta.seen3 = 1; G.saveMeta(); } catch (e) { }
   };
 

@@ -11,7 +11,7 @@
   var N = G.N;
   function S() { return G.S; }
   function P() { return G.S && G.S.p; }
-  G.VERSION = '3.2.0';
+  G.VERSION = '3.3.0';
 
   /* ---------------- who is still alive ---------------- */
   G.gpa = function (g, side) {
