@@ -1,7 +1,7 @@
 /* Version 3.3 interface: the end-of-life page, extended (data from events/ending33.js). */
 (function () {
   'use strict';
-  var h = G.h, UI = G.UI, T = UI.T;
+  var h = G.h, UI = G.UI, T = UI.T, tap = UI.tap;
   if (!h || !UI) return;
   function card(cls, title, kids) { return h('div', { class: 'card v3e ' + cls }, h('h5', null, T(title)), kids); }
   function curve(yh) {
@@ -18,6 +18,37 @@
       '<polyline points="' + pw + '" fill="none" stroke="#2f6fb0" stroke-width="2.4" stroke-linejoin="round"/>' + ticks + '</svg>';
     return h('div', null, h('div', { class: 'crv', html: svg }), h('div', { class: 'lgd' }, h('span', { class: 'k1' }, '— ' + T('身家|Wealth')), h('span', { class: 'k2' }, '— ' + T('快乐|Happiness')), h('span', null, T('横轴：年龄|x: age'))));
   }
+  /* ---------- naming a baby: surname and name both free ---------- */
+  UI.nameCard = function (o) {
+    // from a prison cell you name nothing: the other parent decides
+    if (G.S && G.S.p && G.S.p.jail) return Promise.resolve({ sur: T(o.sur || ''), giv: G.genGiven(o.cul, o.g, o.year) });
+    return new Promise(function (res) {
+      var surIn = h('input', { class: 'inp ncs', value: T(o.sur || '').trim(), maxlength: 6, placeholder: T('姓|Surname') });
+      var givIn = h('input', { class: 'inp ncg', value: '', maxlength: 16, placeholder: T('名|Given name') });
+      var chips = h('div', { class: 'ncchips' }, (o.chips || []).map(function (c) { return h('button', { class: 'sug', onclick: tap(function () { surIn.value = T(c.v); preview(); }) }, (c.icon || '') + ' ' + T(c.t)); }));
+      var sugBox = h('div', { class: 'sugs' }), prev = h('div', { class: 'ncprev' });
+      function fill() {
+        sugBox.innerHTML = '';
+        for (var i = 0; i < 8; i++) { var gv = G.genGiven(o.cul, o.g, o.year); (function (gv) { sugBox.appendChild(h('button', { class: 'sug', onclick: tap(function () { givIn.value = T(gv); preview(); }) }, T(gv))); })(gv); }
+      }
+      function preview() { var sv = surIn.value.trim(), gv = givIn.value.trim(); prev.textContent = sv || gv ? T('名字：|Name: ') + (G.lang === 'en' && !/[\u4e00-\u9fff]/.test(sv + gv) ? (gv + ' ' + sv).trim() : sv + gv) : ''; }
+      surIn.addEventListener('input', preview); givIn.addEventListener('input', preview);
+      fill();
+      var body = h('div', null,
+        o.parents && (o.parents.dad || o.parents.mom) ? h('div', { class: 'npar' }, h('span', { class: 'np np-d' }, '👨 ', T(o.parents.dad || '—')), h('span', { class: 'np np-m' }, '👩 ', T(o.parents.mom || '—'))) : null,
+        o.text ? h('div', { class: 'txt', style: { marginBottom: '10px', whiteSpace: 'pre-line' } }, T(o.text)) : null,
+        h('div', { class: 'nclab' }, T('姓|Surname')), h('div', { class: 'ncrow' }, surIn), chips,
+        h('div', { class: 'nclab' }, T('名|Given name')), givIn, h('div', { class: 'ncrow2' }, h('span', { class: 'nlab' }, T('推荐|Ideas')), h('button', { class: 'sug ncre', onclick: tap(fill) }, '🔄 ' + T('换一批|More'))), sugBox, prev);
+      var md = UI.modal({ title: o.title, body: body, foot: [h('button', { class: 'opt solid', onclick: tap(function () {
+        var sv = surIn.value.replace(/\|/g, '').trim(), gv = givIn.value.replace(/\|/g, '').trim();
+        if (!gv) { var b0 = sugBox.querySelector('.sug'); if (b0) gv = b0.textContent.trim(); }
+        if (!sv) { UI.toast(T('请写一个姓|Please enter a surname')); surIn.focus(); return; }
+        md.close(); res({ sur: sv, giv: gv });
+      }) }, T('就叫这个名字|That\'s the name'))] });
+      preview();
+    });
+  };
+
   var end0 = UI.ending;
   UI.ending = function (d) {
     var r = end0.apply(this, arguments);
@@ -44,7 +75,7 @@
       var cv = curve(v.yh);
       if (cv || (v.rec && v.rec.length)) box.appendChild(card('cur', '人生曲线|Your Life, Charted', h('div', null, cv, v.rec && v.rec.length ? h('div', { class: 'recs' }, v.rec.map(function (x) { return h('div', { class: 'rec' }, h('span', null, x.i + ' ' + T(x.t)), h('b', null, x.s)); })) : null)));
       // numbers
-      if (v.num && v.num.length) box.appendChild(card('num', '这一生的数字|Life in Numbers', h('div', { class: 'nums' }, v.num.map(function (x) { return h('div', { class: 'nm' }, h('b', null, x.i + ' ' + x.v), h('span', null, T(x.t))); }))));
+      if (v.num && v.num.length) box.appendChild(card('num', '这一生的数字|Life in Numbers', h('div', { class: 'nums' }, v.num.map(function (x) { return h('div', { class: 'lnm' }, h('b', null, x.i + ' ' + x.v), h('span', null, T(x.t))); }))));
       // regrets
       if (v.reg && v.reg.length) box.appendChild(card('reg', '如果重来一次|If You Lived It Again', h('ul', { class: 'regs' }, v.reg.map(function (x) { return h('li', null, T(x)); }))));
       var ov = document.querySelector('.ovcard'), anchor = ov || rep;

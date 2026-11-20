@@ -98,6 +98,9 @@
 
   /* ---------------- what's new ---------------- */
   var NEWS = [
+    ['✍️', '起名：姓什么都可以|Naming: any surname', '生孩子、领养、代孕和试管都不再先选“跟谁姓”：起名卡上姓和名都能直接写，姓什么都可以，常用的几个姓（你的、孩子另一位家长的、你配偶的）点一下就填上。|No more "whose surname?" step for births, adoptions, surrogacy or IVF: write any surname and name on the naming card; common surnames are one tap away.'],
+    ['⚔️', '孩子会争宠、会打架|Siblings compete and fight', '孩子们会争着让你夸、为游戏机打架、互相告状、被拿来比较，长大后还会在饭桌上争家产；你怎么处理会累积成兄弟姐妹之间的心结，影响他们对你的感情和遗产纠纷，也可能在病床前和解。|Children vie for praise, fight, tell tales, get compared and later argue over the estate; how you handle it builds a rivalry that shapes their love for you and the fight over your will — or a reconciliation at your bedside.'],
+    ['👑', '天选继承人|The chosen heir', '偶尔会出生一个天赋异禀的孩子（家世越显赫越常见），从小就不一般，会被标为“天选继承人”，选继承人时排在第一位，也会引起其他孩子的嫉妒。|Now and then a child is born gifted in every way (more often in great families), marked as the chosen heir, listed first when you pick who carries on — and envied by the others.'],
     ['✅', '每个结果都会真的改变什么|Every outcome changes something', '检查了全部3998个事件选项：原来约两成的结果只写了文字，属性、金钱、关系都没变。现在说给了钱就真的给钱，说朋友疏远了就真的降好感，至少也会影响心情。|All 3,998 event options were checked: about one in five changed nothing. Now money, affection or mood always moves the way the story says.'],
     ['👶', '孩子跟谁姓、和谁领养|Surnames, adoption and IVF', '孩子可以随你的姓、亲生父亲或母亲（包括情人）的姓、或者你配偶的姓。领养和试管婴儿可以指定和谁一起抚养：配偶、父母、兄弟姐妹、祖辈，或者自己一个人。|A child can take your surname, the birth father\'s or mother\'s (a lover\'s too), or your spouse\'s. Adoption and IVF let you choose who raises the child with you.'],
     ['💌', '谁都可以约会表白|Ask anyone out', '除了自己家的亲人（父母、兄弟姐妹、子女、祖辈等），任何成年人都可以约会和表白，对方答不答应看ta自己。|Anyone who isn\'t your own family can be asked out or confessed to; whether they say yes is up to them.'],
@@ -118,7 +121,7 @@
   ];
   UI.whatsNew = function () {
     var body = h('div', { class: 'wnew' }, NEWS.map(function (n) { return h('div', { class: 'wn' }, h('div', { class: 'wi' }, n[0]), h('div', null, h('b', null, T(n[1])), h('p', null, T(n[2])))); }));
-    var md = UI.modal({ title: T('3.3 大更新|Version 3.3'), icon: '🎉', kind: 'v3 wnm', body: body, foot: [h('button', { class: 'opt solid', onclick: tap(function () { md.close(); }) }, T('开始新的人生吧|Let\'s live'))], close: true });
+    var md = UI.modal({ title: T('3.4 大更新|Version 3.4'), icon: '🎉', kind: 'v3 wnm', body: body, foot: [h('button', { class: 'opt solid', onclick: tap(function () { md.close(); }) }, T('开始新的人生吧|Let\'s live'))], close: true });
     try { G.meta.seen3 = 1; G.saveMeta(); } catch (e) { }
   };
 

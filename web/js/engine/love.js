@@ -158,7 +158,8 @@
       if (other) addS(other.sur, adopted ? G.L('随{n}的姓：{s}|{n}\'s surname: {s}', { n: other.name, s: '{s}' }) : other.rel === 'affair' || other.rel === 'lover' && spz && spz !== other ? G.L('随亲生{r}{n}的姓：{s}|Birth {r} {n}\'s surname: {s}', { r: other.g === 'm' ? '父亲|father' : '母亲|mother', n: other.name, s: '{s}' }) : G.L('随{n}的姓：{s}|{n}\'s surname: {s}', { n: other.name, s: '{s}' }), other.g === 'm' ? '👨' : '👩');
       if (spz && spz !== other && spz.alive) addS(spz.sur, G.L('随你配偶{n}的姓：{s}|Your spouse {n}\'s surname: {s}', { n: spz.name, s: '{s}' }), '💍');
       if (!adopted && other && het) { opts.sort(function (x, y) { return (x.v === dad.sur ? -1 : 0) - (y.v === dad.sur ? -1 : 0); }); }
-      if (opts.length >= 2) {
+      LO._surOpts = opts;
+      if (false) {
         var ptxt = adopted ? (other ? G.L('领养人：{a}（你）和{b}|Adoptive parents: {a} (you) and {b}', { a: p.name, b: other.name }) : G.L('领养人：{a}（你）|Adoptive parent: {a} (you)', { a: p.name }))
           : other && het ? G.L('爸爸：{a}{x}　妈妈：{b}{y}|Father: {a}{x} · Mother: {b}{y}', { a: dad.name, b: mom.name, x: dad === p ? '（你）| (you)' : '', y: mom === p ? '（你）| (you)' : '' })
           : other ? G.L('{a}（你）和{b}的孩子|The child of {a} (you) and {b}', { a: p.name, b: other.name }) : '';
@@ -175,8 +176,18 @@
     if (!adopted && other && p.g === other.g) { dadN = p.name; momN = other.name; }
     var parTxt = adopted ? (other ? G.L('领养人：{a}（你）和{b}|Adoptive parents: {a} (you) and {b}', { a: p.name, b: other.name }) : G.L('（领养）|(adopted)')) : (other && p.g === other.g) ? G.L('家长：{a}（你）、{b}|Parents: {a} (you) and {b}', { a: p.name, b: other.name })
       : G.L('爸爸：{a}{x}　妈妈：{b}{y}|Father: {a}{x} · Mother: {b}{y}', { a: dadN || '—', b: momN || '—', x: p.g === 'm' ? '（你）| (you)' : (other && other.rel === 'affair' ? '（情人）| (lover)' : ''), y: p.g === 'f' ? '（你）| (you)' : (other && other.rel === 'affair' ? '（情人）| (lover)' : '') });
-    var txt = await G.UI.input({ title: G.L('给宝宝起名|Name the Baby'), text: G.join([parTxt, G.L('是个{g}，姓{s}。给{h}起个名字吧。|It\'s a {g}, surname {s}. Give {h} a name.', { g: g === 'm' ? '男孩|boy' : '女孩|girl', h: g === 'm' ? '他|him' : '她|her', s: sur })], '\n', '\n'), parents: { dad: dadN, mom: momN }, groups: G.nameGroups ? G.nameGroups(cul, sur, g, S.year, N.rel('child')) : null, sug: G.nameSeries ? G.nameSeries(cul, sur, g, S.year, N.rel('child')) : sug.map(function (s) { return G.mkName(cul, sur, s, g); }), def: '', require: G.L('先写一个名字，或者点一个推荐的名字。|Type a name first, or tap one of the suggestions.') });
+    var surChips = (LO._surOpts || []).map(function (x) { return { t: x.t, v: x.v, icon: x.icon }; }); LO._surOpts = null;
+    if (!surChips.length) surChips = [{ t: G.L('随你的姓：{s}|Your surname: {s}', { s: p.sur }), v: p.sur, icon: '🙋' }];
+    if (G.UI.input && G.UI.nameCard) {
+      var nc = await G.UI.nameCard({ title: G.L('给宝宝起名|Name the Baby'), text: G.join([parTxt, G.L('是个{g}。姓和名都由你定，姓什么都可以。|It\'s a {g}. You choose both the surname and the name — any surname you like.', { g: g === 'm' ? '男孩|boy' : '女孩|girl' })], '\n', '\n'), parents: { dad: dadN, mom: momN }, sur: sur, chips: surChips, cul: cul, g: g, year: S.year, kids: N.rel('child') });
+      surPicked = 1;
+      if (nc && nc.sur) { var known = surChips.filter(function (x) { return String(x.v).split('|')[0] === nc.sur; })[0]; sur = known ? known.v : nc.sur + '|' + (G.pinyinSur ? G.pinyinSur(nc.sur) : nc.sur); }
+      var txt = nc && nc.giv ? '\u0001' + nc.giv : null;
+    } else {
+      var txt = await G.UI.input({ title: G.L('给宝宝起名|Name the Baby'), text: G.join([parTxt, G.L('是个{g}，姓{s}。给{h}起个名字吧。|It\'s a {g}, surname {s}. Give {h} a name.', { g: g === 'm' ? '男孩|boy' : '女孩|girl', h: g === 'm' ? '他|him' : '她|her', s: sur })], '\n', '\n'), parents: { dad: dadN, mom: momN }, groups: G.nameGroups ? G.nameGroups(cul, sur, g, S.year, N.rel('child')) : null, sug: G.nameSeries ? G.nameSeries(cul, sur, g, S.year, N.rel('child')) : sug.map(function (s) { return G.mkName(cul, sur, s, g); }), def: '', require: G.L('先写一个名字，或者点一个推荐的名字。|Type a name first, or tap one of the suggestions.') });
+    }
     var name = txt || G.mkName(cul, sur, sug[0], g), giv = null;
+    if (txt && txt.charAt(0) === '\u0001') { giv = txt.slice(1); giv = giv.indexOf('|') >= 0 ? giv : giv + '|' + giv; name = G.mkName(cul, sur, giv, g); txt = null; }
     // a typed name never stacks two surnames ("李王小明"): if it already starts with a parent's surname, that surname wins
     if (txt) {
       var tz = String(txt).split('|')[0].trim(), cands = [sur, p.sur, other && other.sur].filter(Boolean).map(function (x) { return String(x).split('|')[0]; }).sort(function (a, b) { return b.length - a.length; });
