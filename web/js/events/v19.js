@@ -132,7 +132,7 @@
   if (pu && pu.o && pu.o[1]) {
     pu.o[1].run = async function (c) {
       var k = c.npc, e = k.edu, cs = (G.ABROAD || ['us', 'gb', 'au', 'ca', 'jp', 'sg', 'de', 'fr']).filter(function (x) { return x !== c.p.country && G.C[x]; });
-      var ci = await G.UI.pick({ title: G.L('去哪个国家？|Which country?'), items: cs.map(function (x) { return { t: G.C[x].n, icon: G.C[x].flag }; }), noCancel: 1 });
+      var ci = await G.UI.pick({ title: G.L('去哪个国家？|Which country?'), items: cs.map(function (x) { return { t: G.C[x].n, icon: G.C[x].flag, sub: G.abroadWarn ? G.abroadWarn(k, x) : null }; }), noCancel: 1 });
       var to = cs[ci < 0 ? 0 : ci];
       var pick = await pickAbroadUni(k, to, 140000);
       if (!pick) return '你们决定再想想。|You decided to think it over.';
@@ -152,7 +152,7 @@
       a.run = async function (k, act) {
         var p = P(), a0 = N.age(k), base = k.edu && k.edu.stage === 'uni' ? 150000 : 220000;
         var dest = G.CLIST.filter(function (c) { return ['us', 'gb', 'au', 'ca', 'jp', 'sg', 'de', 'fr', 'ch', 'nz', 'ie'].indexOf(c) >= 0 && c !== p.country; });
-        var i = await G.UI.pick({ title: G.L(act.n), items: dest.map(function (c) { return { t: G.C[c].n, icon: G.C[c].flag }; }) });
+        var i = await G.UI.pick({ title: G.L(act.n), items: dest.map(function (c) { return { t: G.C[c].n, icon: G.C[c].flag, sub: G.abroadWarn ? G.abroadWarn(k, c) : null }; }) });
         if (i < 0) return 'cancel';
         var c = dest[i], pick = await pickAbroadUni(k, c, base); if (!pick) return 'cancel';
         if (!G.pay(pick.cost)) { G.UI.toast(G.L('钱不够|Not enough money')); return 'cancel'; }

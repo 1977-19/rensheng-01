@@ -122,7 +122,11 @@
       }
     }
     function step3(b) {
-      G.ORIGINS.filter(originOk).forEach(function (o) {
+      var lastBand = null, LIST = G.ORIGINS.filter(originOk);
+      if (G.originRank) LIST = LIST.map(function (o, i) { return [o, i]; }).sort(function (x, y) { return (G.originRank(x[0]) - G.originRank(y[0])) || (x[1] - y[1]); }).map(function (x) { return x[0]; });
+      LIST.forEach(function (o) {
+        var band = G.originBand ? G.originBand(o) : null;
+        if (band && band !== lastBand) { lastBand = band; b.appendChild(h('div', { class: 'label oband' }, T(band))); }
         var locked = o.vip > v;
         b.appendChild(h('button', { class: 'tal' + (w.origin === o.id ? ' on' : '') + (locked ? ' dis' : ''), style: locked ? { opacity: .5 } : null, onclick: tap(function () { if (locked) { UI.toast(G.L('需要{v}|Requires {v}', { v: G.vip.NAMES[o.vip] })); return; } w.origin = o.id; render(); }) },
           h('div', { class: 'r ' + (o.vip ? 'r3' : 'r1') }), h('div', null, h('b', null, T(o.n)), h('span', null, T(o.d)), G.originPerks && G.originPerks(o, w.country, w.by) ? h('small', { class: 'perk' }, T(G.originPerks(o, w.country, w.by))) : null)));

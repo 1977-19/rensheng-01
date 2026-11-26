@@ -98,6 +98,11 @@
 
   /* ---------------- what's new ---------------- */
   var NEWS = [
+    ['🎓', '私生子女和婚生子女的留学风波|Secret and legitimate children abroad', '给孩子选留学国家时，如果另一边的孩子也在那里，会提示“可能会撞见”。私生子女的妈妈也会自己安排出国，偏偏选中婚生子女所在的国家。同在一国时，会发生留学生聚会上长得太像、成了“特别投缘的朋友”、配偶刷到合照起疑等事件；配偶质问时，如果两个孩子不在同一个国家，可以拿出学籍证明自证。|When choosing where a child studies, you\'re warned if a half-sibling from the other side is already there. A secret child\'s mother may pick the very country your legitimate child is in. In the same country: a look-alike at a student party, a "friend I really click with", your spouse spotting a photo — and if the two study in different countries, enrolment papers can clear you.'],
+    ['🪖', '参军的孩子变少了|Fewer children in uniform', '每个孩子一生只在19岁左右判定一次是否参军/进国安（普通家庭约3%，军警家庭约8%）。服役的孩子会在资料页显示军衔或职级，并随年头晋升。|Each child is considered once, around 19 (about 3%, or 8% in military and police families). Children who serve show their rank on their page, and it rises over the years.'],
+    ['📋', '孩子的资料页更完整|Fuller child profiles', '孩子页面新增国籍、身世（婚生子女/私生子女）、服役、留学地、天选继承人和“人生经历”，发生在孩子身上的被动事件都会记下来。|Child pages now show nationality, birth (in or outside marriage), service, where they study, chosen-heir status and a life-events record of what happened to them.'],
+    ['🎲', '13个新的被动趣味事件|13 new surprises', '你在厨房跳舞的视频火了、DNA检测查出陌生近亲、寻亲节目、时间胶囊、孩子的新班主任是你的初恋、孩子其实在送外卖、隔壁城市的另一个你、医院说可能抱错了、比你还大的“女婿/儿媳”、那张中奖彩票、AI模仿孩子声音的诈骗、送错的鹦鹉、误入孩子们的群聊——每个都有3到4个选择。|Your kitchen dance goes viral, a DNA test finds a stranger relative, a TV reunion show, a time capsule, your first love as your child\'s teacher, the child secretly delivering food, your double in the next city, a hospital mix-up scare, a partner older than you, a winning ticket, an AI voice scam, a misdelivered parrot, the kids\' group chat — each with 3–4 choices.'],
+    ['🪜', '出身按好坏排序|Origins in order', '选出身时从最难的开局（孤儿、负债）排到最顶级的世家（隐世家族），并分成困境、普通、小康、富裕、豪门、顶级六档。|Origins now run from the hardest start (orphan, debt) to the very top (hidden dynasty), grouped into six bands.'],
     ['🎖️', '孩子为不同国家效力|Children serving rival countries', '成年的孩子可能参军或进入本国的国家安全部门。如果两个孩子（或你和孩子）为不同国家效力，事情会自己找上门：沉默的年夜饭、单位要求断绝联系的背景审查、互相套话、新闻里的边境对峙、公开断绝关系……多年以后，也许还有和解。|Grown children may join the army or security service of their own country. If two children — or you and a child — serve rival countries, it comes to you on its own: silent dinners, vetting that orders them to cut contact, pumping each other for information, a stand-off on the news, a public break… and perhaps, years later, a reconciliation.'],
     ['🌏', '孩子只有一个国籍|One nationality per child', '父母国籍不同时，孩子出生后由你选择入哪国国籍，不再是“双国籍混血”。混血孩子有自己专门的头像：蜜棕或栗色的卷发、浅色眼睛、雀斑。关系页的国旗挪到了名字旁边，不再挡住头像。|When parents hold different nationalities you choose which one the baby takes. Mixed-heritage children get their own avatars — honey or auburn curls, light eyes, freckles. Flags in the people list moved next to the name, off the face.'],
     ['👁️', '身家够买什么|What your money can buy', '点主页的资产，会告诉你这笔钱够买多少杯奶茶、多少套房、多少艘超级游艇、多少家世界五百强。旁边的眼睛按钮可以把资产藏起来。|Tap your money on the main page to see what it could buy — from cups of bubble tea to superyachts and Fortune 500 companies. The eye button next to it hides the number.'],
@@ -129,7 +134,7 @@
   ];
   UI.whatsNew = function () {
     var body = h('div', { class: 'wnew' }, NEWS.map(function (n) { return h('div', { class: 'wn' }, h('div', { class: 'wi' }, n[0]), h('div', null, h('b', null, T(n[1])), h('p', null, T(n[2])))); }));
-    var md = UI.modal({ title: T('3.5 大更新|Version 3.5'), icon: '🎉', kind: 'v3 wnm', body: body, foot: [h('button', { class: 'opt solid', onclick: tap(function () { md.close(); }) }, T('开始新的人生吧|Let\'s live'))], close: true });
+    var md = UI.modal({ title: T('3.6 大更新|Version 3.6'), icon: '🎉', kind: 'v3 wnm', body: body, foot: [h('button', { class: 'opt solid', onclick: tap(function () { md.close(); }) }, T('开始新的人生吧|Let\'s live'))], close: true });
     try { G.meta.seen3 = 1; G.meta.seenV = G.VERSION; G.saveMeta(); } catch (e) { }
   };
 

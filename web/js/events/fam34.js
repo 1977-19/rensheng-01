@@ -118,12 +118,15 @@
         var mil = !!(p.mil || p.spy || p.pol || p.flags.spyH || ['military', 'red', 'spyfam', 'police'].indexOf(p.origin) >= 0);
         kids().forEach(function (k) {
           var a = age(k);
-          if (!k.svc && !k.cut && a >= 18 && a <= 32 && G.ch(mil ? .07 : .03)) {
-            var t = G.ch(.6) ? 'army' : 'intel', c = k.c || p.country;
+          // one decision per child, around 19 — most children never serve
+          if (!k.svc && !k.cut && !k.svcRoll && a >= 19 && a <= 24) { k.svcRoll = 1; if (G.ch(mil ? .08 : .03)) {
+            var t = G.ch(.7) ? 'army' : 'intel', c = k.c || p.country;
             k.svc = { t: t, c: c, y: s.year };
             k.job = t === 'army' ? G.L('{c}军官|Officer, {c} armed forces', { c: cn(c) }) : G.L('{c}国家安全部门（工作保密）|{c} security service (classified)', { c: cn(c) });
+            k.jobBase = k.jobT = k.job; k.jr = 0; k.unemp = 0; k.neet = 0; k.inc = Math.max(k.inc || 0, G.$w(t === 'army' ? 30000 : 40000, c));
+            if (G.kidLog) G.kidLog(k, t === 'army' ? '加入{c}军队|Joined the {c} armed forces' : '进入{c}国家安全部门|Joined the {c} security service', { c: cn(c) });
             q('k34_enlist', { kid: k.id });
-          }
+          } }
         });
         // rival service: two children, or you and a child, serving different countries
         var serv = kids().filter(function (k) { return k.svc && !k.cut; });
@@ -158,10 +161,13 @@
   G.evs([
     sys('k34_enlist', '{kn}穿上了制服|{kn} in Uniform', '🎖️', '{kn}告诉你：ta加入了{kc}的{kt}。“以后有些事，我不能跟家里说了。”|{kn} tells you they have joined the {kc} {kt}. "From now on there are things I can\'t tell the family."', [
       { t: '为ta骄傲|Be proud of them', run: function (c) { aff(K(c, 'kid'), 6); H.fx(c, { happy: 4 }); return '你把ta穿制服的照片设成了手机屏保。|You made their photo in uniform your phone wallpaper.'; } },
-      { t: '担心：“一定要注意安全。”|Worry: "Please be careful."', run: function (c) { aff(K(c, 'kid'), 3); H.fx(c, { stress: 4, happy: -1 }); return 'ta抱了抱你：“放心，我会的。”|They hugged you: "Don\'t worry. I will."'; } }
+      { t: '担心：“一定要注意安全。”|Worry: "Please be careful."', run: function (c) { aff(K(c, 'kid'), 3); H.fx(c, { stress: 4, happy: -1 }); return 'ta抱了抱你：“放心，我会的。”|They hugged you: "Don\'t worry. I will."'; } },
+      { t: '劝ta换份安稳的工作|Urge them to find a safer job', run: function (c) { var k = K(c, 'kid'); if (G.ch(.25)) { k.svc = null; k.job = k.jobBase = k.jobT = G.L('公司职员|Office worker'); aff(k, -2); return 'ta犹豫了很久，最后退出了。ta说：“我是为了你。”|After a long hesitation they withdrew. "I did it for you."'; } aff(k, -6); return '“这是我自己选的路。”ta说完就去报到了。|"This is the path I chose." Then they reported for duty.'; } },
+      { t: '办一场送行宴|Throw a send-off dinner', run: function (c) { aff(K(c, 'kid'), 5); H.fx(c, { happy: 5, money: -800 }); return '亲戚朋友来了二十几个，ta被灌得满脸通红。|Two dozen relatives and friends came; they ended up red-faced from all the toasts.'; } }
     ], { prep: prep1 }),
     sys('k34_dinner', '沉默的年夜饭|The Silent Dinner', '🥟', '过年了，{an}和{bn}都回了家。一个在{ac}服役，一个在{bc}服役。饭桌上谁都不敢问对方最近在忙什么，电视里正好在播两国的新闻。|New Year: {an} and {bn} are both home. One serves {ac}, the other {bc}. Nobody dares ask the other what they\'ve been doing, and the TV happens to be on the news about both countries.', [
       { t: '把电视关了：“今天只谈家里的事。”|Turn the TV off: "Tonight we only talk family."', run: function (c) { aff(K(c, 'a'), 4); aff(K(c, 'b'), 4); H.fx(c, { happy: 4 }); return '你们聊了小时候的糗事，笑到后半夜。谁都没有提工作。|You talked about embarrassing childhood stories and laughed till late. Nobody mentioned work.'; } },
+      { t: '提议饭后一起打一局牌|Suggest a game of cards after dinner', run: function (c) { aff(K(c, 'a'), 3); aff(K(c, 'b'), 3); H.fx(c, { happy: 5 }); return '两个人在牌桌上互相算计，比在单位还认真。最后你赢了。|They plotted against each other harder than at work. In the end you won.'; } },
       { t: '让他们各自说说自己的国家|Let each talk about their country', run: function (c) { aff(K(c, 'a'), -3); aff(K(c, 'b'), -3); H.fx(c, { stress: 6 }); return '说着说着就吵了起来，一个摔了筷子，一个提前回了部队。|It turned into a row. One slammed down the chopsticks, the other went back to base early.'; } }
     ], { prep: prep2 }),
     sys('k34_vetting', '背景审查|Security Vetting', '🗂️', '{an}的单位做背景审查，发现ta的亲兄弟姐妹{bn}在{bc}的军队/安全部门服役。单位给了ta两个选择：断绝和{bn}的一切联系，或者调离核心岗位。|{an}\'s unit runs a vetting check and finds their sibling {bn} serves {bc}. Two options: cut all contact with {bn}, or be moved off the core post.', [
@@ -175,7 +181,8 @@
     ], { prep: prep2 }),
     sys('k34_standoff', '新闻里的对峙|A Stand-off on the News', '📺', '电视新闻：{ac}和{bc}在边境发生对峙。画面一闪而过，你好像在两边的队伍里，各看到了一张熟悉的脸。|On the news: a stand-off between {ac} and {bc} at the border. The footage flashes by, and you think you see a familiar face on each side.', [
       { t: '给两个孩子各打一个电话|Call both children', run: function (c) { aff(K(c, 'a'), 3); aff(K(c, 'b'), 3); H.fx(c, { stress: 8 }); return '两个电话都没人接。一个星期后，两个人都发来一条一模一样的消息：“我没事。”|Neither answered. A week later both sent the exact same message: "I\'m fine."'; } },
-      { t: '一夜没睡，守着电视|Stay up all night by the TV', run: function (c) { H.fx(c, { stress: 10, health: -2 }); return '天亮的时候，新闻说双方已经各自后撤。你在沙发上睡着了。|At dawn the news said both sides had pulled back. You fell asleep on the sofa.'; } }
+      { t: '一夜没睡，守着电视|Stay up all night by the TV', run: function (c) { H.fx(c, { stress: 10, health: -2 }); return '天亮的时候，新闻说双方已经各自后撤。你在沙发上睡着了。|At dawn the news said both sides had pulled back. You fell asleep on the sofa.'; } },
+      { t: '在家族群里发一张全家福|Post an old family photo in the family chat', run: function (c) { aff(K(c, 'a'), 4); aff(K(c, 'b'), 4); H.fx(c, { happy: 2, stress: 3 }); return '照片上两个孩子还穿着一样的睡衣。过了很久，两个人都点了一个赞。|In the photo the two still wore matching pyjamas. Much later, each of them tapped a like.'; } }
     ], { prep: prep2 }),
     sys('k34_sever', '公开断绝|A Public Break', '✂️', '{an}在社交媒体上发了一条声明：“因立场不同，本人与{bn}断绝一切关系。”评论区里，有人叫好，有人骂ta冷血。|{an} posts a statement: "Because of our different allegiances, I sever all ties with {bn}." Some cheer, others call them heartless.', [
       { t: '给{an}打电话，让ta删掉|Phone {an} and tell them to take it down', run: function (c) { var a = K(c, 'a'); if (G.ch(.4)) { aff(a, 2); return '{an}沉默了很久，删掉了。可那条声明已经被截图转发了几万次。|{an} was silent a long time, then deleted it. It had already been screenshotted tens of thousands of times.'; } aff(a, -8); a.sev = K(c, 'b').id; a.sevY = S().year; return '{an}说：“这是我的工作。”挂了电话。|{an}: "This is my job." Then hung up.'; } },
