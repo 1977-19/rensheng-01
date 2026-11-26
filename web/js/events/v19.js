@@ -34,7 +34,7 @@
     try { s = reb19.apply(this, arguments); } finally { kid.c = c0; }
     var p = s.p;
     if (bc && G.C[bc] && p.country !== bc && G.moveTo) G.moveTo(bc);
-    p.cits = [p.country]; if (kid.mixed && G.C[kid.mixed] && kid.mixed !== p.country) p.cits.push(kid.mixed);
+    p.cits = [p.country]; if (kid.mixed) p.flags.mixed = kid.mixed;
     if (p.origin === 'royal' && G.C[p.country] && !G.C[p.country].mon) { p.origin = 'noble'; }
     return s;
   };

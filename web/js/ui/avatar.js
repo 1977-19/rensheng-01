@@ -51,11 +51,17 @@
     o = o || {};
     var r = rng(o.seed || 7), age = o.age || 0, g = o.g || 'm', si = o.skin != null ? Math.max(0, Math.min(5, o.skin)) : 1;
     var skin = SKIN[si], shade = SKIN_SH[si], looks = o.looks == null ? 50 : o.looks, mood = o.happy == null ? 60 : o.happy;
-    var hc = hairColor(r, si, age, o.cul), bg = pick(r, BG), cloth = pick(r, CLOTH);
+    var hc = hairColor(r, si, age, o.cul), bg = pick(r, BG), cloth = pick(r, CLOTH), mixEye = null;
+    if (o.mix) { // children of two nationalities: their own look — honey/auburn hair, light eyes, freckles, softer palette
+      if (age < 55) hc = pick(r, ['#8a5a33', '#a8743e', '#9c4a26', '#c19a5b', '#6e4026', '#b9884f']);
+      bg = pick(r, ['#ffe1d6', '#e3f1ff', '#e9e1ff', '#dff5e8', '#fff1c9']); mixEye = pick(r, ['#5d7f4a', '#4a7096', '#8a6a3a', '#6b5a8a']);
+      if (si === 0 || si >= 4) skin = SKIN[2], shade = SKIN_SH[2];
+    }
     var baby = age < 3, kid = age < 12, teen = age >= 12 && age < 18, old = age >= 60;
     var cx = 50, cy = baby ? 53 : kid ? 51 : 49, w = baby ? 25 : kid ? 23.5 : 21.5, h = baby ? 24 : kid ? 24 : 25;
     var mStyles = kid ? ['bowl', 'side', 'spiky', 'curly', 'buzz'] : ['side', 'spiky', 'buzz', 'curly', 'slick'];
     var fStyles = kid ? ['twin', 'bob', 'pony', 'long'] : old ? ['bun', 'bob', 'bob', 'wavy'] : ['long', 'bob', 'pony', 'wavy', 'bun', 'long'];
+    if (o.mix) { mStyles = kid ? ['curly', 'side', 'bowl'] : ['curly', 'slick', 'side']; fStyles = kid ? ['twin', 'pony', 'long'] : ['wavy', 'long', 'wavy', 'pony']; }
     var ms = pick(r, mStyles), fs = pick(r, fStyles);
     var glasses = (o.glasses || r() < .12) && age >= 6, bald = g === 'm' && age > 50 && r() < .35, beard = g === 'm' && age >= 25 && r() < .18, earring = g === 'f' && age >= 16 && r() < .4;
     var s = '<svg viewBox="5 5 90 90" xmlns="http://www.w3.org/2000/svg">';
@@ -97,6 +103,8 @@
       var rx = baby || kid ? 3.2 : 2.5, ry = baby || kid ? 3.8 : 3.1;
       if (looks > 70) { rx += .3; ry += .4; }
       s += E(cx - ex, ey, rx, ry, INK) + E(cx + ex, ey, rx, ry, INK);
+      if (mixEye) s += E(cx - ex, ey + .3, rx * .72, ry * .72, mixEye) + E(cx + ex, ey + .3, rx * .72, ry * .72, mixEye) + E(cx - ex, ey + .4, rx * .32, ry * .32, INK) + E(cx + ex, ey + .4, rx * .32, ry * .32, INK);
+      if (o.mix && age >= 3 && age < 50) for (var fk = 0; fk < 6; fk++) s += C(cx + (fk < 3 ? -1 : 1) * (ex + 1 + (fk % 3) * 2.4), ey + 7 + (fk % 2) * 1.6, .75, '#b9784f', 0);
       s += C(cx - ex + 1, ey - 1.2, rx * .42, '#fff') + C(cx + ex + 1, ey - 1.2, rx * .42, '#fff');
       if (g === 'f' && !kid) s += P('M' + (cx - ex - 3.5) + ' ' + (ey - 2) + ' l-1.5 -1.2 M' + (cx + ex + 3.5) + ' ' + (ey - 2) + ' l1.5 -1.2', 'none', 1.4);
     }
@@ -123,7 +131,7 @@
   };
   G.avatarOf = function (x) {
     var S = G.S;
-    if (!x || x === S.p) { var p = S.p; return G.avatar({ seed: G.hash(p.name + p.birthYear), age: p.age, g: p.g, looks: p.st.looks, skin: p.skin != null ? p.skin : (p.skin = G.N.skinFor(p.country)), happy: p.st.happy, cul: p.cul || p.country, glasses: p.ill.some(function (i) { return i.id === 'myopia'; }), dead: S.dead }); }
-    return G.avatar({ seed: x.av, age: G.N.age(x), g: x.g, looks: x.looks, skin: x.skin, happy: 50 + x.aff / 2, cul: x.c, dead: !x.alive });
+    if (!x || x === S.p) { var p = S.p; return G.avatar({ seed: G.hash(p.name + p.birthYear), age: p.age, g: p.g, looks: p.st.looks, skin: p.skin != null ? p.skin : (p.skin = G.N.skinFor(p.country)), happy: p.st.happy, cul: p.cul || p.country, glasses: p.ill.some(function (i) { return i.id === 'myopia'; }), dead: S.dead, mix: !!(p.flags && p.flags.mixed) }); }
+    return G.avatar({ seed: x.av, age: G.N.age(x), g: x.g, looks: x.looks, skin: x.skin, happy: 50 + x.aff / 2, cul: x.c, dead: !x.alive, mix: !!x.mixed });
   };
 })();

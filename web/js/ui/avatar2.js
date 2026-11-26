@@ -13,8 +13,11 @@
   var SKIN_A = ['ffdbb4', 'f6cfa6', 'edb98a', 'd08b5b', 'ae5d29', '614335'];
   var SKIN_B = ['f8dcc2', 'f2d3b1', 'ecad80', 'c98b5e', '9e5622', '763900'];
   var DARK = ['2c1b18', '3b2a21', '24191a', '4a312c'], LIGHT = ['b58143', 'd6b370', 'a55728', '724133', 'c93305', 'cfa361'];
-  function hairCol(r, si, age, cul) {
+  // children of two countries get their own look: chestnut, caramel and auburn waves, often freckles
+  var MIXH = ['8a5a33', 'a8743e', '9c4a26', 'c19a5b', '5a3a28', '7b4a2a'], MIXF = [2, 6, 9, 17, 18, 22, 24], MIXM = [2, 3, 7, 16, 17, 18];
+  function hairCol(r, si, age, cul, mix) {
     if (age >= 75) return 'eceae6'; if (age >= 62) return 'b9b5b0'; if (age >= 52 && r() < .45) return '8d877f';
+    if (mix) return pick(r, MIXH);
     var east = ['cn', 'jp', 'kr', 'sg', 'th', 'in'].indexOf(cul) >= 0;
     return east || si >= 3 ? pick(r, DARK) : pick(r, DARK.concat(LIGHT, LIGHT));
   }
@@ -30,6 +33,7 @@
     var tops = f ? (old ? ['bun', 'bob', 'curly', 'curvy'] : kid ? ['bob', 'straight01', 'straight02', 'curly', 'bun', 'longButNotTooLong'] : ['bigHair', 'bob', 'bun', 'curly', 'curvy', 'longButNotTooLong', 'miaWallace', 'straight01', 'straight02', 'straightAndStrand'])
       : (old ? ['sides', 'shortFlat', 'theCaesar', 'shortWaved'] : kid ? ['shortFlat', 'shortRound', 'shortWaved', 'shortCurly', 'theCaesar'] : ['shortFlat', 'shortRound', 'shortWaved', 'theCaesar', 'theCaesarAndSidePart', 'shortCurly', 'shaggy', 'shavedSides', 'sides']);
     if (si >= 4 && r() < .4) tops = f ? ['fro', 'froBand', 'curly', 'bigHair'] : ['fro', 'shortCurly', 'frizzle', 'dreads01'];
+    if (o.mix) tops = f ? ['curly', 'curvy', 'bigHair', 'straight02', 'longButNotTooLong'] : ['shortCurly', 'shortWaved', 'frizzle', 'shaggy'];
     var top = pick(r, tops);
     var clothes = kid ? pick(r, ['hoodie', 'graphicShirt', 'overall', 'shirtCrewNeck'])
       : (o.rich || r() < .25) && age >= 22 ? pick(r, ['blazerAndShirt', 'blazerAndSweater', 'collarAndSweater'])
@@ -37,7 +41,7 @@
     var happy = mood >= 55, sad = mood < 30;
     var opts = {
       seed: 'p' + (o.seed || 7), idRandomization: true,
-      skinColor: [SKIN_A[si]], hairColor: [hairCol(r, si, age, o.cul)], facialHairColor: [hairCol(r, si, age, o.cul)],
+      skinColor: [SKIN_A[si]], hairColor: [hairCol(r, si, age, o.cul, o.mix)], facialHairColor: [hairCol(r, si, age, o.cul, o.mix)],
       topVariant: [top], topProbability: 100, hatColor: [pick(r, ['3c4f5c', '65c9ff', 'ff5c5c', 'ffafb9', 'b1e2ff'])],
       clothesVariant: [clothes], clothesColor: [pick(r, ['3c4f5c', '65c9ff', '262e33', '5199e4', '25557c', 'a7ffc4', 'ffafb9', 'ffdeb5', 'ff488e', 'e6e6e6', '929598'])],
       clothesGraphicVariant: [pick(r, ['bear', 'deer', 'diamond', 'pizza'])],
@@ -56,18 +60,20 @@
     var f = g === 'f', n = function (k) { return (k < 10 ? '0' : '') + k; };
     var wreath = f && age >= 3 && age <= 45 && (o.wreath || r() < .38);
     var hair = f ? 'long' + n(wreath ? pick(r, FLOWER) : 1 + Math.floor(r() * 26)) : 'short' + n(1 + Math.floor(r() * 19));
+    if (o.mix) hair = f ? 'long' + n(pick(r, MIXF)) : 'short' + n(pick(r, MIXM));
     var happy = mood >= 45;
     var opts = {
       seed: 'a' + (o.seed || 7), idRandomization: true,
-      skinColor: [SKIN_B[si]], hairColor: [hairCol(r, si, age, o.cul)], hairVariant: [hair], hairProbability: age < 2 ? 0 : 100,
+      skinColor: [SKIN_B[si]], hairColor: [hairCol(r, si, age, o.cul, o.mix)], hairVariant: [hair], hairProbability: age < 2 ? 0 : 100,
       eyesVariant: ['variant' + n(pick(r, EYES))], eyebrowsVariant: ['variant' + n(pick(r, BROWS))],
       mouthVariant: ['variant' + n(happy ? pick(r, SMILE) : pick(r, SAD))],
       glassesProbability: (o.glasses || (age >= 8 && r() < .12) || (age >= 60 && r() < .4)) ? 100 : 0,
       earringsProbability: f && age >= 14 && r() < .45 ? 100 : 0,
       detailsProbability: age < 10 ? 100 : (!f && age >= 40 && r() < .25 ? 100 : (r() < .3 ? 100 : 0)),
-      detailsVariant: [age < 10 ? 'blush' : !f && age >= 40 ? 'mustache' : pick(r, ['blush', 'freckles', 'birthmark'])],
-      backgroundColor: [pick(r, BG)]
+      detailsVariant: [o.mix && age >= 4 && r() < .6 ? 'freckles' : age < 10 ? 'blush' : !f && age >= 40 ? 'mustache' : pick(r, ['blush', 'freckles', 'birthmark'])],
+      backgroundColor: [o.mix ? pick(r, ['e6f0fb', 'fdeee6', 'eaf5ef', 'f3ecfa']) : pick(r, BG)]
     };
+    if (o.mix && age >= 4) opts.detailsProbability = 100;
     return svg('adventurer', opts);
   }
   G.avatarStyle = function () { var s = G.settings && G.settings.avStyle; return s === 'real' || s === 'classic' ? s : 'anime'; };

@@ -219,8 +219,14 @@
     var k = await baby11.apply(this, arguments), p = S().p;
     if (k && other && !adopted && other.c && other.c !== p.country) {
       k.mixed = other.c; k.skin = blendSkin(p.skin, other.skin);
-      k.cits = k.cits || [k.c || p.country]; if (k.cits.indexOf(other.c) < 0) k.cits.push(other.c);
-      G.log('{n}是个混血宝宝，同时拥有两个国家的国籍。|{n} is of mixed heritage and holds two citizenships.', { n: k.name });
+      // one child, one nationality: the parents choose
+      var cc = p.country;
+      if (!p.jail && G.UI.pick) {
+        var ci = await G.UI.pick({ title: G.L('{n}入哪国国籍？|Which nationality for {n}?', { n: k.name }), text: G.L('孩子只能有一个国籍。|A child can hold only one nationality.'), items: [p.country, other.c].map(function (c) { return { t: G.C[c].flag + ' ' + G.T(G.C[c].n), v: c }; }), noCancel: true });
+        if (ci === 1) cc = other.c;
+      }
+      k.c = cc; k.cits = [cc]; k.natC = cc;
+      G.log('{n}出生了，国籍是{c}。|{n} was born a citizen of {c}.', { n: k.name, c: G.C[cc].n });
     }
     if (k) k.bornC = k.c || p.country;
     return k;
@@ -253,7 +259,7 @@
         if (dadForeign) { var gv = G.genGiven(G.C[fc].names, p.g, p.birthYear); p.sur = nm.sur; p.giv = gv; p.name = G.mkName(G.C[fc].names, nm.sur, gv, p.g); N.rel('sibling').forEach(function (b) { b.sur = nm.sur; b.name = G.mkName(G.C[fc].names, nm.sur, G.genGiven(G.C[fc].names, b.g, b.by), b.g); }); }
       }
       p.skin = blendSkin(N.skinFor(p.country), N.skinFor(fc)); p.flags.mixed = fc;
-      p.cits = [p.country, fc]; var lg = G.C[fc].lang; if (lg && p.langs.indexOf(lg) < 0) p.langs.push(lg);
+      p.cits = [p.country]; var lg = G.C[fc].lang; if (lg && p.langs.indexOf(lg) < 0) p.langs.push(lg);
       G.log('你是混血儿：一半{a}，一半{b}。|You are of mixed heritage: half {a}, half {b}.', { a: G.C[p.country].n, b: G.C[fc].n });
     }
     if (p.origin === 'diplomat') { var l2 = p.country === 'us' || p.country === 'gb' ? 'fr' : 'en'; if (p.langs.indexOf(l2) < 0) p.langs.push(l2); }

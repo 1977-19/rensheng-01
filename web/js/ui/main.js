@@ -58,7 +58,7 @@
       h('div', { class: 'ttl' }, h('span', null, G.C[G.residence ? G.residence() : p.country].flag + ' ' + T(G.title()) + (S.gen > 1 ? ' · ' + T('第{g}代|Gen {g}', { g: S.gen }) : ''))),
       (G.megaDone && (G.megaDone() > 0 || (S.lineage || []).length > 0)) ? h('button', { class: 'legacy', onclick: tap(function (e) { e.stopPropagation(); if (UI.familyTree) UI.familyTree(); }) }, T('📜 家族第{g}代|📜 Generation {g}', { g: S.gen || 1 }) + (G.megaDone() ? T(' · 🏛️ 百亿项目{m}项| · 🏛️ {m} mega projects', { m: G.megaDone() }) : '')) : null,
       h('div', { class: 'purse2' },
-        h('div', { class: 'money num' + (p.money < 0 ? ' neg' : '') }, h('i', { class: 'note' }), G.fm(p.money)),
+        h('div', { class: 'money num' + (p.money < 0 ? ' neg' : '') + (G.settings.hideMoney ? ' hid' : ''), onclick: tap(function (e) { e.stopPropagation(); if (UI.wealthCard) UI.wealthCard(); }) }, h('i', { class: 'note' }), G.settings.hideMoney ? '****' : G.fm(p.money), h('button', { class: 'eye', 'aria-label': T('隐藏资产|Hide money'), onclick: tap(function (e) { e.stopPropagation(); G.settings.hideMoney = !G.settings.hideMoney; G.saveSettings(); UI.refresh ? UI.refresh() : G.emit('change'); }) }, G.settings.hideMoney ? '🙈' : '👁️')),
         h('div', { class: 'energy' }, h('span', { class: 'lbl' }, T('体力|Energy')), h('span', { class: 'bar' }, h('i', { style: { width: (p.energy / Math.max(1, p.emax) * 100) + '%' } })), h('b', { class: 'num' }, p.energy + '/' + p.emax)))));
     requestAnimationFrame(function () { UI.fitText(nmEl, 22, 12); });
     var un = G.chat.unread(), tb = M.el.tools; tb.innerHTML = '';

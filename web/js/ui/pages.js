@@ -95,6 +95,7 @@
   UI.tabAssets = function () {
     UI.sheet('资产|Assets', function (b, rec) {
       var S = G.S, p = S.p, A = S.assets, inc = G.money.income(), liv = G.money.living();
+      if (G.wealthSays) b.appendChild(h('div', { class: 'card wsays' }, h('h5', null, T('你的身家够买……|Your money could buy…')), G.wealthSays(G.netWorth()).map(function (x) { return h('div', { class: 'wsx' }, h('span', null, x.i), h('span', null, T(x.t))); })));
       b.appendChild(h('div', { class: 'card' }, kv([['净资产|Net worth', h('span', { class: 'money' + (G.netWorth() < 0 ? ' neg' : '') }, G.fm(G.netWorth()))], ['现金|Cash', G.fm(p.money)],
         inc.work ? ['年收入|Annual income', G.fm(inc.work)] : null, inc.black ? ['灰色收入|Off-the-books', G.fm(inc.black)] : null, liv ? ['年开销（估）|Living costs (est.)', G.fm(liv)] : null,
         G.dependent() && p.age < 26 ? ['家庭资产|Family wealth', G.fm(G.famWealth())] : null])));
@@ -163,9 +164,9 @@
     var rom = n.alive && (n.rel === 'spouse' || n.rel === 'lover' || n.rel === 'affair' || n.rel === 'admirer' || n.rel === 'crush');
     var v = rom ? n.love : n.aff;
     var cits = n.rel === 'child' || n.rel === 'grandchild' || (n.c && G.S && n.c !== G.S.p.country) ? (n.cits && n.cits.length ? n.cits : [n.c || G.S.p.country]) : null;
-    return h('button', { class: 'row' + (n.alive ? '' : ' gone'), onclick: tap(onTap) }, h('div', { class: 'avwrap' }, h('div', { class: 'avs', html: G.avatarOf(n) }), cits ? h('span', { class: 'natf' }, cits.slice(0, 3).map(function (c) { return G.C[c] ? G.C[c].flag : ''; }).join('')) : null),
+    return h('button', { class: 'row' + (n.alive ? '' : ' gone'), onclick: tap(onTap) }, h('div', { class: 'avwrap' }, h('div', { class: 'avs', html: G.avatarOf(n) })),
       h('div', { class: 'tx' }, h('div', { class: 't' }, T(n.name), n.tags.length ? h('span', { class: 'chip tag' }, T({ rich: '富豪|Rich', celeb: '明星|Star', red: '权贵|Elite', royal: '王室|Royal' }[n.tags[0]])) : null),
-        h('div', { class: 's' }, T(N.relName(n)) + ' · ' + (n.alive ? T('{a}岁|{a}', { a: N.age(n) }) : T('已故|Deceased')) + ' · ' + T(n.job || '') + '')),
+        h('div', { class: 's' }, (cits && G.C[cits[0]] ? G.C[cits[0]].flag + ' ' : '') + T(N.relName(n)) + ' · ' + (n.alive ? T('{a}岁|{a}', { a: N.age(n) }) : T('已故|Deceased')) + ' · ' + T(n.job || '') + '')),
       n.alive ? h('div', { class: 'rt' }, h('span', null, rom ? '❤️' : '🙂'), h('div', { class: 'mini' }, h('i', { class: v < 0 ? 'neg' : '', style: { width: Math.abs(v) + '%' } }))) : h('div', { class: 'rt' }, h('span', { class: 'chip' }, T('扫墓|Visit'))));
   }
   UI.tabRelations = function () {

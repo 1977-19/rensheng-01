@@ -98,6 +98,14 @@
 
   /* ---------------- what's new ---------------- */
   var NEWS = [
+    ['🎖️', '孩子为不同国家效力|Children serving rival countries', '成年的孩子可能参军或进入本国的国家安全部门。如果两个孩子（或你和孩子）为不同国家效力，事情会自己找上门：沉默的年夜饭、单位要求断绝联系的背景审查、互相套话、新闻里的边境对峙、公开断绝关系……多年以后，也许还有和解。|Grown children may join the army or security service of their own country. If two children — or you and a child — serve rival countries, it comes to you on its own: silent dinners, vetting that orders them to cut contact, pumping each other for information, a stand-off on the news, a public break… and perhaps, years later, a reconciliation.'],
+    ['🌏', '孩子只有一个国籍|One nationality per child', '父母国籍不同时，孩子出生后由你选择入哪国国籍，不再是“双国籍混血”。混血孩子有自己专门的头像：蜜棕或栗色的卷发、浅色眼睛、雀斑。关系页的国旗挪到了名字旁边，不再挡住头像。|When parents hold different nationalities you choose which one the baby takes. Mixed-heritage children get their own avatars — honey or auburn curls, light eyes, freckles. Flags in the people list moved next to the name, off the face.'],
+    ['👁️', '身家够买什么|What your money can buy', '点主页的资产，会告诉你这笔钱够买多少杯奶茶、多少套房、多少艘超级游艇、多少家世界五百强。旁边的眼睛按钮可以把资产藏起来。|Tap your money on the main page to see what it could buy — from cups of bubble tea to superyachts and Fortune 500 companies. The eye button next to it hides the number.'],
+    ['⚖️', '断绝关系要上法庭|Cutting ties takes a court', '未满18岁的孩子不能被断绝关系（未成年的你也不能和父母断绝）。和成年亲人断绝关系需要请律师、起诉、出庭，法院不一定支持。|A child under 18 can\'t be disowned (and a minor can\'t cut off their parents). With an adult relative it means a lawyer, a lawsuit and a hearing — and the court may say no.'],
+    ['💞', '试管婴儿只和伴侣|IVF with your partner only', '试管婴儿只能和伴侣一起，或者你一个人（使用捐赠者），不能和兄弟姐妹、父母。领养仍然可以和亲人一起抚养。|IVF is with your partner, or alone with a donor — never a sibling or parent. Adoption can still be shared with a relative.'],
+    ['💰', '有钱人不再“缺钱”|No more broke billionaires', '家里有几万亿，就不会再出现“没钱修屋顶、卖画”“凑钱交学费”这类剧情；城堡和庄园的故事改成了富人真正会吵的事（开放参观、出租给酒店）。当了特工会显示“特工”，退出后恢复原来的身份，不再变成“特工家庭”。|With trillions in the family, stories about scraping money together (selling a painting to fix the roof, raising school fees) no longer happen; the castle and estate chapters are now the fights rich families really have. A spy is shown as a spy, and after quitting you go back to who you were — not a "spy family".'],
+    ['👑', '天选继承人更多、更有戏|More chosen heirs, more story', '天选继承人更常出现了，还有了自己的一生：惊人的智商测试、差点被绑架、少年天才大赛、杂志封面“天选之子”、“我不想接班”、第一个大决定。|Chosen heirs are more common and have a story of their own: the IQ test, a near-kidnapping, the young-genius contest, the "Chosen One" cover, "I don\'t want to inherit", and their first big call.'],
+    ['🏝️', '顶级富豪的乐子|Fun for the ultra-rich', '生日礼物是一座岛、管家集体罢工、拍卖会抢恐龙化石、隐姓埋名在自家门店打工、富二代群聊斗富、约会对象以为你很穷……|An island for your birthday, the butlers on strike, a bidding war for a dinosaur, a month incognito in your own shop, the rich-kids group chat, a date who thinks you\'re broke…'],
     ['✍️', '起名：姓什么都可以|Naming: any surname', '生孩子、领养、代孕和试管都不再先选“跟谁姓”：起名卡上姓和名都能直接写，姓什么都可以，常用的几个姓（你的、孩子另一位家长的、你配偶的）点一下就填上。|No more "whose surname?" step for births, adoptions, surrogacy or IVF: write any surname and name on the naming card; common surnames are one tap away.'],
     ['⚔️', '孩子会争宠、会打架|Siblings compete and fight', '孩子们会争着让你夸、为游戏机打架、互相告状、被拿来比较，长大后还会在饭桌上争家产；你怎么处理会累积成兄弟姐妹之间的心结，影响他们对你的感情和遗产纠纷，也可能在病床前和解。|Children vie for praise, fight, tell tales, get compared and later argue over the estate; how you handle it builds a rivalry that shapes their love for you and the fight over your will — or a reconciliation at your bedside.'],
     ['👑', '天选继承人|The chosen heir', '偶尔会出生一个天赋异禀的孩子（家世越显赫越常见），从小就不一般，会被标为“天选继承人”，选继承人时排在第一位，也会引起其他孩子的嫉妒。|Now and then a child is born gifted in every way (more often in great families), marked as the chosen heir, listed first when you pick who carries on — and envied by the others.'],
@@ -121,8 +129,8 @@
   ];
   UI.whatsNew = function () {
     var body = h('div', { class: 'wnew' }, NEWS.map(function (n) { return h('div', { class: 'wn' }, h('div', { class: 'wi' }, n[0]), h('div', null, h('b', null, T(n[1])), h('p', null, T(n[2])))); }));
-    var md = UI.modal({ title: T('3.4 大更新|Version 3.4'), icon: '🎉', kind: 'v3 wnm', body: body, foot: [h('button', { class: 'opt solid', onclick: tap(function () { md.close(); }) }, T('开始新的人生吧|Let\'s live'))], close: true });
-    try { G.meta.seen3 = 1; G.saveMeta(); } catch (e) { }
+    var md = UI.modal({ title: T('3.5 大更新|Version 3.5'), icon: '🎉', kind: 'v3 wnm', body: body, foot: [h('button', { class: 'opt solid', onclick: tap(function () { md.close(); }) }, T('开始新的人生吧|Let\'s live'))], close: true });
+    try { G.meta.seen3 = 1; G.meta.seenV = G.VERSION; G.saveMeta(); } catch (e) { }
   };
 
   /* ---------------- start screen ---------------- */
@@ -135,7 +143,7 @@
       var btns = document.querySelector('.start .btns');
       if (btns && !btns.querySelector('.wnbtn')) btns.appendChild(h('button', { class: 'big wnbtn', onclick: tap(function () { UI.whatsNew(); }) }, '🎉 ' + T('这次更新了什么|What\'s new in 3.0')));
       var st = document.querySelector('.start'); if (st) st.classList.add('v3start');
-      if (!(G.meta && G.meta.seen3) && (G.meta.stats.lives || 0) > 0) setTimeout(function () { if (document.querySelector('.start') && !document.querySelector('.veil')) UI.whatsNew(); }, 600);
+      if (!(G.meta && G.meta.seenV === G.VERSION) && (G.meta.stats.lives || 0) > 0) setTimeout(function () { if (document.querySelector('.start') && !document.querySelector('.veil')) UI.whatsNew(); }, 600);
     } catch (e) { }
     return r;
   };

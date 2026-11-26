@@ -11,7 +11,7 @@
     var S = G.S;
     if (S && S.p && (!x || x === S.p)) {
       var p = S.p; if (p.avSeed == null) p.avSeed = G.hash(p.name + p.birthYear);
-      return G.avatar({ seed: p.avSeed, age: p.age, g: p.g, looks: p.st.looks, skin: p.skin != null ? p.skin : (p.skin = G.N.skinFor(p.country)), happy: p.st.happy, cul: p.cul || p.country, glasses: p.ill.some(function (i) { return i.id === 'myopia'; }), wreath: !!(p.flags && p.flags.wreath), dead: S.dead });
+      return G.avatar({ seed: p.avSeed, age: p.age, g: p.g, looks: p.st.looks, skin: p.skin != null ? p.skin : (p.skin = G.N.skinFor(p.country)), happy: p.st.happy, cul: p.cul || p.country, glasses: p.ill.some(function (i) { return i.id === 'myopia'; }), wreath: !!(p.flags && p.flags.wreath), dead: S.dead, mix: !!(p.flags && p.flags.mixed) });
     }
     return ao.apply(this, arguments);
   };
